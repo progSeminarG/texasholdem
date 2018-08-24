@@ -2,4 +2,9 @@
 
 
 class Player(object):
-    pass
+    def get_know_dealer(self,dealer_input):
+        pass # pass の代わりにコードを書き込む (武藤くん)
+    def get_hand(self, list_of_cards):
+        pass # pass の代わりにコードを書き込む (武藤くん)
+    def respond(self):
+        pass # pass の代わりにコードを書き込む (武藤くん)
