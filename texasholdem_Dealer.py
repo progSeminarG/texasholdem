@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 
 import sys
+from copy import deepcopy
 
 class Card(object):
     def __init__(self,suit,number):
@@ -22,6 +23,25 @@ class Card(object):
         return self.__number
 
 class Dealer(object):
-    pass
+    def __init__(self,players_input):
+        self.__MIN_NUMBER_CARDS = 1
+        self.__MAX_NUMBER_CARDS = 13
+        self.__SUITE = ['S','C','H','D']
+        self.__NUM_HAND = 2 # number of hands
+        self.__INITIAL_MONEY = 500 # money each player has in initial
+        self.__NUM_MAX_FIELD = 5 # maximum number of field
+        self.__players = players_input # instance of players
+        self.__playing_players = deepcopy(self.__players) # number of plyaers in game
+        self.__all_cards = self.__create_all_cards_stack()
+        for i in self.__all_cards:
+            print(i.card)
+
+
+    def __create_all_cards_stack(self):
+        _cards = []
+        for inumber in range(self.__MIN_NUMBER_CARDS,self.__MAX_NUMBER_CARDS+1):
+            for suit in self.__SUITE:
+                _cards.append(Card(suit,inumber))
+        return _cards
 
 
