@@ -37,7 +37,6 @@ class Dealer(object):
         self.__playing_players = deepcopy(self.__players) # number of plyaers in game
         self.__money_each_player = [self.__INITIAL_MONEY]*self.__num_players # money list of players
 
-        self.__handout_cards()
 
     def __create_all_cards_stack(self): # create list of [S1, S2, ..., D13]
         _cards = []
@@ -47,7 +46,8 @@ class Dealer(object):
         return _cards
 
 
-    def __handout_cards(self):
+    def handout_cards(self):
+        self.__field = []
         self.__all_cards = self.__create_all_cards_stack()
         self.__handling_cards = random.sample(self.__all_cards,self.__num_handling_cards)
         self.__players_cards = [] # each player's hand
@@ -55,13 +55,16 @@ class Dealer(object):
             self.__players_cards.append([self.__handling_cards.pop(i) for i in range(self.__NUM_HAND)])
             player.get_hand(self.__players_cards[-1])
 
-    def __put_field(self):
+    def put_field(self):
         try:
             self.__field.append(self.__handling_cards.pop(0))
         except:
             self.__field = [self.__handling_cards.pop(0)]
 
-    def __calc_score(self):
+    def get_response(self):
+        pass # 各プレイヤーからの返答を聞き、次の field のオープンや、スコア計算の手前まで行う (櫻井くん)
+
+    def calc_hand_score(self):
         pass # 手札の強さを計算するメソッド (白井くん)
 
 
