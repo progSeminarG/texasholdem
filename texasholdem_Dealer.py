@@ -25,15 +25,15 @@ class Card(object):
 
 class Dealer(object):
     def __init__(self,players_input):
-        self.__MIN_NUMBER_CARDS = 1
-        self.__MAX_NUMBER_CARDS = 13
-        self.__SUITE = ['S','C','H','D']
+        self.__MIN_NUMBER_CARDS = 1 # smallest number of playing cards
+        self.__MAX_NUMBER_CARDS = 13 # largest number of playing cards
+        self.__SUITE = ['S','C','H','D'] # suit of playing cards
         self.__NUM_HAND = 2 # number of hands
         self.__INITIAL_MONEY = 500 # money each player has in initial
         self.__NUM_MAX_FIELD = 5 # maximum number of field
-        self.__players = players_input # instance of players
-        self.__num_players = len(self.__players)
-        self.__num_handling_cards = self.__NUM_HAND * self.__num_players + self.__NUM_MAX_FIELD
+        self.__players = random.sample(players_input,len(players_input)) # instance of players
+        self.__num_players = len(self.__players) # number of players
+        self.__num_handling_cards = self.__NUM_HAND * self.__num_players + self.__NUM_MAX_FIELD # number of cards that deal with
         self.__playing_players = deepcopy(self.__players) # number of plyaers in game
 
         self.__handout_cards()
@@ -49,10 +49,10 @@ class Dealer(object):
     def __handout_cards(self):
         self.__all_cards = self.__create_all_cards_stack()
         self.__handling_cards = random.sample(self.__all_cards,self.__num_handling_cards)
+        self.__players_cards = [] # each player's hand
         for player in self.__playing_players:
-            player.get_hand([self.__handling_cards.pop(i) for i in range(self.__NUM_HAND)])
-        for card in self.__handling_cards:
-            print(card.card)
+            self.__players_cards.append([self.__handling_cards.pop(i) for i in range(self.__NUM_HAND)])
+            player.get_hand(self.__players_cards[-1])
 
     def __put_field(self):
         try:
@@ -63,3 +63,4 @@ class Dealer(object):
     @property
     def field(self):
         return self.__field
+
