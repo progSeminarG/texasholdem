@@ -60,6 +60,10 @@ class Dealer(object):
         except:
             self.__field = [self.__handling_cards.pop(0)]
 
+    def __calc_score(self):
+        pass # 手札の強さを計算するメソッド (白井くん)
+
+
     @property
     def field(self):
         return self.__field
