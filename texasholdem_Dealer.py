@@ -54,3 +54,8 @@ class Dealer(object):
         for card in self.__handling_cards:
             print(card.card)
 
+    def __put_field(self):
+        try:
+            self.__field.append(self.__handling_cards.pop(0))
+        except:
+            self.__field = [self.__handling_cards.pop(0)]
