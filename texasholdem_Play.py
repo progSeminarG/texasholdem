@@ -37,9 +37,10 @@ class Game(object):
 
 
 from texasholdem_Dealer import Dealer
+from texasholdem_Takahashi import TakahashiAI
 
 ### create players ###
-player1 = Player()
+player1 = TakahashiAI()
 player2 = Player()
 player3 = Player()
 player4 = Player()
