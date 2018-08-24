@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
 
+import random
 import sys
 from copy import deepcopy
 
@@ -31,17 +32,25 @@ class Dealer(object):
         self.__INITIAL_MONEY = 500 # money each player has in initial
         self.__NUM_MAX_FIELD = 5 # maximum number of field
         self.__players = players_input # instance of players
+        self.__num_players = len(self.__players)
+        self.__num_handling_cards = self.__NUM_HAND * self.__num_players + self.__NUM_MAX_FIELD
         self.__playing_players = deepcopy(self.__players) # number of plyaers in game
-        self.__all_cards = self.__create_all_cards_stack()
-        for i in self.__all_cards:
-            print(i.card)
 
+        self.__handout_cards()
 
-    def __create_all_cards_stack(self):
+    def __create_all_cards_stack(self): # create list of [S1, S2, ..., D13]
         _cards = []
         for inumber in range(self.__MIN_NUMBER_CARDS,self.__MAX_NUMBER_CARDS+1):
             for suit in self.__SUITE:
                 _cards.append(Card(suit,inumber))
         return _cards
 
+
+    def __handout_cards(self):
+        self.__all_cards = self.__create_all_cards_stack()
+        self.__handling_cards = random.sample(self.__all_cards,self.__num_handling_cards)
+        for player in self.__playing_players:
+            player.get_hand([self.__handling_cards.pop(i) for i in range(self.__NUM_HAND)])
+        for card in self.__handling_cards:
+            print(card.card)
 
