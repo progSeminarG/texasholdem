@@ -35,6 +35,7 @@ class Dealer(object):
         self.__num_players = len(self.__players) # number of players
         self.__num_handling_cards = self.__NUM_HAND * self.__num_players + self.__NUM_MAX_FIELD # number of cards that deal with
         self.__playing_players = deepcopy(self.__players) # number of plyaers in game
+        self.__money_each_player = [self.__INITIAL_MONEY]*self.__num_players # money list of players
 
         self.__handout_cards()
 
