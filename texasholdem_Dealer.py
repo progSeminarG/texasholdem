@@ -59,3 +59,7 @@ class Dealer(object):
             self.__field.append(self.__handling_cards.pop(0))
         except:
             self.__field = [self.__handling_cards.pop(0)]
+
+    @property
+    def field(self):
+        return self.__field
