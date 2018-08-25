@@ -1,8 +1,8 @@
 #! /usr/bin/env python3
 
 import argparse
-from texasholdem_Dealer import Card, Dealer
-from texasholdem_Player import Player
+import random
+from copy import deepcopy
 
 class CustomFormatter(argparse.ArgumentDefaultsHelpFormatter,argparse.MetavarTypeHelpFormatter):
     pass
@@ -18,10 +18,11 @@ parser = argparse.ArgumentParser(description="play Texas Hold'em.", formatter_cl
 
 
 class Game(object):
-    def __init__(self,dealer):
-        self.__dealer = dealer
+    def __init__(self,players_list):
+        self.__players = players_list
 
     def play(self):
+        self.__dealer = Dealer(deepcopy(self.__players))
         self.__dealer.handout_cards()
         for i in range(3):
             self.__dealer.put_field()
@@ -36,7 +37,8 @@ class Game(object):
         self.__dealer.calc_hand_score()
 
 
-from texasholdem_Dealer import Dealer
+from texasholdem_Dealer import Card, Dealer
+from texasholdem_Player import Player
 
 ### create players ###
 player1 = Player()
@@ -45,10 +47,9 @@ player3 = Player()
 player4 = Player()
 
 players_list = [player1, player2, player3, player4]
+random.shuffle(players_list)
 
-mydealer = Dealer(players_list)
-
-game = Game(mydealer)
+game = Game(players_list)
 NUM_GAME = 10
 for i in range(NUM_GAME):
     print("===== game",i,"=====")

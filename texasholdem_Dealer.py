@@ -31,10 +31,9 @@ class Dealer(object):
         self.__NUM_HAND = 2 # number of hands
         self.__INITIAL_MONEY = 500 # money each player has in initial
         self.__NUM_MAX_FIELD = 5 # maximum number of field
-        self.__players = random.sample(players_input,len(players_input)) # instance of players
+        self.__players = players_input # instance of players
         self.__num_players = len(self.__players) # number of players
         self.__num_handling_cards = self.__NUM_HAND * self.__num_players + self.__NUM_MAX_FIELD # number of cards that deal with
-        self.__playing_players = deepcopy(self.__players) # number of plyaers in game
         self.__money_each_player = [self.__INITIAL_MONEY]*self.__num_players # money list of players
         self.__field = []
         for player in self.__players:
@@ -54,7 +53,7 @@ class Dealer(object):
         self.__all_cards = self.__create_all_cards_stack()
         self.__handling_cards = random.sample(self.__all_cards,self.__num_handling_cards)
         self.__players_cards = [] # each player's hand
-        for player in self.__playing_players:
+        for player in self.__players:
             self.__players_cards.append([self.__handling_cards.pop(i) for i in range(self.__NUM_HAND)])
             player.get_hand(self.__players_cards[-1])
 
@@ -62,7 +61,7 @@ class Dealer(object):
         self.__field.append(self.__handling_cards.pop(0))
 
     def get_response(self):
-        for player in self.__playing_players:
+        for player in self.__players:
             self.__respond = player.respond()
         # 各プレイヤーからの返答を聞き、次の field のオープンや、スコア計算の手前まで行う (櫻井くん)
 
