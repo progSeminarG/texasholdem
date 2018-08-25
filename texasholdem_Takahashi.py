@@ -5,14 +5,19 @@ class TakahashiAI(object):
         self.__dealer = dealer_input
         print(self.__dealer)
         print(self.__dealer.field)
-        self.__val = "hello"
-        print(self.__val)
+        self.val = "hello"
+        print(self.val)
 
     def get_hand(self,list_of_cards):
         self.__my_cards = list_of_cards
+        print("my cards:",self.__my_cards)
+        print("self=",self)
+        print("@get_hand, self=",self)
+        print("@attribute",dir(self))
 
     def respond(self):
-        print(self.__val)
+        print("@respond, self=",self)
+        print("@attribute",dir(self))
         print(self.__dealer)
         print(self.__dealer.field)
         self.__field = self.__dealer.field
@@ -31,3 +36,13 @@ class TakahashiAI(object):
         print("num of suit:",_num_suit)
 
 
+from texasholdem_Dealer import Card, Dealer
+
+player = TakahashiAI()
+
+mydealer = Dealer([player])
+
+mydealer.handout_cards()
+
+player.respond()
+#mydealer.get_response()
