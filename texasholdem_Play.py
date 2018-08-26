@@ -37,13 +37,9 @@ class Game(object):
         self.__dealer.calc_hand_score()
 
 
-<<<<<<< HEAD
-from texasholdem_Dealer import Dealer
-from texasholdem_Takahashi import TakahashiAI
-=======
 from texasholdem_Dealer import Card, Dealer
 from texasholdem_Player import Player
->>>>>>> 3255dc6... Dealer.py, Play.py: CHANGE how to handle players instance. stop deepcopying players instance. players list is fixed in whole game.
+from texasholdem_Takahashi import TakahashiAI
 
 ### create players ###
 player1 = TakahashiAI()
@@ -55,7 +51,7 @@ players_list = [player1, player2, player3, player4]
 random.shuffle(players_list)
 
 game = Game(players_list)
-NUM_GAME = 10
+NUM_GAME = 1 #10
 for i in range(NUM_GAME):
     print("===== game",i,"=====")
     game.play()
