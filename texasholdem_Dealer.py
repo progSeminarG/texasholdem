@@ -61,8 +61,38 @@ class Dealer(object):
         self.__field.append(self.__handling_cards.pop(0))
 
     def get_response(self):
-        for player in self.__players:
-            self.__respond = player.respond()
+        self.money=2
+        self.flag=0
+        self.playercheck=[1]*len(self.__players)
+        self.active_plyers_list=[]
+
+        while self.flag<len(self.__players):
+            self.resplist=[]
+            self.__resp=[
+                    self.resplist.append(player.respond()) for player in self.__players
+                    ]
+
+            for i in range (0,len(self.__players)):
+                if self.flag>=len(self.__players):
+                    pass
+                elif self.resplist[i]=="fold":
+                    self.playercheck[i]=0
+                    self.flag=self.flag+1
+                elif self.resplist[i]=="call":
+                    self.flag=self.flag+1
+                else:
+                    if self.playercheck[i]==1:
+                        self.money=self.resplist[i]
+                        self.flag=1
+                    else:
+                        self.flag=self.flag+1
+
+
+        for i in range (0,len(self.__players)):
+            if self.playercheck[i]==1:
+                self.active_plyers_list.append('Player'+str(i+1))
+
+        print ([self.active_plyers_list,self.money])
         # 各プレイヤーからの返答を聞き、次の field のオープンや、スコア計算の手前まで行う (櫻井くん)
 
     def calc_hand_score(self):
@@ -72,4 +102,3 @@ class Dealer(object):
     @property
     def field(self):
         return self.__field
-
