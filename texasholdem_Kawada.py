@@ -34,7 +34,7 @@ class Player(object):#とりあえず仮のベースのメゾットこれを継�
     def get_hand(self, list_of_cards):
         self.my_cards = list_of_cards
     def respond(self):
-        resp=["stay","レイズ金額","hold"]
+        resp=["call","レイズ金額","fold"]
         return resp[random.randint(0,2)]
         #お金の関係はまだ理解してないので未入力
 
@@ -52,7 +52,7 @@ class KawadaAI(Player):#プレイ可能カードのリスト
     def checkpair(self,any_cards):#ペアの評価方法
         pair=[0,0,0,0,0,0,0,0,0,0,0,0,0]
         for i in range (0,len(any_cards)):
-            pair[any_cards[i][1]-1]=pair[any_cards[i][1]-1]+1
+            pair[any_cards[i].number-1]=pair[any_cards[i].number-1]+1
         pairs=[0,0,0]
         for i in range (0,13):
             if pair[i]==4:
@@ -65,25 +65,25 @@ class KawadaAI(Player):#プレイ可能カードのリスト
 
 
     def ablepair(self):#すべてのカードでの評価
-        any_cards=get_playable_cards(self)
-        return checkpair(self,any_cards)
+        any_cards=self.get_playable_cards()
+        return self.checkpair(any_cards)
     def fieldpair(self):#共通カードでの評価
         any_cards=self.dealer.field
-        return checkpair(self,self.dealer.field)
+        return self.checkpair(any_cards)
 
 
-    def flashchecker(self):#flashできるときに1を返す
-        playable_cards=get_playable_cards(self)
+    def flashchecker(self): #flashできるときに1を返す
+        playable_cards=self.get_playable_cards()
         suitcounter=[0,0,0,0]
         check=0
         for i in range (0,len(playable_cards)):
-            if playable_cards[i][0]=="S":
+            if playable_cards[i].suit=='S':
                 suitcounter[0]=suitcounter[0]+1
-            if playable_cards[i][0]=="C":
+            if playable_cards[i].suit=='C':
                 suitcounter[1]=suitcounter[1]+1
-            if playable_cards[i][0]=="H":
+            if playable_cards[i].suit=='H':
                 suitcounter[2]=suitcounter[2]+1
-            if playable_cards[i][0]=="D":
+            if playable_cards[i].suit=='D':
                 suitcounter[3]=suitcounter[3]+1
         for i in range (0,4):
             if suitcounter[i]>=5:
@@ -91,10 +91,10 @@ class KawadaAI(Player):#プレイ可能カードのリスト
         return check
 
     def straightchecker(self):#ストレートなら１を返す
-        any_cards=get_playable_cards(self)
+        any_cards=self.get_playable_cards()
         counter=[0,0,0,0,0,0,0,0,0,0,0,0,0,0]
         for i in range (0,len(any_cards)):
-            counter[any_cards[i][1]-1]=counter[any_cards[i][1]-1]+1
+            counter[any_cards[i].number-1]=counter[any_cards[i].number-1]+1
         counter[12]=counter[0]
         straight=[0,0]
         straightlevel=0
@@ -116,19 +116,19 @@ class KawadaAI(Player):#プレイ可能カードのリスト
         return straight
 
     def respond(self):
-        flash=flashchecker(self)
+        flash = self.flashchecker()
         pairrate=[]
         for i in range (0,3):
-            pairrate.append(ablepair(self)[i]-fieldpair(self)[i])
+            pairrate.append(self.ablepair()[i]-self.fieldpair()[i])
         if pairrate==[0,0,3]:
             pairrate=[0,0,2]
-        straight=straightchecker(self)
+        straight=self.straightchecker()
         if pairrate==[0,0,0] and straight==[0,0]:
-            return "hold"
+            return "fold"
         elif pairrate==[1,0,0] or pairrate==[0,1,1] or pairrate==[0,0,2] or flash==1:
             return "レイズ金額"
         else:
-            return "stay"
+            return "call"
 
 
 '''
