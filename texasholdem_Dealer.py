@@ -61,10 +61,8 @@ class Dealer(object):
         self.__field.append(self.__handling_cards.pop(0))
 
     def get_response(self):
-<<<<<<< HEAD
         for player in self.__players:
             self.__respond = player.respond()
-=======
         self.money=2
         self.flag=0
         self.playercheck=[1]*len(self.__players)
@@ -97,7 +95,6 @@ class Dealer(object):
                 self.active_plyers_list.append('Player'+str(i+1))
 
         print ([self.active_plyers_list,self.money])
->>>>>>> master
         # 各プレイヤーからの返答を聞き、次の field のオープンや、スコア計算の手前まで行う (櫻井くん)
 
     def calc_hand_score(self):

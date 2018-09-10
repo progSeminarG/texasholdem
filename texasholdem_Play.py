@@ -39,13 +39,11 @@ class Game(object):
 
 from texasholdem_Dealer import Card, Dealer
 from texasholdem_Player import Player
-<<<<<<< HEAD
-from texasholdem_Takahashi import TakahashiAI
-=======
->>>>>>> master
+from texasholdem_Kawada import KawadaAI
+
 
 ### create players ###
-player1 = TakahashiAI()
+player1 = KawadaAI()
 player2 = Player()
 player3 = Player()
 player4 = Player()
@@ -54,11 +52,7 @@ players_list = [player1, player2, player3, player4]
 random.shuffle(players_list)
 
 game = Game(players_list)
-<<<<<<< HEAD
-NUM_GAME = 1 #10
-=======
 NUM_GAME = 10
->>>>>>> master
 for i in range(NUM_GAME):
     print("===== game",i,"=====")
     game.play()
