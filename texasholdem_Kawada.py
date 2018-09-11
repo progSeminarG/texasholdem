@@ -1,3 +1,4 @@
+
 '''
 基本ルール
 　ポーカーのルールは意外に知られていない。そのため基本的なルールを書いてみます。
@@ -98,21 +99,18 @@ class KawadaAI(Player):#プレイ可能カードのリスト
         counter[12]=counter[0]
         straight=[0,0]
         straightlevel=0
-        for i in range (0,9):
+        '''for i in range (0,9):
             if counter[i]!=0:
                 if counter[i+1]!=0:
                     if counter[i+2]!=0:
                         if counter[i+3]!=0:
                             if counter[i+4]!=0:
-                                straight[0]=1
-        '''for i in range (0,10):
+                                straight[0]=1'''
+        for i in range (0,10):
             if counter[i]*counter[i+1]*counter[i+2]*counter[i+3]*counter[i+4]==1:
                 straight=1
                 straightlevel=i
-        loyal=counter[0]*counter[9]*counter[10]*counter[11]*counter[12]
-        if loyal!=0:
-            straight=1
-        return [straight,straightlevel]'''
+
         return straight
 
     def respond(self):

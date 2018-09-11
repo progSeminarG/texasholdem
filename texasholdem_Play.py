@@ -39,9 +39,11 @@ class Game(object):
 
 from texasholdem_Dealer import Card, Dealer
 from texasholdem_Player import Player
+from texasholdem_Kawada import KawadaAI
+
 
 ### create players ###
-player1 = Player()
+player1 = KawadaAI()
 player2 = Player()
 player3 = Player()
 player4 = Player()

@@ -61,6 +61,8 @@ class Dealer(object):
         self.__field.append(self.__handling_cards.pop(0))
 
     def get_response(self):
+        for player in self.__players:
+            self.__respond = player.respond()
         self.money=2
         self.flag=0
         self.playercheck=[1]*len(self.__players)
