@@ -63,6 +63,7 @@ class Dealer(object):
     def get_response(self):
         if len(self.field)==0:
             self.money=2
+            self.minimum_bet=1
         self.flag=0
         self.playercheck=[1]*len(self.__players)
         self.active_plyers_list=[]
@@ -83,6 +84,10 @@ class Dealer(object):
                     self.flag=self.flag+1
                 else:
                     if self.playercheck[i]==1:
+                        if self.minimum_bet>self.resplist[i]:
+                            self.resplist[i]=self.minimum_bet
+                        else:
+                            self.minimum_bet=self.minimum_bet
                         self.money=self.money+self.resplist[i]
                         self.flag=1
                     else:

@@ -89,7 +89,7 @@ class KawadaAI(Player):#プレイ可能カードのリスト
         if pairrate==[0,0,0] and straight==[0,0]:
             return "fold"
         elif pairrate==[1,0,0] or pairrate==[0,1,1] or pairrate==[0,0,2] or flash==1:
-            return minimum_bet
+            return 30
         else:
             return "call"
 
