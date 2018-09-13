@@ -61,20 +61,20 @@ class Dealer(object):
         self.__field.append(self.__handling_cards.pop(0))
 
     def get_response(self):
-        if len(self.field)==0:
+        if len(self.field)==0:#手札2枚の時に1度訊くのでそのときだけminimum_betとcallの金額決める
             self.money=2
             self.minimum_bet=1
         self.flag=0
-        self.playercheck=[1]*len(self.__players)
+        self.playercheck=[1]*len(self.__players)#返答を毎度更新し、降りた時に０にする
         self.active_plyers_list=[]
 
-        while self.flag<len(self.__players):
+        while self.flag<len(self.__players):#while文でflagがプレイヤー数になるという次の工程に移行する条件を定義
             self.resplist=[]
             self.__resp=[
                     self.resplist.append(player.respond()) for player in self.__players
                     ]
 
-            for i in range (0,len(self.__players)):
+            for i in range (0,len(self.__players)):#flagでレイズから次にレイズがあるまでカウントししている
                 if self.flag>=len(self.__players):
                     pass
                 elif self.resplist[i]=="fold":
@@ -83,18 +83,19 @@ class Dealer(object):
                 elif self.resplist[i]=="call":
                     self.flag=self.flag+1
                 else:
-                    if self.playercheck[i]==1:
-                        if self.minimum_bet>self.resplist[i]:
+                    if self.playercheck[i]==1:#レイズしてきたプレーヤが本当にさんかしつづけているか？
+                        if self.minimum_bet>self.resplist[i]:#minimum_betより小さい金額ならminimum_betに修正
                             self.resplist[i]=self.minimum_bet
+                            #もうお金が無くてALL_INしたい場合を追加予定
                         else:
-                            self.minimum_bet=self.minimum_bet
-                        self.money=self.money+self.resplist[i]
+                            self.minimum_bet=self.resplist[i]#minimum_betの更新
+                        self.money=self.money+self.resplist[i]#call金額の更新
                         self.flag=1
                     else:
                         self.flag=self.flag+1
 
 
-        for i in range (0,len(self.__players)):
+        for i in range (0,len(self.__players)):#降りなかった人をリストで返す
             if self.playercheck[i]==1:
                 self.active_plyers_list.append('Player'+str(i+1))
 
