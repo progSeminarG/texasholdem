@@ -1,32 +1,4 @@
 
-'''
-基本ルール
-　ポーカーのルールは意外に知られていない。そのため基本的なルールを書いてみます。
-１，ポーカーの役
-　(1)ノーペア　＝　以下のどの役も無いもの
-　(2)ワンペア　＝　５枚の中に同じ数字のカードが２枚ある（ペア）もの
-　(3)ツーペア　＝　５枚の中に２種類のペアがあるもの
-　(4)スリーカード　＝　５枚の中に同じ数字のカードが３枚あるもの
-　(5)ストレート　＝　５枚すべてが連続した数字のもの
-　(6)フラッシュ　＝　５枚すべてが同じスート（スペード・ダイアなど）のもの
-　(7)フルハウス　＝　５枚がペアとスリーカードになっているもの
-　(8)フォーカード　＝　５枚の中に同じ数字が４枚あるもの
-　(9)ストレートフラッシュ　＝　５枚のカードがフラッシュとストレートになっているもの
-
-２、カードの強さ
-　(強)Ａ＞Ｋ＞Ｑ＞Ｊ＞10＞９＞８＞７＞６＞５＞４＞３＞２(弱)
-'''
-
-'''
-＜評価メソッド＞
-ペアチェックで4カード→フルハウス→3カードペア(セット数も)の判定
-フラッシュの有→リスト抜き出す　無→4カードなら終わり　ストレートへ
-同じ役内の強弱'''
-
-
-
-
-
 import random
 
 class Player(object):#とりあえず仮のベースのメゾットこれを継承する
@@ -99,21 +71,11 @@ class KawadaAI(Player):#プレイ可能カードのリスト
         counter[12]=counter[0]
         straight=[0,0]
         straightlevel=0
-        for i in range (0,9):
-            if counter[i]!=0:
-                if counter[i+1]!=0:
-                    if counter[i+2]!=0:
-                        if counter[i+3]!=0:
-                            if counter[i+4]!=0:
-                                straight[0]=1
-        '''for i in range (0,10):
+        for i in range (0,10):
             if counter[i]*counter[i+1]*counter[i+2]*counter[i+3]*counter[i+4]==1:
                 straight=1
                 straightlevel=i
-        loyal=counter[0]*counter[9]*counter[10]*counter[11]*counter[12]
-        if loyal!=0:
-            straight=1
-        return [straight,straightlevel]'''
+
         return straight
 
     def respond(self):
@@ -127,7 +89,7 @@ class KawadaAI(Player):#プレイ可能カードのリスト
         if pairrate==[0,0,0] and straight==[0,0]:
             return "fold"
         elif pairrate==[1,0,0] or pairrate==[0,1,1] or pairrate==[0,0,2] or flash==1:
-            return "レイズ金額"
+            return minimum_bet
         else:
             return "call"
 

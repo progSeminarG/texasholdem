@@ -61,9 +61,8 @@ class Dealer(object):
         self.__field.append(self.__handling_cards.pop(0))
 
     def get_response(self):
-        for player in self.__players:
-            self.__respond = player.respond()
-        self.money=2
+        if len(self.field)==0:
+            self.money=2
         self.flag=0
         self.playercheck=[1]*len(self.__players)
         self.active_plyers_list=[]
@@ -84,7 +83,7 @@ class Dealer(object):
                     self.flag=self.flag+1
                 else:
                     if self.playercheck[i]==1:
-                        self.money=self.resplist[i]
+                        self.money=self.money+self.resplist[i]
                         self.flag=1
                     else:
                         self.flag=self.flag+1

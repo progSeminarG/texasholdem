@@ -24,6 +24,7 @@ class Game(object):
     def play(self):
         self.__dealer = Dealer(deepcopy(self.__players))
         self.__dealer.handout_cards()
+        self.__dealer.get_response()
         for i in range(3):
             self.__dealer.put_field()
         print("field:",[card.card for card in self.__dealer.field])
