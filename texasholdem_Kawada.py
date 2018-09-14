@@ -34,7 +34,7 @@ class KawadaAI(Player):#プレイ可能カードのリスト
                 pairs[1]=pairs[1]+1
             elif pair[i]==2:#同様に2枚
                 pairs[2]=pairs[2]+1
-        return pairs　#pairsは[4カード有無,3カードの有無,ペアの数]のリスト
+        return pairs#pairsは[4カード有無,3カードの有無,ペアの数]のリスト
 
 
     def ablepair(self):#すべてのカードでの評価
