@@ -23,18 +23,18 @@ class KawadaAI(Player):#プレイ可能カードのリスト
 
 
     def checkpair(self,any_cards):#ペアの評価方法
-        pair=[0,0,0,0,0,0,0,0,0,0,0,0,0]
-        for i in range (0,len(any_cards)):
-            pair[any_cards[i].number-1]=pair[any_cards[i].number-1]+1
-        pairs=[0,0,0]
-        for i in range (0,13):
-            if pair[i]==4:
+        pair=[0,0,0,0,0,0,0,0,0,0,0,0,0]#A~Kまでの13個のリスト要素を用意
+        for i in range (0,len(any_cards)):#カードの枚数ぶんだけ試行
+            pair[any_cards[i].number-1]=pair[any_cards[i].number-1]+1#カードのnumber要素を参照し先ほどのリストpairの対応要素のカウントを1つ増やす
+        pairs=[0,0,0]#pairsは[4カード有無,3カードの有無,ペアの数]のリスト
+        for i in range (0,13):#pairの要素A~13すべて順に参照
+            if pair[i]==4:#その要素が４枚あるときpairs[0]のカウントを増やす
                 pairs[0]=pairs[0]+1
-            elif pair[i]==3:
+            elif pair[i]==3:#同様に3枚
                 pairs[1]=pairs[1]+1
-            elif pair[i]==2:
+            elif pair[i]==2:#同様に2枚
                 pairs[2]=pairs[2]+1
-        return pairs
+        return pairs　#pairsは[4カード有無,3カードの有無,ペアの数]のリスト
 
 
     def ablepair(self):#すべてのカードでの評価
@@ -92,14 +92,3 @@ class KawadaAI(Player):#プレイ可能カードのリスト
             return 30
         else:
             return "call"
-
-
-'''
-評価の実装段階
-・フラッシュ
-・ストーレート
-・ロイヤルストレート
-・ペア数[4カード有無,3カード有無,ペアの数](フルハウス)
-    →これを点数化してみるか
-点数化したらベットが額にall inを導入するかも
-'''
