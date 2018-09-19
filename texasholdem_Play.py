@@ -14,7 +14,7 @@ parser = argparse.ArgumentParser(description="play Texas Hold'em.", formatter_cl
 #parser.add_argument('--fig', type=str, dest='figfile', nargs='?', default='stat.png', help="output figure file (png)")
 #parser.add_argument('-q', '--quiet', action="store_true", help='reduce print sequence')
 #parser.add_argument('--upload', type=str, dest='token', nargs=1, help='upoad figure. parse token.')
-#args = parser.parse_args()
+args = parser.parse_args()
 
 
 class Game(object):
