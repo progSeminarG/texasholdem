@@ -91,6 +91,7 @@ class TakahashiAI(object):
         return False
 
     def __define_pairs(self,list_of_pairs):
+        pass
         
 
 
