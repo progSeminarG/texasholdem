@@ -59,7 +59,9 @@ class Dealer(object):
         self.__handling_cards = random.sample(self.__all_cards, self.__num_handling_cards)
         self.__players_cards = []  # each player's hand
         for player in self.__players:
-            self.__players_cards.append([self.__handling_cards.pop(i) for i in range(self.__NUM_HAND)])
+            self.__players_cards.append(
+                    [self.__handling_cards.pop(i) for i in range(self.__NUM_HAND)]
+                    )
             player.get_hand(self.__players_cards[-1])
 
     def put_field(self):
@@ -85,14 +87,14 @@ class Dealer(object):
                 if self.flag >= len(self.__players) or len(self.active_plyers_list) == 1:
                     pass
                 elif self.resplist[i] == "fold":
-                    self.playercheck[i] = 0
+                    self.playercheck[i] = False
                     self.flag = self.flag+1
                 elif self.resplist[i] == "call" or 0:
                     self.flag = self.flag+1
-                    if self.playercheck[i] == 1:
+                    if self.playercheck[i]:
                         self.bettingrate[i] = self.money
                 else:
-                    if self.playercheck[i] == 1:  # レイズしてきたプレーヤが本当にさんかしつづけているか？
+                    if self.playercheck[i]:  # レイズしてきたプレーヤが本当にさんかしつづけているか？
                         if self.minimum_bet > self.resplist[i]:
                             # minimum_betより小さい金額ならminimum_betに修正
                             self.resplist[i] = self.minimum_bet
@@ -112,7 +114,7 @@ class Dealer(object):
                         self.flag = self.flag+1
                 self.active_plyers_list = []
                 for i in range(0, len(self.__players)):  # 降りなかった人をリストで返す
-                    if self.playercheck[i] == 1:
+                    if self.playercheck[i]:
                         self.active_plyers_list.append('Player' + str(i+1))
 
         print("next_turn_players_list", [self.active_plyers_list])
