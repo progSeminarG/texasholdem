@@ -70,7 +70,7 @@ class Dealer(object):
     def get_response(self):
         if len(self.field) == 0:  # 手札2枚の時に1度訊くのでそのときだけminimum_betとcallの金額決める
             self.money = 2
-            self.minimum_bet = 1
+            self.minimum_bet = 2
             self.playercheck = [1]*len(self.__players)  # 返答を毎度更新し、降りた時に０にする
             self.active_plyers_list = []
             self.bettingrate = [0]*len(self.__players)  # 各々が賭けたお金を記録するリスト
@@ -104,6 +104,12 @@ class Dealer(object):
                             self.flag = 1
                             self.bettingrate[i] = self.money
                         else:
+                            # minimum_betの整数倍をレイズするように返値を修正
+                            if self.resplist[i] % self.minimum_bet == 0:
+                                pass
+                            else:
+                                j = self.resplist/self.minimum_bet
+                                self.resplist[i] = self.minimum_bet*j
                             self.minimum_bet = self.resplist[i]
                             # minimum_betの更新
                             self.money = self.money+self.resplist[i]
