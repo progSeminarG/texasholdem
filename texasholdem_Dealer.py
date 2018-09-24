@@ -69,12 +69,20 @@ class Dealer(object):
 
     def get_response(self):
         if len(self.field) == 0:  # 手札2枚の時に1度訊くのでそのときだけminimum_betとcallの金額決める
+            self.smallb = random.randint(0, len(self.__players)-1)  # SBBB決める
+            self.bigb = self.smallb + 1
+            if self.bigb == len(self.__players):
+                self.bigb = 0
             self.money = 2
             self.minimum_bet = 2
             self.playercheck = [1]*len(self.__players)  # 返答を毎度更新し、降りた時に０にする
             self.active_plyers_list = []
             self.bettingrate = [0]*len(self.__players)  # 各々が賭けたお金を記録するリスト
-        self.flag = 0
+            self.bettingrate[self.smallb] = 1
+            self.bettingrate[self.bigb] = 2
+            self.flag_atfirst=0
+        self.flag_atfirst = 0
+        self.flag = 1
         while self.flag < len(self.__players) and len(self.active_plyers_list) != 1:
             # while文でflagがプレイヤー数になるという次の工程に移行する条件を定義
             self.resplist = []
@@ -85,6 +93,8 @@ class Dealer(object):
             for i in range(0, len(self.__players)):
                 # flagでレイズから次にレイズがあるまでカウントししている
                 if self.flag >= len(self.__players) or len(self.active_plyers_list) == 1:
+                    pass
+                elif self.flag_atfirst <= self.bigb:
                     pass
                 elif self.resplist[i] == "fold":
                     self.playercheck[i] = False
@@ -118,10 +128,13 @@ class Dealer(object):
                             self.bettingrate[i] = self.money
                     else:
                         self.flag = self.flag+1
+                if self.flag == len(self.__players):
+                    self.bigb = i
                 self.active_plyers_list = []
                 for i in range(0, len(self.__players)):  # 降りなかった人をリストで返す
                     if self.playercheck[i]:
                         self.active_plyers_list.append('Player' + str(i+1))
+                self.flag_atfirst = self.flag_atfirst + 1
 
         print("next_turn_players_list", [self.active_plyers_list])
         # 次のターン参加する人のリスト
