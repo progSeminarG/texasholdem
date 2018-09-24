@@ -33,12 +33,12 @@ class Dealer(object):
         self.__NUM_MAX_FIELD  =  5 # maximum number of field
         self.__players  =  players_input # instance of players
         self.__num_players  =  len(self.__players) # number of players
-        self.__num_handling_cards  =  self.__NUM_HAND * self.__num_players + self.__NUM_MAX_FIELD # number of cards that deal with
+        self.__num_handling_cards  =  self.__NUM_HAND * self.__num_players
+                                     + self.__NUM_MAX_FIELD # number of cards that deal with
         self.__money_each_player  =  [self.__INITIAL_MONEY]*self.__num_players # money list of players
         self.__field  =  []
         for player in self.__players:
             player.get_know_dealer(self)
-
 
     def __create_all_cards_stack(self): # create list of [S1, S2, ..., D13]
         _cards  =  []
@@ -46,7 +46,6 @@ class Dealer(object):
             for suit in self.__SUITE:
                 _cards.append(Card(suit,inumber))
         return _cards
-
 
     def handout_cards(self):
         self.__field  =  []
