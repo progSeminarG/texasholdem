@@ -75,14 +75,16 @@ class Dealer(object):
                 self.bigb = 0
             self.money = 2
             self.minimum_bet = 2
-            self.playercheck = [1]*len(self.__players)  # 返答を毎度更新し、降りた時に０にする
+            self.playercheck = [True]*len(self.__players)  # 返答を毎度更新し、降りた時に０にする
             self.active_plyers_list = []
             self.bettingrate = [0]*len(self.__players)  # 各々が賭けたお金を記録するリスト
             self.bettingrate[self.smallb] = 1
             self.bettingrate[self.bigb] = 2
-            self.flag_atfirst=0
-        self.flag_atfirst = 0
-        self.flag = 1
+            self.flag_atfirst = 0
+            self.flag = 1
+        else:
+            self.flag = 0
+            self.flag_atfirst = 0
         while self.flag < len(self.__players) and len(self.active_plyers_list) != 1:
             # while文でflagがプレイヤー数になるという次の工程に移行する条件を定義
             self.resplist = []
@@ -93,18 +95,22 @@ class Dealer(object):
             for i in range(0, len(self.__players)):
                 # flagでレイズから次にレイズがあるまでカウントししている
                 if self.flag >= len(self.__players) or len(self.active_plyers_list) == 1:
-                    pass
-                elif self.flag_atfirst <= self.bigb:
-                    pass
+                    self.resplist[i] = "----"
+                    self.flag = self.flag+1
+                elif self.flag_atfirst <= self.bigb and self.bigb != 3:
+                    self.resplist[i] = "----"
+                elif self.playercheck[i] == False:
+                    self.resplist[i] = "----"
+                    self.flag = self.flag+1
                 elif self.resplist[i] == "fold":
                     self.playercheck[i] = False
                     self.flag = self.flag+1
                 elif self.resplist[i] == "call" or 0:
                     self.flag = self.flag+1
-                    if self.playercheck[i]:
+                    if self.playercheck[i] == True:
                         self.bettingrate[i] = self.money
                 else:
-                    if self.playercheck[i]:  # レイズしてきたプレーヤが本当にさんかしつづけているか？
+                    if self.playercheck[i] == True:  # レイズしてきたプレーヤが本当にさんかしつづけているか？
                         if self.minimum_bet > self.resplist[i]:
                             # minimum_betより小さい金額ならminimum_betに修正
                             self.resplist[i] = self.minimum_bet
@@ -115,11 +121,8 @@ class Dealer(object):
                             self.bettingrate[i] = self.money
                         else:
                             # minimum_betの整数倍をレイズするように返値を修正
-                            if self.resplist[i] % self.minimum_bet == 0:
-                                pass
-                            else:
-                                j = self.resplist/self.minimum_bet
-                                self.resplist[i] = self.minimum_bet*j
+                            j = int(self.resplist[i]/self.minimum_bet)
+                            self.resplist[i] = self.minimum_bet*j
                             self.minimum_bet = self.resplist[i]
                             # minimum_betの更新
                             self.money = self.money+self.resplist[i]
@@ -132,9 +135,11 @@ class Dealer(object):
                     self.bigb = i
                 self.active_plyers_list = []
                 for i in range(0, len(self.__players)):  # 降りなかった人をリストで返す
-                    if self.playercheck[i]:
+                    if self.playercheck[i] == True:
                         self.active_plyers_list.append('Player' + str(i+1))
                 self.flag_atfirst = self.flag_atfirst + 1
+            print(self.resplist, self.minimum_bet)
+            print(self.bettingrate)
 
         print("next_turn_players_list", [self.active_plyers_list])
         # 次のターン参加する人のリスト
