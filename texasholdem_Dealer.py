@@ -99,7 +99,7 @@ class Dealer(object):
                     self.flag = self.flag+1
                 elif self.flag_atfirst <= self.bigb and self.bigb != 3:
                     self.resplist[i] = "----"
-                elif self.playercheck[i] == False:
+                elif self.playercheck[i] is False:
                     self.resplist[i] = "----"
                     self.flag = self.flag+1
                 elif self.resplist[i] == "fold":
@@ -107,10 +107,10 @@ class Dealer(object):
                     self.flag = self.flag+1
                 elif self.resplist[i] == "call" or 0:
                     self.flag = self.flag+1
-                    if self.playercheck[i] == True:
+                    if self.playercheck[i] is True:
                         self.bettingrate[i] = self.money
                 else:
-                    if self.playercheck[i] == True:  # レイズしてきたプレーヤが本当にさんかしつづけているか？
+                    if self.playercheck[i] is True:  # レイズしてきたプレーヤが本当にさんかしつづけているか？
                         if self.minimum_bet > self.resplist[i]:
                             # minimum_betより小さい金額ならminimum_betに修正
                             self.resplist[i] = self.minimum_bet
@@ -135,7 +135,7 @@ class Dealer(object):
                     self.bigb = i
                 self.active_plyers_list = []
                 for i in range(0, len(self.__players)):  # 降りなかった人をリストで返す
-                    if self.playercheck[i] == True:
+                    if self.playercheck[i] is True:
                         self.active_plyers_list.append('Player' + str(i+1))
                 self.flag_atfirst = self.flag_atfirst + 1
             print(self.resplist, self.minimum_bet)
