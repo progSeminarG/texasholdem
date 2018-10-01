@@ -46,6 +46,7 @@ class Dealer(object):
         for player in self.__players:
             player.get_know_dealer(self)
 
+    # create a deck
     def __create_all_cards_stack(self):  # create list of [S1, S2, ..., D13]
         _cards = []
         for inumber in range(self.__MIN_NUMBER_CARDS, self.__MAX_NUMBER_CARDS+1):
@@ -53,6 +54,7 @@ class Dealer(object):
                 _cards.append(Card(suit, inumber))
         return _cards
 
+    # handout cards to each player
     def handout_cards(self):
         self.__field = []
         self.__all_cards = self.__create_all_cards_stack()
@@ -64,9 +66,11 @@ class Dealer(object):
                     )
             player.get_hand(self.__players_cards[-1])
 
+    # open one card to a table
     def put_field(self):
         self.__field.append(self.__handling_cards.pop(0))
 
+    # ask players what they want to do "fold, call, raise"
     def get_response(self):
         if len(self.field) == 0:  # 手札2枚の時に1度訊くのでそのときだけminimum_betとcallの金額決める
             self.smallb = random.randint(0, len(self.__players)-1)  # SBBB決める
@@ -169,6 +173,7 @@ class Dealer(object):
         print()
         '''kokomadenisemono'''
 
+    # calculate best score from given set of cards
     def calc_hand_score(self):
         pass  # 手札の強さを計算するメソッド (白井くん)
 
