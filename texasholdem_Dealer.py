@@ -47,6 +47,18 @@ class Dealer(object):
             player.get_know_dealer(self)
         self.smallb = 0
         self.bigb = 1
+        self.money = 2
+        self.minimum_bet = 2
+        self.playercheck = [True]*len(self.__players)  # 返答を毎度更新し、降りた時に０にする
+        self.active_plyers_list = []
+        self.bettingrate = [0]*len(self.__players)  # 各々が賭けたお金を記録するリスト
+        self.bettingrate[self.smallb] = 1
+        self.bettingrate[self.bigb] = 2
+        self.flag_atfirst = 0
+        self.flag = 1
+        for i in range(0,len(self.__players)):
+            if self.__money_each_player[i] <= 0:
+                self.playercheck = False  # お金が最初からなければ参加できない
 
     # create a deck
     def __create_all_cards_stack(self):  # create list of [S1, S2, ..., D13]
@@ -74,26 +86,8 @@ class Dealer(object):
 
     # ask players what they want to do "fold, call, raise"
     def get_response(self):
-        if len(self.field) == 0:  # 手札2枚の時に1度訊くのでそのときだけminimum_betとcallの金額決める
-#            self.smallb = random.randint(0, len(self.__players)-1)  # SBBB決める
-#            self.bigb = self.smallb + 1
-#            if self.bigb == len(self.__players):
-#                self.bigb = 0
-            self.money = 2
-            self.minimum_bet = 2
-            self.playercheck = [True]*len(self.__players)  # 返答を毎度更新し、降りた時に０にする
-            self.active_plyers_list = []
-            self.bettingrate = [0]*len(self.__players)  # 各々が賭けたお金を記録するリスト
-            self.bettingrate[self.smallb] = 1
-            self.bettingrate[self.bigb] = 2
-            self.flag_atfirst = 0
-            self.flag = 1
-            for i in range(0,len(self.__players)):
-                if self.__money_each_player[i] <= 0:
-                    self.playercheck = False  # お金が最初からなければ参加できない
-        else:
-            self.flag = 0
-            self.flag_atfirst = 0
+        self.flag = 0
+        self.flag_atfirst = 0
         while self.flag < len(self.__players) and len(self.active_plyers_list) != 1:
             # while文でflagがプレイヤー数になるという次の工程に移行する条件を定義
             self.resplist = []
