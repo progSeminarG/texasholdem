@@ -56,7 +56,7 @@ class Dealer(object):
         self.bettingrate[self.bigb] = 2
         self.flag_atfirst = 0
         self.flag = 1
-        for i in range(0,len(self.__players)):
+        for i in range(0, len(self.__players)):
             if self.__money_each_player[i] <= 0:
                 self.playercheck = False  # お金が最初からなければ参加できない
 
@@ -86,7 +86,7 @@ class Dealer(object):
 
     # ask players what they want to do "fold, call, raise"
     def get_response(self):
-        if len(self.field) !=0:
+        if len(self.field) != 0:
             self.flag = 0
         self.flag_atfirst = 0
         while self.flag < len(self.__players) and len(self.active_plyers_list) != 1:
@@ -100,7 +100,7 @@ class Dealer(object):
                 # flagでレイズから次にレイズがあるまでカウントししている
                 if self.flag >= len(self.__players) or len(self.active_plyers_list) == 1:
                     self.resplist[i] = "----"
-                    self.flag = self.flag+1  #レイズから1巡以降無視
+                    self.flag = self.flag+1  # レイズから1巡以降無視
                 elif self.flag_atfirst <= self.bigb and self.bigb != 3:
                     self.resplist[i] = "----"  # BBや前ターン最終レイズ者までの無視
                 elif self.playercheck[i] is False:
@@ -136,7 +136,7 @@ class Dealer(object):
                             j = int((self.__money_each_player[i]-self.money)/self.minimum_bet)+1
                         self.minimum_bet = self.minimum_bet*j
                         self.resplist[i] = self.minimum_bet
-                            # minimum_betの更新
+                        # minimum_betの更新
                         self.money = self.money+self.resplist[i]
                         # call金額の更新
                         self.flag = 0
@@ -149,6 +149,9 @@ class Dealer(object):
                     if self.playercheck[i] is True:
                         self.active_plyers_list.append('Player' + str(i+1))
                 self.flag_atfirst = self.flag_atfirst + 1
+            for i in range(0, len(self.__players)):
+                if self.__money_each_player[i] <= self.bettingrate[i]:
+                    self.bettingrate[i] = self.__money_each_player[i]
             print(self.resplist, self.minimum_bet)
             print(self.bettingrate)
 
@@ -161,9 +164,7 @@ class Dealer(object):
         # 各プレイヤーからの返答を聞き、次の field のオープンや、スコア計算の手前まで行う (櫻井くん)
         '''kokokaranisemono'''
         if len(self.field) == 5:
-            for i in range(0,len(self.__players)):
-                if self.__money_each_player[i] <= self.bettingrate[i]:
-                    self.bettingrate[i] = self.__money_each_player[i]
+            for i in range(0, len(self.__players)):
                 self.__money_each_player[i] = self.__money_each_player[i]-self.bettingrate[i]
             print(self.__money_each_player)
         print()
