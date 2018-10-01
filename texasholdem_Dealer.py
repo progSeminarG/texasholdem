@@ -86,7 +86,8 @@ class Dealer(object):
 
     # ask players what they want to do "fold, call, raise"
     def get_response(self):
-        self.flag = 0
+        if len(self.field) !=0:
+            self.flag = 0
         self.flag_atfirst = 0
         while self.flag < len(self.__players) and len(self.active_plyers_list) != 1:
             # while文でflagがプレイヤー数になるという次の工程に移行する条件を定義
