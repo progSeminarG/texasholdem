@@ -3,7 +3,6 @@
 import random
 import sys
 from copy import deepcopy
-from 
 
 
 class Card(object):
@@ -206,7 +205,6 @@ class Dealer(object):
            ###############
         #####JUDGE BELOW#####
            ###############
-        
         ##Straight-Flash###
         if straight==1:
             for SUIT in SS:
@@ -302,7 +300,6 @@ class Dealer(object):
             num[i]=card_list[i][0]
             suit[i]=card_list[i][1]
         return (num,suit)
-
 
     def judge_flash(self,cl1,cl2):###FLASH判定###
         rpc1(cl1)
