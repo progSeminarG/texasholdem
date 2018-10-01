@@ -64,16 +64,40 @@ class Dealer(object):
             self.__respond = player.respond()
         # 各プレイヤーからの返答を聞き、次の field のオープンや、スコア計算の手前まで行う (櫻井くん)
 
-    def calc_hand_score(self,my_cards,field_cards):#7カードリストをもらう
-        cards=my_cards+field_cards#合併リスト
-        cards.sort
+    def choice(card_list):#suit,numのみを取り出してリスト化
+        SS=['S','C','H','D']
+        suit=[0]*7
+        num=[0]*7
+        for i in range(len(card_list)):
+            num[i]=card_list[i][0]
+            suit[i]=card_list[i][1]
+        return (num,suit)
+
+
+    def checkpair(self,any_cards):#ペアの評価方法
+        pair=[0,0,0,0,0,0,0,0,0,0,0,0,0]#A~Kまでの13個のリスト要素を用意
+        for i in range (0,len(any_cards)):#カードの枚数ぶんだけ試行
+            pair[any_cards[i].number-1]=pair[any_cards[i].number-1]+1#カードのnumber要素を参照し先ほどのリストpairの対応要素のカウントを1つ増やす
+        pairs=[0,0,0]#pairsは[4カード有無,3カードの有無,ペアの数]のリスト
+        for i in range (0,13):#pairの要素A~13すべて順に参照
+            if pair[i]==4:#その要素が４枚あるときpairs[0]のカウントを増やす
+                pairs[0]=pairs[0]+1
+            elif pair[i]==3:#同様に3枚
+                pairs[1]=pairs[1]+1
+            elif pair[i]==2:#同様に2枚
+                pairs[2]=pairs[2]+1
+        return pairs#pairsは[4カード有無,3カードの有無,ペアの数]のリスト
+
+
+    def calc_hand_score(self,cards):#7カードリストをもらう
+        cards.sort()
         SS=['S','C','H','D']
         num_list=[0]*14
         suit_list=[0,0,0,0]
         rtCrads=[]
         
-        (num,suit)=choice(cards)#num,suitのみを抜き出す
-        pp=kawaj(cards)#Kawadaさんの4cardsとか抜き出してリストにするやつ
+        (num,suit)=self.choice(cards)#num,suitのみを抜き出す
+        pp=self.checkpairs(cards)#Kawadaさんの4cardsとか抜き出してリストにするやつ
         rpc1(cards)##REPLACE 1-->14
         
         #for flash:make flash_list
@@ -193,13 +217,6 @@ class Dealer(object):
                 cards.remove(14-i)
                 break
         return rt,cards
-
-    def choice(card_list):#suit,numのみを取り出してリスト化
-        SS=['S','C','H','D']
-        for i in range(len(card_list)):
-            num[i]=card_list[i].number
-            suit[i]=card_list[i].suit
-        return num,suit
 
     def judge_flash(self,cl1,cl2):###FLASH判定###
         rpc1(cl1)
