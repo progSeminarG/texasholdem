@@ -10,7 +10,7 @@ class Player(object):  # とりあえず仮のベースのメゾットこれを�
         self.my_cards = list_of_cards
 
     def respond(self):
-        resp = ["call", "レイズ金額", "fold"]
+        #resp = ["call", "レイズ金額", "fold"]
         return resp[random.randint(0, 2)]
         # お金の関係はまだ理解してないので未入力
 
@@ -88,6 +88,7 @@ class KawadaAI(Player):  # プレイ可能カードのリスト
         if pairrate == [0, 0, 3]:
             pairrate = [0, 0, 2]
         straight = self.straightchecker()
+        '''
         if pairrate == [0, 0, 0] and straight == [0, 0]:
             return "fold"
         elif pairrate == [1, 0, 0] or pairrate == [0, 1, 1]:
@@ -96,3 +97,5 @@ class KawadaAI(Player):  # プレイ可能カードのリスト
             return 30
         else:
             return "call"
+        '''
+        return self.dealer.minimum_bet*3
