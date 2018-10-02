@@ -39,17 +39,17 @@ class Game(object):
     def play(self):
         self.__dealer = Dealer(deepcopy(self.__players))
         self.__dealer.handout_cards()
-        self.__dealer.get_response()
+        self.__dealer.get_responses()
         for i in range(3):
             self.__dealer.put_field()
         print("field:", [card.card for card in self.__dealer.field])
-        self.__dealer.get_response()
+        self.__dealer.get_responses()
         self.__dealer.put_field()
         print("field:", [card.card for card in self.__dealer.field])
-        self.__dealer.get_response()
+        self.__dealer.get_responses()
         self.__dealer.put_field()
         print("field:", [card.card for card in self.__dealer.field])
-        self.__dealer.get_response()
+        self.__dealer.get_responses()
         self.__dealer.calc_hand_score()
 
 
@@ -63,7 +63,7 @@ players_list = [player1, player2, player3, player4]
 random.shuffle(players_list)
 
 game = Game(players_list)
-NUM_GAME = 5
+NUM_GAME = 1
 print(players_list)  # すみません毎回リストがシャッフルされて自分のAIが見づらいので書き足しました
 for i in range(NUM_GAME):
     print("===== game", i, "=====")

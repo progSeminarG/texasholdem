@@ -58,7 +58,8 @@ class Dealer(object):
         self.flag = 1
         for i in range(0, len(self.__players)):
             if self.__money_each_player[i] <= 0:
-                self.playercheck = False  # お金が最初からなければ参加できない
+                self.playercheck = False
+                # お金が最初からなければ参加できない
 
     # create a deck
     def __create_all_cards_stack(self):  # create list of [S1, S2, ..., D13]
@@ -84,92 +85,103 @@ class Dealer(object):
     def put_field(self):
         self.__field.append(self.__handling_cards.pop(0))
 
+    # ここから先get_responses関連
     # ask players what they want to do "fold, call, raise"
-    def get_response(self):
-        if len(self.field) != 0:
-            self.flag = 0
-        self.flag_atfirst = 0
-        while self.flag < len(self.__players) and len(self.active_plyers_list) != 1:
-            # while文でflagがプレイヤー数になるという次の工程に移行する条件を定義
-            self.resplist = []
-            self.active_plyers_list = []
-            self.__resp = [
-                    self.resplist.append(player.respond()) for player in self.__players
+    def tadakiku(self):
+        self.resplist = []
+        self.__resp = [
+                self.resplist.append(player.respond()) for player in self.__players
                     ]
-            for i in range(0, len(self.__players)):
-                # flagでレイズから次にレイズがあるまでカウントししている
-                if self.flag >= len(self.__players) or len(self.active_plyers_list) == 1:
-                    self.resplist[i] = "----"
-                    self.flag = self.flag+1  # レイズから1巡以降無視
-                elif self.flag_atfirst <= self.bigb and self.bigb != 3:
-                    self.resplist[i] = "----"  # BBや前ターン最終レイズ者までの無視
-                elif self.playercheck[i] is False:
-                    self.resplist[i] = "----"
-                    self.flag = self.flag+1  # 降りた人の無視
-                elif self.resplist[i] == "fold":
-                    self.playercheck[i] = False
-                    self.flag = self.flag+1  # 降りる
-                elif self.__money_each_player[i] <= self.money:
-                    self.resplist[i] = "call"
-                    self.flag = self.flag+1  # 掛け金に満たない場合で降りてないなら必然的にcall
-                    self.bettingrate[i] = self.__money_each_player[i]
-                elif self.resplist[i] == "call" or 0:
-                    self.flag = self.flag+1  # お金あるときのcall
-                    self.bettingrate[i] = self.money
-                elif self.money+self.minimum_bet >= self.__money_each_player[i]:
-                    self.bettingrate[i] = self.__money_each_player[i]
-                    self.flag = 0
-                    self.money = self.money+self.minimum_bet
-                else:
-                    if self.minimum_bet > self.resplist[i]:
-                        # minimum_betより小さい金額ならminimum_betに修正
-                        self.resplist[i] = self.minimum_bet
-                        # もうお金が無くてALL_INしたい場合を追加予定
-                        self.money = self.money+self.resplist[i]
-                        # call金額の更新
-                        self.flag = 0
-                        self.bettingrate[i] = self.money
-                    else:
-                        # minimum_betの整数倍をレイズするように返値を修正
-                        j = int(self.resplist[i]/self.minimum_bet)
-                        if self.__money_each_player[i] <= self.money+self.minimum_bet*j:
-                            j = int((self.__money_each_player[i]-self.money)/self.minimum_bet)+1
-                        self.minimum_bet = self.minimum_bet*j
-                        self.resplist[i] = self.minimum_bet
-                        # minimum_betの更新
-                        self.money = self.money+self.resplist[i]
-                        # call金額の更新
-                        self.flag = 0
-                        self.bettingrate[i] = self.money
-                    self.flag = self.flag+1
-                if self.flag == len(self.__players):
-                    self.bigb = i
-                self.active_plyers_list = []
-                for i in range(0, len(self.__players)):  # 降りなかった人をリストで返す
-                    if self.playercheck[i] is True:
-                        self.active_plyers_list.append('Player' + str(i+1))
-                self.flag_atfirst = self.flag_atfirst + 1
-            for i in range(0, len(self.__players)):
-                if self.__money_each_player[i] <= self.bettingrate[i]:
-                    self.bettingrate[i] = self.__money_each_player[i]
-            print(self.resplist, self.minimum_bet)
-            print(self.bettingrate)
 
+    def hentounohosei(self, i):
+        # while文でflagがプレイヤー数になるという次の工程に移行する条件を定義
+        # flagでレイズから次にレイズがあるまでカウントししている
+        if self.flag >= len(self.__players) or len(self.active_plyers_list) == 1:
+            self.resplist[i] = "----"  # レイズから1巡以降無視
+        elif self.flag_atfirst <= self.bigb and self.bigb != 3:
+            self.resplist[i] = "----"  # BBや前ターン最終レイズ者までの無視
+            self.flag = self.flag-1
+        elif self.playercheck[i] is False:
+            self.resplist[i] = "----"  # 降りた人の無視
+        elif self.resplist[i] == "fold":
+            self.playercheck[i] = False  # 降りる
+        elif self.__money_each_player[i] <= self.money:
+            self.resplist[i] = "call"  # 掛け金に満たない場合で降りてないなら必然的にcall
+            self.bettingrate[i] = self.__money_each_player[i]
+        elif self.resplist[i] == "call" or 0:  # お金あるときのcall
+            self.bettingrate[i] = self.money
+        elif self.money+self.minimum_bet >= self.__money_each_player[i]:
+            self.bettingrate[i] = self.__money_each_player[i]
+            self.flag = 0
+            self.money = self.money+self.minimum_bet
+        else:
+            if self.minimum_bet > self.resplist[i]:
+                # minimum_betより小さい金額ならminimum_betに修正
+                self.resplist[i] = self.minimum_bet
+                self.money = self.money+self.resplist[i]
+                # call金額の更新
+                self.bettingrate[i] = self.money
+            else:
+                # minimum_betの整数倍をレイズするように返値を修正
+                j = int(self.resplist[i]/self.minimum_bet)
+                if self.__money_each_player[i] <= self.money+self.minimum_bet*j:
+                    j = int((self.__money_each_player[i]-self.money)/self.minimum_bet)+1
+                self.minimum_bet = self.minimum_bet*j
+                self.resplist[i] = self.minimum_bet
+                # minimum_betの更新
+                self.money = self.money+self.resplist[i]
+                # call金額の更新
+                self.bettingrate[i] = self.money
+            self.flag = 0
+
+    def kakekinhosei(self):
+        for i in range(0, len(self.__players)):  # 最終的な掛け金の補正
+            if self.__money_each_player[i] <= self.bettingrate[i]:
+                self.bettingrate[i] = self.__money_each_player[i]
+
+    def flagnokosin(self, i):
+        self.flag = self.flag+1
+        self.flag_atfirst = self.flag_atfirst+1
+        if self.flag == len(self.__players):
+            self.bigb = i
+
+    def active_players(self):
+        self.active_plyers_list = []
+        for j in range(0, len(self.__players)):  # 降りなかった人をリストで返す
+            if self.playercheck[j] is True:
+                self.active_plyers_list.append('Player' + str(j+1))
+
+    def printingdate(self):
         print("next_turn_players_list", [self.active_plyers_list])
         # 次のターン参加する人のリスト
         print("betting_rate", self.money)  # レイズを繰り返した最終的にcallがそろった時の金額
         print("personal_betting_money", self.bettingrate)
         # 降りた人も含めてこの時点でいくら賭けたかのリスト
         print()
-        # 各プレイヤーからの返答を聞き、次の field のオープンや、スコア計算の手前まで行う (櫻井くん)
-        '''kokokaranisemono'''
+        print()
         if len(self.field) == 5:
+            print("--------------------------------------------")
             for i in range(0, len(self.__players)):
                 self.__money_each_player[i] = self.__money_each_player[i]-self.bettingrate[i]
-            print(self.__money_each_player)
-        print()
-        print()
-        '''kokomadenisemono'''
+            print("hanteimae-no-syozikin = ", self.__money_each_player)
+            print("syousya-hantei-taisyousya = ", self.active_plyers_list)
+            pot = sum(self.bettingrate)
+            print("pot = ", pot)
+
+    def get_responses(self):  # playersから返事を次のターンに進められるまで聞き続ける
+        if len(self.field) != 0:
+            self.flag = 0
+        self.flag_atfirst = 0
+        while self.flag < len(self.__players) and len(self.active_plyers_list) != 1:
+            # while文でflagがプレイヤー数になるという次の工程に移行する条件を定義
+            self.tadakiku()  # ただplayerからの返事を聞いてリストにする
+            for i in range(0, len(self.__players)):
+                self.hentounohosei(i)  # 返答をルールに従うように補正して解釈する
+                self.flagnokosin(i)  # 各フラグを1足して条件を満たせば次のターンの目印を更新
+                self.active_players()  # active_plyers_listを作成する
+            print(self.resplist)
+        self.kakekinhosei()  # 持ち金を超えた掛け金の補正
+        self.printingdate()  # 必要なデータをprint
 
     # calculate best score from given set of cards
     def calc_hand_score(self):
