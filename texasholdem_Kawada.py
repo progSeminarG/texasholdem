@@ -10,22 +10,30 @@ class Player(object):  # とりあえず仮のベースのメゾットこれを�
         self.my_cards = list_of_cards
 
     def respond(self):
-        #resp = ["call", "レイズ金額", "fold"]
+        resp = ["call", "レイズ金額", "fold"]
         return resp[random.randint(0, 2)]
-        # お金の関係はまだ理解してないので未入力
 
 
 class KawadaAI(Player):  # プレイ可能カードのリスト
+    def get_hand(self, dealer_input):
+        self.my_cards = dealer_input
+        '''
+        if self.my_cards[0].suit == self.my_cards[1].suit:
+            print("same_suit", end=" ")
+        for i in range(2):
+            for j in range(14):
+                if self.my_cards[i].number == j:
+                    print(j, end=" ")
+        print()
+        print()
+        '''
+
     def get_playable_cards(self):
-        playable_cards = []
-        for i in range(0, len(self.dealer.field)):
-            playable_cards.append(self.dealer.field[i])
-        for i in range(0, len(self.my_cards)):
-            playable_cards.append(self.my_cards[i])
+        playable_cards = self.dealer.field+self.my_cards
         return playable_cards
 
     def checkpair(self, any_cards):  # ペアの評価方法
-        pair = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  # A~Kまでの13個のリスト要素を用意
+        pair = [0]*13  # A~Kまでの13個のリスト要素を用意
         for i in range(0, len(any_cards)):  # カードの枚数ぶんだけ試行
             pair[any_cards[i].number-1] = pair[any_cards[i].number-1]+1
             # カードのnumber要素を参照し先ほどのリストpairの対応要素のカウントを1つ増やす
@@ -49,7 +57,7 @@ class KawadaAI(Player):  # プレイ可能カードのリスト
 
     def flashchecker(self):  # flashできるときに1を返す
         playable_cards = self.get_playable_cards()
-        suitcounter = [0, 0, 0, 0]
+        suitcounter = [0]*4
         check = 0
         for i in range(0, len(playable_cards)):
             if playable_cards[i].suit == 'S':
@@ -67,7 +75,7 @@ class KawadaAI(Player):  # プレイ可能カードのリスト
 
     def straightchecker(self):  # ストレートなら１を返す
         any_cards = self.get_playable_cards()
-        counter = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        counter = [0]*14
         for i in range(0, len(any_cards)):
             counter[any_cards[i].number-1] = counter[any_cards[i].number-1]+1
         counter[12] = counter[0]
@@ -80,7 +88,11 @@ class KawadaAI(Player):  # プレイ可能カードのリスト
                     straightlevel = i
         return straight
 
+    def get_players_number(self):  # my_numberを得る
+        return len(self.dealer.resplist)
+
     def respond(self):
+        my_number = self.get_players_number()
         flash = self.flashchecker()
         pairrate = []
         for i in range(0, 3):
@@ -88,14 +100,20 @@ class KawadaAI(Player):  # プレイ可能カードのリスト
         if pairrate == [0, 0, 3]:
             pairrate = [0, 0, 2]
         straight = self.straightchecker()
-        '''
-        if pairrate == [0, 0, 0] and straight == [0, 0]:
-            return "fold"
-        elif pairrate == [1, 0, 0] or pairrate == [0, 1, 1]:
-            return 30
-        elif pairrate == [0, 0, 2] or flash == 1:
-            return 30
-        else:
+        if self.dealer.money == self.dealer.bettingrate[my_number]:
+            return "call"  # 掛け金増やさないで参加できるなら参加する(絶対)
+        elif self.dealer.money == 2:
             return "call"
-        '''
-        return self.dealer.minimum_bet*3
+        elif pairrate == [0, 0, 0] and straight == [0, 0]:
+            return "fold"  # 役がないなら降りる
+        elif len(self.dealer.field) == 0:
+            return "call"  # 初ターン役ありならcall
+        elif pairrate == [1, 0, 0] or pairrate == [0, 1, 1]:
+            return self.dealer.minimum_bet*3  # 特にこの条件なら掛け金を増やす
+        elif pairrate == [0, 0, 2] or flash == 1:
+            return self.dealer.minimum_bet
+        else:
+            return "call"  # とりあえず合う条件が無ければcall
+        # ////////////未実装事項////////////
+        # *途中から負けそうだと思ったら降りる
+        # *執拗なつり上げに気づく

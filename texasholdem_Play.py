@@ -64,7 +64,8 @@ random.shuffle(players_list)
 
 game = Game(players_list)
 NUM_GAME = 1
-print(players_list)  # すみません毎回リストがシャッフルされて自分のAIが見づらいので書き足しました
+for i in range(0,len(players_list)):
+    print(players_list[i])  # すみません毎回リストがシャッフルされて自分のAIが見づらいので書き足しました
 for i in range(NUM_GAME):
     print("===== game", i, "=====")
     game.play()

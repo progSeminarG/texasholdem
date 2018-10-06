@@ -85,7 +85,9 @@ class Dealer(object):
     def put_field(self):
         self.__field.append(self.__handling_cards.pop(0))
 
-    # ここから先get_responses関連
+    # //////////////////////////////////////////////////////////////////////////
+    # /////////////////ここから先get_responses関連///////////////////////////////
+    # //////////////////////////////////////////////////////////////////////////
     # ask players what they want to do "fold, call, raise"
     def tadakiku(self):
         self.resplist = []
@@ -182,6 +184,9 @@ class Dealer(object):
             print(self.resplist)
         self.kakekinhosei()  # 持ち金を超えた掛け金の補正
         self.printingdate()  # 必要なデータをprint
+        #///////////////////////////////////////////////////////////////////////
+        #/////////////////ここまでget_responses()関連////////////////////////////
+        #///////////////////////////////////////////////////////////////////////
 
     # calculate best score from given set of cards
     #担当：白井．カードを受け取り，役とベストカードを返します．
@@ -191,11 +196,11 @@ class Dealer(object):
         num_list=[0]*14
         suit_list=[0,0,0,0]
         rtCrads=[]
-        
+
         (num,suit)=self.choice(cards)#num,suitのみを抜き出す
         pp=self.checkpairs(cards)#Kawadaさんの4cardsとか抜き出してリストにするやつ
         rpc1(cards)##REPLACE 1-->14
-        
+
         #for flash:make flash_list
         for SUIT in SS:
             if suit.count(SUIT)>=5:#flash
@@ -213,7 +218,7 @@ class Dealer(object):
             if prod>=1:
                 straight=1
                 straight_list=list(range(10-i,15-i))
-        
+
            ###############
         #####JUDGE BELOW#####
            ###############
@@ -357,7 +362,7 @@ class Dealer(object):
         for card in cards:
             card = (card+11)%13 + 2
         return cards
-            
+
     def rpc2(cards):#最後に14-->1に戻す方
         for card in cards:
             card=(card-1)%13+1
