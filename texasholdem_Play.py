@@ -50,7 +50,7 @@ class Game(object):
         self.__dealer.put_field()
         print("field:", [card.card for card in self.__dealer.field])
         self.__dealer.get_responses()
-        self.__dealer.calc_hand_score()
+        # self.__dealer.calc_hand_score()
 
 
 # === create players ===

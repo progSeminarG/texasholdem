@@ -56,6 +56,7 @@ class Dealer(object):
         self.bettingrate[self.bigb] = 2
         self.flag_atfirst = 0
         self.flag = 1
+        self.resplist = []
         for i in range(0, len(self.__players)):
             if self.__money_each_player[i] <= 0:
                 self.playercheck = False
@@ -89,11 +90,12 @@ class Dealer(object):
     # /////////////////ここから先get_responses関連///////////////////////////////
     # //////////////////////////////////////////////////////////////////////////
     # ask players what they want to do "fold, call, raise"
-    def tadakiku(self):
-        self.resplist = []
-        self.__resp = [
-                self.resplist.append(player.respond()) for player in self.__players
-                    ]
+    def get_response_from_one_person(self, player):
+        self.resplist.append(player.respond())
+        self.player_number = len(self.resplist)-1
+        self.hentounohosei(self.player_number)  # 返答をルールに従うように補正して解釈する
+        self.flagnokosin(self.player_number)  # 各フラグを1足して条件を満たせば次のターンの目印を更新
+        self.active_players()  # active_plyers_listを作成する
 
     def hentounohosei(self, i):
         # while文でflagがプレイヤー数になるという次の工程に移行する条件を定義
@@ -176,11 +178,12 @@ class Dealer(object):
         self.flag_atfirst = 0
         while self.flag < len(self.__players) and len(self.active_plyers_list) != 1:
             # while文でflagがプレイヤー数になるという次の工程に移行する条件を定義
-            self.tadakiku()  # ただplayerからの返事を聞いてリストにする
-            for i in range(0, len(self.__players)):
-                self.hentounohosei(i)  # 返答をルールに従うように補正して解釈する
-                self.flagnokosin(i)  # 各フラグを1足して条件を満たせば次のターンの目印を更新
-                self.active_players()  # active_plyers_listを作成する
+            if len(self.resplist) == 4:
+                self.resplist = []
+            # 1人ずつ聞いて補正して反映させる
+            self.resp = [
+                self.get_response_from_one_person(player) for player in self.__players
+                        ]
             print(self.resplist)
         self.kakekinhosei()  # 持ち金を超えた掛け金の補正
         self.printingdate()  # 必要なデータをprint
