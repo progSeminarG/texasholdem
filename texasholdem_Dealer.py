@@ -29,7 +29,7 @@ class Card(object):
 
 
 class Dealer(object):
-    def __init__(self, players_input):
+    def __init__(self, players_input, players_input2,game_input):
         self.__MIN_NUMBER_CARDS = 1  # smallest number of playing cards
         self.__MAX_NUMBER_CARDS = 13  # largest number of playing cards
         self.__SUITE = ['S', 'C', 'H', 'D']  # suit of playing cards
@@ -40,13 +40,20 @@ class Dealer(object):
         self.__num_players = len(self.__players)  # number of players
         self.__num_handling_cards = self.__NUM_HAND * self.__num_players + self.__NUM_MAX_FIELD
         # number of cards that deal with
-        self.__money_each_player = [self.__INITIAL_MONEY]*self.__num_players
+        '''self.__money_each_player = [self.__INITIAL_MONEY]*self.__num_players
         # money list of players
+        '''
+        self.__money_each_player = players_input2
+
         self.__field = []
         for player in self.__players:
             player.get_know_dealer(self)
-        self.smallb = random.randint(0,len(self.__players)-1)
+        self.smallb = game_input
+        while self.__money_each_player[self.smallb] == 0:
+            self.smallb = (self.smallb+1)%len(self.__players)
         self.bigb = (self.smallb+1)%len(self.__players)
+        while self.__money_each_player[self.bigb]  == 0:
+            self.bigb = (self.bigb+1)%len(self.__players)
         self.money = 2
         self.minimum_bet = 2
         self.playercheck = [True]*len(self.__players)  # 返答を毎度更新し、降りた時に０にする
@@ -59,7 +66,7 @@ class Dealer(object):
         self.resplist = []
         for i in range(0, len(self.__players)):
             if self.__money_each_player[i] <= 0:
-                self.playercheck = False
+                self.playercheck[i] = False
                 # お金が最初からなければ参加できない
         print("small-blined ", self.smallb)
         print(" big -blined ", self.bigb)
@@ -93,6 +100,19 @@ class Dealer(object):
     # /////////////////ここから先get_responses関連///////////////////////////////
     # //////////////////////////////////////////////////////////////////////////
     # ask players what they want to do "fold, call, raise"
+    def syozikin_kosin(self):
+        return self.__money_each_player
+
+    def sanka_kano_ninzu(self):
+        ninzu_at_first = 0
+        for i in range(len(self.__players)):
+            if self.__money_each_player[i] != 0:
+                ninzu_at_first = ninzu_at_first+1
+        return ninzu_at_first
+
+    def smallb_kosin(self):
+        return self.smallb
+
     def get_response_from_one_person(self, player):
         self.player_number = len(self.resplist)
         if self.flag >= len(self.__players) or len(self.active_plyers_list) == 1:
