@@ -91,8 +91,15 @@ class Dealer(object):
     # //////////////////////////////////////////////////////////////////////////
     # ask players what they want to do "fold, call, raise"
     def get_response_from_one_person(self, player):
-        self.resplist.append(player.respond())
-        self.player_number = len(self.resplist)-1
+        self.player_number = len(self.resplist)
+        if self.flag >= len(self.__players) or len(self.active_plyers_list) == 1:
+            self.resplist.append("----")  # レイズから1巡以降無視
+        elif self.flag_atfirst <= self.bigb and self.bigb != 3:
+            self.resplist.append("----")  # BBや前ターン最終レイズ者までの無視
+        elif self.playercheck[self.player_number] is False:
+            self.resplist.append("----")  # 降りた人の無視
+        else:
+            self.resplist.append(player.respond())
         self.hentounohosei(self.player_number)  # 返答をルールに従うように補正して解釈する
         self.flagnokosin(self.player_number)  # 各フラグを1足して条件を満たせば次のターンの目印を更新
         self.active_players()  # active_plyers_listを作成する
@@ -100,13 +107,10 @@ class Dealer(object):
     def hentounohosei(self, i):
         # while文でflagがプレイヤー数になるという次の工程に移行する条件を定義
         # flagでレイズから次にレイズがあるまでカウントししている
-        if self.flag >= len(self.__players) or len(self.active_plyers_list) == 1:
-            self.resplist[i] = "----"  # レイズから1巡以降無視
-        elif self.flag_atfirst <= self.bigb and self.bigb != 3:
-            self.resplist[i] = "----"  # BBや前ターン最終レイズ者までの無視
+        if self.flag_atfirst <= self.bigb and self.bigb != 3:
             self.flag = self.flag-1
-        elif self.playercheck[i] is False:
-            self.resplist[i] = "----"  # 降りた人の無視
+        elif self.resplist[i] == "----":
+            pass
         elif self.resplist[i] == "fold":
             self.playercheck[i] = False  # 降りる
         elif self.__money_each_player[i] <= self.money:
@@ -184,8 +188,8 @@ class Dealer(object):
             self.resp = [
                 self.get_response_from_one_person(player) for player in self.__players
                         ]
+            self.kakekinhosei()  # 持ち金を超えた掛け金の補正
             print(self.resplist)
-        self.kakekinhosei()  # 持ち金を超えた掛け金の補正
         self.printingdate()  # 必要なデータをprint
         #///////////////////////////////////////////////////////////////////////
         #/////////////////ここまでget_responses()関連////////////////////////////

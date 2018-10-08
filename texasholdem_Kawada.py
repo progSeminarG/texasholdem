@@ -25,8 +25,7 @@ class KawadaAI(Player):  # プレイ可能カードのリスト
                 if self.my_cards[i].number == j:
                     print(j, end=" ")
         print()
-        print()
-        '''
+        print()'''
 
     def get_playable_cards(self):
         playable_cards = self.dealer.field+self.my_cards
@@ -103,6 +102,8 @@ class KawadaAI(Player):  # プレイ可能カードのリスト
         if self.dealer.money == self.dealer.bettingrate[my_number]:
             return "call"  # 掛け金増やさないで参加できるなら参加する(絶対)
         elif self.dealer.money == 2:
+            return "call"
+        elif len(self.get_playable_cards()) == 2 and self.ablepair() == [0, 0, 1]:
             return "call"
         elif pairrate == [0, 0, 0] and straight == [0, 0]:
             return "fold"  # 役がないなら降りる
