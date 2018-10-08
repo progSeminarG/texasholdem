@@ -45,8 +45,8 @@ class Dealer(object):
         self.__field = []
         for player in self.__players:
             player.get_know_dealer(self)
-        self.smallb = 0
-        self.bigb = 1
+        self.smallb = random.randint(0,len(self.__players)-1)
+        self.bigb = (self.smallb+1)%len(self.__players)
         self.money = 2
         self.minimum_bet = 2
         self.playercheck = [True]*len(self.__players)  # 返答を毎度更新し、降りた時に０にする
@@ -61,6 +61,9 @@ class Dealer(object):
             if self.__money_each_player[i] <= 0:
                 self.playercheck = False
                 # お金が最初からなければ参加できない
+        print("small-blined ", self.smallb)
+        print(" big -blined ", self.bigb)
+
 
     # create a deck
     def __create_all_cards_stack(self):  # create list of [S1, S2, ..., D13]
@@ -150,8 +153,8 @@ class Dealer(object):
     def flagnokosin(self, i):
         self.flag = self.flag+1
         self.flag_atfirst = self.flag_atfirst+1
-        if self.flag == len(self.__players):
-            self.bigb = i
+        # if self.flag == len(self.__players):
+            # self.bigb = i
 
     def active_players(self):
         self.active_plyers_list = []
@@ -179,6 +182,7 @@ class Dealer(object):
     def get_responses(self):  # playersから返事を次のターンに進められるまで聞き続ける
         if len(self.field) != 0:
             self.flag = 0
+            self.bigb = (self.smallb-1)%len(self.__players)
         self.flag_atfirst = 0
         while self.flag < len(self.__players) and len(self.active_plyers_list) != 1:
             # while文でflagがプレイヤー数になるという次の工程に移行する条件を定義
