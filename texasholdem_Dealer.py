@@ -274,8 +274,9 @@ class Dealer(object):
             for i in range(13):
                 if num.count(14-i)==4:
                     for n in range(len(card_list)):
-                        if card_list[n][1]==14-i:
-                            rtCards.append(card_list[n])
+                        if card_list[6-n][1]==14-i:
+                            rtCards.append(card_list[6-n])
+                            card_list.remove(card_list[6-n])
             rtCards.append(card_list[2])
         ##Fullhouse##
         elif pp[1]==2:#3c *2
