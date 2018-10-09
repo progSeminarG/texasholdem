@@ -291,10 +291,10 @@ class Dealer(object):
                     if card_list[6-i][0]==SUIT:
                         flash_list.append(card_list[6-i])
         
-        (straight,straight_list)=self.judge_straight(card_list)
+        (straight,straight_list)=self.stlist(card_list)
         
         if straight==1 and flash==1:
-            (st,st_list)=self.judge_straight(flash_list)
+            (st,st_list)=self.stlist(flash_list)
             if st==1:
                 score=8
                 straight_flash=1
@@ -424,6 +424,8 @@ class Dealer(object):
         rtCards=nc
         return (score,rtCards)
 
+############################
+### for: calc_hand_score ###
     def choice(self,card_list):#suit,num,cardのみを取り出してリスト化
         SS=['S','C','H','D']
         suit=[0]*7
@@ -436,7 +438,7 @@ class Dealer(object):
         return (num,suit,card)
 
     #for straight:make straight_list
-    def judge_straight(self,card_list):
+    def stlist(self,card_list):
         card_list=sorted(card_list, key=lambda x: x[1])
         num=[0]*len(card_list)
         for i in range(len(card_list)):
@@ -474,7 +476,7 @@ class Dealer(object):
                 pairs[2]=pairs[2]+1
         return pairs#pairsは[4カード有無,3カードの有無,ペアの数]のリスト
 
-    def rpc1(self,cards):#最初に1-->14にする方
+    def rpc1(self,cards):#最初に1-->14にする方　引数はリスト
         rp=[]
         for card in cards:
             card = (card+11)%13 + 2
@@ -487,6 +489,41 @@ class Dealer(object):
             card=(card-1)%13+1
             rp.append(card)
         return rp
+### for: calc_hand_score ###
+############################
+
+    def judge_flash(self,cl1,cl2):###FLASH判定 shirai###
+        num1=[]
+        num2=[]
+        for k in range(5):
+            num1.append(cl1[k][1])
+            num2.append(cl2[k][1])
+        for i in range(5):
+            if max(num1)>max(num2):
+                sc=0
+                break
+            elif max(num1)<max(num2):
+                sc=1
+                break
+            elif max(num1)==max(num2):
+                sc=2
+                num1.remove(max(num1))
+                num2.remove(max(num2))
+        return sc
+
+    def judge_straight(self,cl1,cl2):###STRAIGHT判定 shirai###
+        num1=[]
+        num2=[]
+        for i in range(5):
+            num1.append(cl1[i][1])
+            num2.append(cl2[i][1])
+        if max(cl1)>max(cl2):
+            sc=0
+        elif max(cl1)<max(cl2):
+            sc=1
+        elif max(cl1)==max(cl2):
+            sc=2
+        return sc
 
     @property
     def field(self):
