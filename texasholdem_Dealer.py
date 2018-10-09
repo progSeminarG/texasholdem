@@ -44,6 +44,7 @@ class Dealer(object):
         # money list of players
         '''
         self.__money_each_player = players_input2  # player's hand money list
+        print(self.__money_each_player)
         self.__field = []  # cards list on the field
         for player in self.__players:
             player.get_know_dealer(self)
@@ -141,6 +142,9 @@ class Dealer(object):
             self.bettingrate[i] = self.__money_each_player[i]
         elif self.resplist[i] == "call" or 0:  # お金あるときのcall
             self.bettingrate[i] = self.money
+        elif type(self.resplist[i]) is str:
+            self.resplist[i] = "call"
+            self.bettingrate[i] = self.money
         elif self.money+self.minimum_bet >= self.__money_each_player[i]:
             self.bettingrate[i] = self.__money_each_player[i]
             self.flag = 0
@@ -196,8 +200,8 @@ class Dealer(object):
                 self.__money_each_player[i] = self.__money_each_player[i]-self.bettingrate[i]
             print("hanteimae-no-syozikin = ", self.__money_each_player)
             print("syousya-hantei-taisyousya = ", self.active_players_list)
-            pot = sum(self.bettingrate)
-            print("pot = ", pot)
+            self.pot = sum(self.bettingrate)
+            print("pot = ", self.pot)
             '''
             self.open = [
                 print([card.card for card in (player.open_cards())]) for player in self.__players
@@ -228,6 +232,7 @@ class Dealer(object):
     def calc(self):
         self.active_players()
         winner = []
+        winner_num = []
         i = 0
         j = 0
         winner_score = 0
@@ -238,8 +243,11 @@ class Dealer(object):
                 roll.append(self.calc_hand_score(player.open_cards()+self.field)[0])
                 if winner_score < roll[j]:
                     winner = [self.active_players_list[j]]
+                    winner_num = []
+                    winner_num.append(i)
                     winner_score = roll[j]
                 elif winner_score == roll[j]:
+                    winner_num.append(i)
                     winner.append(self.active_players_list[j])
                 print()
                 #print(self.calc_hand_score(player.open_cards()+self.field)[0])
@@ -250,7 +258,9 @@ class Dealer(object):
         print("///////////////////////////////////////////////")
         print("/////////////winner" , winner, "////////////////")  # print winner
         print("///////////////////////////////////////////////")
-        print()
+        winning_money = int(self.pot/len(winner))
+        for i in range(len(winner_num)):
+            self.__money_each_player[winner_num[i]] = self.__money_each_player[winner_num[i]]+winning_money
         # print([self.calc_hand_score(player.open_cards()+self.field) for player in self.__players])
 
 

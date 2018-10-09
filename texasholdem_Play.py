@@ -95,5 +95,6 @@ while game_end == False:
     i = i+1
     print()
     print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
+print(game.syozikin)
 for i in range(0, len(players_list)):
     print(players_list[i])  # すみません毎回リストがシャッフルされて自分のAIが見づらいので書き足しました
