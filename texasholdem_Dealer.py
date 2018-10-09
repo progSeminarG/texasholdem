@@ -57,7 +57,7 @@ class Dealer(object):
         self.money = 2
         self.minimum_bet = 2
         self.playercheck = [True]*len(self.__players)  # 返答を毎度更新し、降りた時に０にする
-        self.active_plyers_list = []
+        self.active_players_list = []
         self.bettingrate = [0]*len(self.__players)  # 各々が賭けたお金を記録するリスト
         self.bettingrate[self.smallb] = 1
         self.bettingrate[self.bigb] = 2
@@ -68,8 +68,8 @@ class Dealer(object):
             if self.__money_each_player[i] <= 0:
                 self.playercheck[i] = False
                 # お金が最初からなければ参加できない
-        print("small-blined ", self.smallb)
-        print(" big -blined ", self.bigb)
+        print("small-blined  Player", self.smallb+1)
+        print(" big -blined  Player", self.bigb+1)
 
 
     # create a deck
@@ -115,7 +115,7 @@ class Dealer(object):
 
     def get_response_from_one_person(self, player):
         self.player_number = len(self.resplist)
-        if self.flag >= len(self.__players) or len(self.active_plyers_list) == 1:
+        if self.flag >= len(self.__players) or len(self.active_players_list) == 1:
             self.resplist.append("----")  # レイズから1巡以降無視
         elif self.flag_atfirst <= self.bigb and self.bigb != 3:
             self.resplist.append("----")  # BBや前ターン最終レイズ者までの無視
@@ -177,13 +177,13 @@ class Dealer(object):
             # self.bigb = i
 
     def active_players(self):
-        self.active_plyers_list = []
+        self.active_players_list = []
         for j in range(0, len(self.__players)):  # 降りなかった人をリストで返す
             if self.playercheck[j] is True:
-                self.active_plyers_list.append('Player' + str(j+1))
+                self.active_players_list.append('Player' + str(j+1))
 
     def printingdate(self):
-        print("next_turn_players_list", [self.active_plyers_list])
+        print("next_turn_players_list", [self.active_players_list])
         # 次のターン参加する人のリスト
         print("betting_rate", self.money)  # レイズを繰り返した最終的にcallがそろった時の金額
         print("personal_betting_money", self.bettingrate)
@@ -195,16 +195,20 @@ class Dealer(object):
             for i in range(0, len(self.__players)):
                 self.__money_each_player[i] = self.__money_each_player[i]-self.bettingrate[i]
             print("hanteimae-no-syozikin = ", self.__money_each_player)
-            print("syousya-hantei-taisyousya = ", self.active_plyers_list)
+            print("syousya-hantei-taisyousya = ", self.active_players_list)
             pot = sum(self.bettingrate)
             print("pot = ", pot)
+            '''
+            self.open = [
+                print([card.card for card in (player.open_cards())]) for player in self.__players
+                        ]'''
 
     def get_responses(self):  # playersから返事を次のターンに進められるまで聞き続ける
         if len(self.field) != 0:
             self.flag = 0
             self.bigb = (self.smallb-1)%len(self.__players)
         self.flag_atfirst = 0
-        while self.flag < len(self.__players) and len(self.active_plyers_list) != 1:
+        while self.flag < len(self.__players) and len(self.active_players_list) != 1:
             # while文でflagがプレイヤー数になるという次の工程に移行する条件を定義
             if len(self.resplist) == 4:
                 self.resplist = []
@@ -218,6 +222,39 @@ class Dealer(object):
         #///////////////////////////////////////////////////////////////////////
         #/////////////////ここまでget_responses()関連////////////////////////////
         #///////////////////////////////////////////////////////////////////////
+
+
+
+    def calc(self):
+        self.active_players()
+        winer = []
+        i = 0
+        j = 0
+        winer_score = 0
+        roll = []
+        for player in self.__players:
+            if self.playercheck[i] is True:
+                # self.calc_hand_score(player.open_cards()+self.field)
+                print("==", self.active_players_list[j], "==")
+                roll.append(self.calc_hand_score(player.open_cards()+self.field)[0])
+                if winer_score < roll[j]:
+                    winer = [self.active_players_list[j]]
+                    winer_score = roll[j]
+                elif winer_score == roll[j]:
+                    winer.append(self.active_players_list[j])
+                print()
+                #print(self.calc_hand_score(player.open_cards()+self.field)[0])
+                j = j+1
+            i = i+1
+        print("--------------------------------------------")
+        print(self.active_players_list, " = ", roll)
+        print("///////////////////////////////////////////////")
+        print("/////////////winer" , winer, "////////////////")
+        print("///////////////////////////////////////////////")
+        print()
+        # print([self.calc_hand_score(player.open_cards()+self.field) for player in self.__players])
+
+
 
 
     # calculate best score from given set of cards

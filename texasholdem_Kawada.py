@@ -1,6 +1,6 @@
 
 import random
-
+from texasholdem_Dealer import Card
 
 class Player(object):  # とりあえず仮のベースのメゾットこれを継承する
     def get_know_dealer(self, dealer_input):
@@ -17,15 +17,19 @@ class Player(object):  # とりあえず仮のベースのメゾットこれを�
 class KawadaAI(Player):  # プレイ可能カードのリスト
     def get_hand(self, dealer_input):
         self.my_cards = dealer_input
+        # print([card.card for card in self.my_cards])
         '''
         if self.my_cards[0].suit == self.my_cards[1].suit:
             print("same_suit", end=" ")
         for i in range(2):
             for j in range(14):
                 if self.my_cards[i].number == j:
-                    print(j, end=" ")
+                    print(j, end=" ")'''
         print()
-        print()'''
+
+
+    def open_cards(self):
+        return self.my_cards
 
     def get_playable_cards(self):
         playable_cards = self.dealer.field+self.my_cards

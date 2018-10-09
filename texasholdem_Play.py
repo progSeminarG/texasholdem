@@ -52,6 +52,8 @@ class Game(object):
         self.__dealer.put_field()
         print("field:", [card.card for card in self.__dealer.field])
         self.__dealer.get_responses()
+        print("open cards  &&  pick 5cards")
+        self.__dealer.calc()
         # self.__dealer.calc_hand_score()
         self.syozikin = self.__dealer.syozikin_kosin()
         self.smallb = (self.__dealer.smallb_kosin()+1)%len(self.__players)
