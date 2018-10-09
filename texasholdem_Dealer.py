@@ -226,11 +226,14 @@ class Dealer(object):
         SS=['S','C','H','D']
         suit_list=[0,0,0,0]
         rtCrads=[]
-
+        
         (num,suit,card_list)=self.choice(cards)#クラスからnum,suit,cardを抜き出す
+        card_list=sorted(card_list, key=lambda x: x[1])###<<DEBUG MODE>>###
+        print("card:",card_list)
         pp=self.checkpair(cards)#Kawadaさんの4cardsとか抜き出してリストにするやつ
         ##REPLACE 1-->14
         num=self.rpc1(num)
+        num.sort()
         nc=[]
         for i in range(len(card_list)):
             ss=card_list[i][0]
@@ -238,8 +241,7 @@ class Dealer(object):
             nc.append((ss,nn))
         card_list=nc
         card_list=sorted(card_list, key=lambda x: x[1])#2ndでsort
-        print(card_list)
-
+        
         flash=0
         straight=0
         straight_flash=0
@@ -251,19 +253,19 @@ class Dealer(object):
                 for i in range(len(card_list)):#flashの数字だけ取り出す
                     if card_list[6-i][0]==SUIT:
                         flash_list.append(card_list[6-i])
-
+        
         (straight,straight_list)=self.judge_straight(card_list)
-
+        
         if straight==1 and flash==1:
             (st,st_list)=self.judge_straight(flash_list)
             if st==1:
                 score=8
                 straight_flash=1
-
+                
            ###############
         #####JUDGE BELOW#####
            ###############
-
+        
         rtCards=[]
         ##Straight-Flash###
         if straight_flash==1:
@@ -375,7 +377,7 @@ class Dealer(object):
         else:
             score=0
             rtCards=card_list[2:7]
-
+        
         ##RETURN!!##
         nc=[]
         for i in range(len(rtCards)):
@@ -383,7 +385,6 @@ class Dealer(object):
             nn=(rtCards[i][1]-1)%13+1
             nc.append((ss,nn))
         rtCards=nc
-        print(rtCards)
         return (score,rtCards)
 
     def choice(self,card_list):#suit,num,cardのみを取り出してリスト化
