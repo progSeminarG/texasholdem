@@ -43,33 +43,32 @@ class Dealer(object):
         '''self.__money_each_player = [self.__INITIAL_MONEY]*self.__num_players
         # money list of players
         '''
-        self.__money_each_player = players_input2
-
-        self.__field = []
+        self.__money_each_player = players_input2  # player's hand money list
+        self.__field = []  # cards list on the field
         for player in self.__players:
             player.get_know_dealer(self)
-        self.smallb = game_input
-        while self.__money_each_player[self.smallb] == 0:
+        self.smallb = game_input  # temporaru number of small-blined input from game class
+        while self.__money_each_player[self.smallb] == 0:  # if player have no money samll-blined position change
             self.smallb = (self.smallb+1)%len(self.__players)
-        self.bigb = (self.smallb+1)%len(self.__players)
-        while self.__money_each_player[self.bigb]  == 0:
+        self.bigb = (self.smallb+1)%len(self.__players)  # decide big-blined
+        while self.__money_each_player[self.bigb]  == 0:  # if player have no money big-blined position change
             self.bigb = (self.bigb+1)%len(self.__players)
-        self.money = 2
-        self.minimum_bet = 2
+        self.money = 2  # betting money at first
+        self.minimum_bet = 2  # player can raise betting money the multiple of 2$ at first
         self.playercheck = [True]*len(self.__players)  # 返答を毎度更新し、降りた時に０にする
-        self.active_players_list = []
+        self.active_players_list = []  # the list of actionable players
         self.bettingrate = [0]*len(self.__players)  # 各々が賭けたお金を記録するリスト
-        self.bettingrate[self.smallb] = 1
-        self.bettingrate[self.bigb] = 2
-        self.flag_atfirst = 0
-        self.flag = 1
-        self.resplist = []
+        self.bettingrate[self.smallb] = 1  # small-blined bet 1$ at first
+        self.bettingrate[self.bigb] = 2  # big-blined bet 2$ at first
+        self.flag_atfirst = 0  # this flag is used to compair to big-blined position
+        self.flag = 1  # this flag is used to check the count of "call" and "fold"
+        self.resplist = []  # list of players respond("call"/"fold"/number of raise)
         for i in range(0, len(self.__players)):
             if self.__money_each_player[i] <= 0:
                 self.playercheck[i] = False
-                # お金が最初からなければ参加できない
-        print("small-blined  Player", self.smallb+1)
-        print(" big -blined  Player", self.bigb+1)
+                # player who have no money can't play new game
+        print("small-blined  Player", self.smallb+1)  # print the player of small-blined position
+        print(" big -blined  Player", self.bigb+1)  # print the player of big-blined position
 
 
     # create a deck
@@ -100,17 +99,18 @@ class Dealer(object):
     # /////////////////ここから先get_responses関連///////////////////////////////
     # //////////////////////////////////////////////////////////////////////////
     # ask players what they want to do "fold, call, raise"
-    def syozikin_kosin(self):
+
+    def syozikin_kosin(self):  # money list of player have
         return self.__money_each_player
 
-    def sanka_kano_ninzu(self):
+    def sanka_kano_ninzu(self):  # number of players who play new game
         ninzu_at_first = 0
         for i in range(len(self.__players)):
             if self.__money_each_player[i] != 0:
                 ninzu_at_first = ninzu_at_first+1
         return ninzu_at_first
 
-    def smallb_kosin(self):
+    def smallb_kosin(self):  # number of small-blined(0~3)
         return self.smallb
 
     def get_response_from_one_person(self, player):
@@ -227,29 +227,28 @@ class Dealer(object):
 
     def calc(self):
         self.active_players()
-        winer = []
+        winner = []
         i = 0
         j = 0
-        winer_score = 0
+        winner_score = 0
         roll = []
         for player in self.__players:
             if self.playercheck[i] is True:
-                # self.calc_hand_score(player.open_cards()+self.field)
                 print("==", self.active_players_list[j], "==")
                 roll.append(self.calc_hand_score(player.open_cards()+self.field)[0])
-                if winer_score < roll[j]:
-                    winer = [self.active_players_list[j]]
-                    winer_score = roll[j]
-                elif winer_score == roll[j]:
-                    winer.append(self.active_players_list[j])
+                if winner_score < roll[j]:
+                    winner = [self.active_players_list[j]]
+                    winner_score = roll[j]
+                elif winner_score == roll[j]:
+                    winner.append(self.active_players_list[j])
                 print()
                 #print(self.calc_hand_score(player.open_cards()+self.field)[0])
                 j = j+1
             i = i+1
         print("--------------------------------------------")
-        print(self.active_players_list, " = ", roll)
+        print(self.active_players_list, " = ", roll)  # print finalist and their score
         print("///////////////////////////////////////////////")
-        print("/////////////winer" , winer, "////////////////")
+        print("/////////////winner" , winner, "////////////////")  # print winner
         print("///////////////////////////////////////////////")
         print()
         # print([self.calc_hand_score(player.open_cards()+self.field) for player in self.__players])
@@ -263,7 +262,7 @@ class Dealer(object):
         SS=['S','C','H','D']
         suit_list=[0,0,0,0]
         rtCrads=[]
-        
+
         (num,suit,card_list)=self.choice(cards)#クラスからnum,suit,cardを抜き出す
         card_list=sorted(card_list, key=lambda x: x[1])###<<DEBUG MODE>>###
         print("card:",card_list)
@@ -278,7 +277,7 @@ class Dealer(object):
             nc.append((ss,nn))
         card_list=nc
         card_list=sorted(card_list, key=lambda x: x[1])#2ndでsort
-        
+
         flash=0
         straight=0
         straight_flash=0
@@ -290,19 +289,19 @@ class Dealer(object):
                 for i in range(len(card_list)):#flashの数字だけ取り出す
                     if card_list[6-i][0]==SUIT:
                         flash_list.append(card_list[6-i])
-        
+
         (straight,straight_list)=self.judge_straight(card_list)
-        
+
         if straight==1 and flash==1:
             (st,st_list)=self.judge_straight(flash_list)
             if st==1:
                 score=8
                 straight_flash=1
-                
+
            ###############
         #####JUDGE BELOW#####
            ###############
-        
+
         rtCards=[]
         ##Straight-Flash###
         if straight_flash==1:
@@ -414,7 +413,7 @@ class Dealer(object):
         else:
             score=0
             rtCards=card_list[2:7]
-        
+
         ##RETURN!!##
         nc=[]
         for i in range(len(rtCards)):

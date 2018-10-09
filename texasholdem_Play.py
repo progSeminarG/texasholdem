@@ -35,8 +35,8 @@ args = parser.parse_args()
 class Game(object):
     def __init__(self, players_list):
         self.__players = players_list
-        self.syozikin = [500]*len(self.__players)
-        self.smallb = 0
+        self.syozikin = [500]*len(self.__players)  # player's money at first
+        self.smallb = 0  # number of small-blined at first
 
     def play(self):
         self.__dealer = Dealer(deepcopy(self.__players), deepcopy(self.syozikin), deepcopy(self.smallb))
@@ -55,11 +55,10 @@ class Game(object):
         print()
         print("open cards && calculate score")
         self.__dealer.calc()
-        # self.__dealer.calc_hand_score()
         self.syozikin = self.__dealer.syozikin_kosin()
         self.smallb = (self.__dealer.smallb_kosin()+1)%len(self.__players)
 
-    def ninzu_kakunin(self):
+    def ninzu_kakunin(self):  # if the numer of players who can play new game is 1 return True
         if self.__dealer.sanka_kano_ninzu() == 1:
             return True
         else:
