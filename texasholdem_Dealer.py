@@ -274,8 +274,8 @@ class Dealer(object):
         rtCrads=[]
 
         (num,suit,card_list)=self.choice(cards)#クラスからnum,suit,cardを抜き出す
-        card_list=sorted(card_list, key=lambda x: x[1])###<<DEBUG MODE>>###
-        print("card:",card_list)
+        #card_list=sorted(card_list, key=lambda x: x[1])###<<DEBUG MODE>>###
+        #print("card:",card_list)
         pp=self.checkpair(cards)#Kawadaさんの4cardsとか抜き出してリストにするやつ
         ##REPLACE 1-->14
         num=self.rpc1(num)
@@ -299,15 +299,7 @@ class Dealer(object):
                 for i in range(len(card_list)):#flashの数字だけ取り出す
                     if card_list[6-i][0]==SUIT:
                         flash_list.append(card_list[6-i])
-<<<<<<< HEAD
-        
         (straight,straight_list)=self.stlist(card_list)
-        
-=======
-
-        (straight,straight_list)=self.judge_straight(card_list)
-
->>>>>>> 2de16c4818efa58efe04ef28c09355aab9e87014
         if straight==1 and flash==1:
             (st,st_list)=self.stlist(flash_list)
             if st==1:
