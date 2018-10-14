@@ -7,6 +7,7 @@ from copy import deepcopy
 from texasholdem_Dealer import Card, Dealer
 from texasholdem_Player import Player
 from texasholdem_Kawada import KawadaAI
+from texasholdem_Human import Human
 
 
 class CustomFormatter(argparse.ArgumentDefaultsHelpFormatter,
@@ -68,25 +69,34 @@ class Game(object):
 
 # === create players ===
 player1 = KawadaAI()
-player2 = Player()
+player2 = Human()
+# player2 = Player()
 player3 = Player()
 player4 = Player()
 
 players_list = [player1, player2, player3, player4]
 random.shuffle(players_list)
-'''
+
+
+
 game = Game(players_list)
-NUM_GAME = 1
+nl = []
 for i in range(0,len(players_list)):
-    print(players_list[i])  # すみません毎回リストがシャッフルされて自分のAIが見づらいので書き足しました
+    nl.append(players_list[i].__class__.__name__)
+print("players;", nl)
+
+NUM_GAME = 5
+
 for i in range(NUM_GAME):
     print("===== game", i, "=====")
-    game.play()'''
+    game.play()
 
-
+'''
 game = Game(players_list)
+nl = []
 for i in range(0,len(players_list)):
-    print(players_list[i])  # すみません毎回リストがシャッフルされて自分のAIが見づらいので書き足しました
+    nl.append(players_list[i].__class__.__name__)
+print("players;", nl)
 game_end = False
 i = 0
 while game_end == False:
@@ -97,5 +107,5 @@ while game_end == False:
     print()
     print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
 print(game.syozikin)
-for i in range(0, len(players_list)):
-    print(players_list[i])  # すみません毎回リストがシャッフルされて自分のAIが見づらいので書き足しました
+print("players;", nl)  # すみません毎回リストがシャッフルされて自分のAIが見づらいので書き足しました
+'''

@@ -237,7 +237,7 @@ class Dealer(object):
         roll = []
         for player in self.__players:
             if self.playercheck[i] is True:
-                print("==", self.active_players_list[j], "==")
+                # print("==", self.active_players_list[j], "==")
                 seven_cards = player.open_cards()+self.field
                 roll.append(self.calc_hand_score(seven_cards)[0])  # open_cards()をなくしてhandout()で記録するように変更予定
                 if winner_score < roll[j]:
@@ -278,17 +278,13 @@ class Dealer(object):
         rtCrads=[]
 
         (num,suit,card_list)=self.choice(cards)#クラスからnum,suit,cardを抜き出す
-        card_list=sorted(card_list, key=lambda x: x[1])###<<DEBUG MODE>>###
-        print("card:",card_list)
+        #card_list=sorted(card_list, key=lambda x: x[1])###<<DEBUG MODE>>###
+        #print("card:",card_list)
         pp=self.checkpair(cards)#Kawadaさんの4cardsとか抜き出してリストにするやつ
         ##REPLACE 1-->14
         num=self.rpc1(num)
         num.sort()
-        nc=[]
-        for i in range(len(card_list)):
-            ss=card_list[i][0]
-            nn=(card_list[i][1]+11)%13 + 2
-            nc.append((ss,nn))
+        nc=self.rpcards1(card_list)
         card_list=nc
         card_list=sorted(card_list, key=lambda x: x[1])#2ndでsort
 
@@ -303,15 +299,7 @@ class Dealer(object):
                 for i in range(len(card_list)):#flashの数字だけ取り出す
                     if card_list[6-i][0]==SUIT:
                         flash_list.append(card_list[6-i])
-        # <<<<<<< HEAD
-
         (straight,straight_list)=self.stlist(card_list)
-
-        # =======
-
-        # (straight,straight_list)=self.judge_straight(card_list)
-
-        # >>>>>>> 2de16c4818efa58efe04ef28c09355aab9e87014
         if straight==1 and flash==1:
             (st,st_list)=self.stlist(flash_list)
             if st==1:
@@ -435,11 +423,7 @@ class Dealer(object):
             rtCards=card_list[2:7]
 
         ##RETURN!!##
-        nc=[]
-        for i in range(len(rtCards)):
-            ss=rtCards[i][0]
-            nn=(rtCards[i][1]-1)%13+1
-            nc.append((ss,nn))
+        nc=self.rpcards2(rtCards)
         rtCards=nc
         return (score,rtCards)
 
@@ -502,12 +486,29 @@ class Dealer(object):
             rp.append(card)
         return rp
 
-    def rpc2(self,cards):#最後に14-->1に戻す方
+    def rpc2(self,cards):#最後に14-->1に戻す方　引数はリスト
         rp=[]
         for card in cards:
             card=(card-1)%13+1
             rp.append(card)
         return rp
+
+    def rpcards1(self,cards): #最初に1-->14にする方　引数はカードタプルリスト
+        nc=[]
+        for i in range(len(cards)):
+            ss=cards[i][0]
+            nn=(cards[i][1]+11)%13+2
+            nc.append((ss,nn))
+        return nc
+
+    def rpcards2(self,cards): #最後に14-->1に戻す方　引数はカードタプルリスト
+        nc=[]
+        for i in range(len(cards)):
+            ss=cards[i][0]
+            nn=(cards[i][1]-1)%13+1
+            nc.append((ss,nn))
+        return nc
+
 ### for: calc_hand_score ###
 ############################
 
@@ -517,6 +518,8 @@ class Dealer(object):
         for k in range(5):
             num1.append(cl1[k][1])
             num2.append(cl2[k][1])
+        self.rpc1(num1)
+        self.rpc1(num2)
         for i in range(5):
             if max(num1)>max(num2):
                 sc=0
@@ -536,11 +539,13 @@ class Dealer(object):
         for i in range(5):
             num1.append(cl1[i][1])
             num2.append(cl2[i][1])
-        if max(cl1)>max(cl2):
+        num1=self.rpc1(num1)
+        num2=self.rpc1(num2)
+        if max(num1)>max(num2):
             sc=0
-        elif max(cl1)<max(cl2):
+        elif max(num1)<max(num2):
             sc=1
-        elif max(cl1)==max(cl2):
+        elif max(num1)==max(num2):
             sc=2
         return sc
 
