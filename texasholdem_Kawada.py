@@ -18,13 +18,6 @@ class KawadaAI(Player):  # プレイ可能カードのリスト
     def get_hand(self, dealer_input):
         self.my_cards = dealer_input
         # print([card.card for card in self.my_cards])
-        '''
-        if self.my_cards[0].suit == self.my_cards[1].suit:
-            print("same_suit", end=" ")
-        for i in range(2):
-            for j in range(14):
-                if self.my_cards[i].number == j:
-                    print(j, end=" ")'''
         print()
 
 
@@ -114,9 +107,9 @@ class KawadaAI(Player):  # プレイ可能カードのリスト
         elif len(self.dealer.field) == 0:
             return "call"  # 初ターン役ありならcall
         elif pairrate == [1, 0, 0] or pairrate == [0, 1, 1]:
-            return self.dealer.minimum_bet*3  # 特にこの条件なら掛け金を増やす
+            return self.dealer.minimum_bet*10  # 特にこの条件なら掛け金を増やす
         elif pairrate == [0, 0, 2] or flash == 1:
-            return self.dealer.minimum_bet
+            return self.dealer.minimum_bet*5
         else:
             return "call"  # とりあえず合う条件が無ければcall
         # ////////////未実装事項////////////

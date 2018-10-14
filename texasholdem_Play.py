@@ -35,7 +35,8 @@ args = parser.parse_args()
 class Game(object):
     def __init__(self, players_list):
         self.__players = players_list
-        self.syozikin = [500]*len(self.__players)  # player's money at first
+        self.__INITIAL_MONEY = 500  # money each player has in initial
+        self.syozikin = [self.__INITIAL_MONEY]*len(self.__players)  # player's money at first
         self.smallb = 0  # number of small-blined at first
 
     def play(self):
