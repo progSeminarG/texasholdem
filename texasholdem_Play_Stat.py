@@ -85,11 +85,11 @@ if __name__ == '__main__':
     parser.add_argument('--noshuffle', action='store_false', dest='shuffle',
                         help='do not shuffle players')
 
-    parser.add_argument('--numgames', type=int, default=[50], nargs=1,
+    parser.add_argument('--numgames', type=int, default=[5], nargs=1,
                         help='set number of games')
 
     parser.add_argument('--players', type=str,
-                        default=['Kawada', 'Shirai', 'Player', 'Player', 'Player', 'Player', 'Player', 'Player', 'Player'],
+                        default=['Kawada', 'Shirai', 'Player', 'Player'],
                         nargs='+', help='set list of players')
 
     parser.add_argument('--tournament', action='store_true',
@@ -156,7 +156,7 @@ if __name__ == '__main__':
 
 #plot
 df = pd.read_csv(output,header = 0,encoding = 'utf-8')
-color = ["red", "green", "black", "black", "black", "black", "black", "black", "black", "black", "black", "black" "black", "black", "black", "black" "black", "black", "black", "black"]
+color = ["red", "green", "black", "black", "black", "black", "black"]
 l = [0]*(len(players_list) + 1)
 for k in range(len(players_list) + 1):
     l[k] = df.iloc[0:numgg, k].values.tolist()
