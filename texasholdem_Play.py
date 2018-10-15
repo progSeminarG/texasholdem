@@ -37,11 +37,11 @@ class Game(object):
     def __init__(self, players_list):
         self.__players = players_list
         self.__INITIAL_MONEY = 500  # money each player has in initial
-        self.syozikin = [self.__INITIAL_MONEY]*len(self.__players)  # player's money at first
+        self.__accounts = [self.__INITIAL_MONEY]*len(self.__players)  # player's money at first
         self.smallb = 0  # number of small-blined at first
 
     def play(self):
-        self.__dealer = Dealer(deepcopy(self.__players), deepcopy(self.syozikin), deepcopy(self.smallb))
+        self.__dealer = Dealer(self, self.__players, self.smallb)
         self.__dealer.handout_cards()
         self.__dealer.get_responses()
         for i in range(3):
@@ -57,7 +57,7 @@ class Game(object):
         print()
         print("open cards && calculate score")
         self.__dealer.calc()
-        self.syozikin = self.__dealer.syozikin_kosin()
+        self.__accounts = self.__dealer.syozikin_kosin()
         self.smallb = (self.__dealer.smallb_kosin()+1)%len(self.__players)
 
     def ninzu_kakunin(self):  # if the numer of players who can play new game is 1 return True
@@ -65,6 +65,10 @@ class Game(object):
             return True
         else:
             return False
+
+    @property
+    def accounts(self):
+        return self.__accounts
 
 
 # === create players ===

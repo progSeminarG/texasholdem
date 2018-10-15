@@ -29,13 +29,13 @@ class Card(object):
 
 
 class Dealer(object):
-    def __init__(self, players_input, players_input2, game_input):
+    def __init__(self, game_inst, players_input, game_input):
         self.__MIN_NUMBER_CARDS = 1  # smallest number of playing cards
         self.__MAX_NUMBER_CARDS = 13  # largest number of playing cards
         self.__SUITE = ['S', 'C', 'H', 'D']  # suit of playing cards
         self.__NUM_HAND = 2  # number of hands
-        # self.__INITIAL_MONEY = 500  # money each player has in initial
         self.__NUM_MAX_FIELD = 5  # maximum number of field
+        self.__game_inst = game_inst
         self.__players = players_input  # instance of players
         self.__num_players = len(self.__players)  # number of players
         self.__num_handling_cards = self.__NUM_HAND * self.__num_players + self.__NUM_MAX_FIELD
@@ -43,7 +43,8 @@ class Dealer(object):
         '''self.__money_each_player = [self.__INITIAL_MONEY]*self.__num_players
         # money list of players
         '''
-        self.__money_each_player = players_input2  # player's hand money list
+        
+        self.__money_each_player = self.__game_inst.accounts  # player's hand money list
         print(self.__money_each_player)
         self.__field = []  # cards list on the field
         for player in self.__players:
