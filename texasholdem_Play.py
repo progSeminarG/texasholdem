@@ -8,6 +8,7 @@ import sys
 from texasholdem_Dealer import Card, Dealer
 from texasholdem_Player import Player
 from texasholdem_Kawada import KawadaAI
+from texasholdem_Shirai import ShiraiAI
 from texasholdem_Human import Human
 
 
@@ -76,7 +77,7 @@ if __name__ == '__main__':
                         help='set number of games')
 
     parser.add_argument('--players', type=str,
-                        default=['Kawada', 'Player', 'Player', 'Player'],
+                        default=['Kawada', 'Shirai', 'Player', 'Player', 'Player'],
                         nargs='+', help='set list of players')
 
     parser.add_argument('--tournament', action='store_true',
@@ -100,6 +101,8 @@ if __name__ == '__main__':
     for player in args.players:
         if player in {'Kawada','KawadaAI'}:
             players_list.append(KawadaAI())
+        elif player in {'Shirai','ShiraiAI'}:
+            players_list.append(ShiraiAI())
         elif player == 'Human':
             players_list.append(Human())
         elif player == 'Player':
