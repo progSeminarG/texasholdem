@@ -82,6 +82,9 @@ if __name__ == '__main__':
 
     parser.add_argument('--tournament', action='store_true',
                         help='play untile one has all money')
+
+    parser.add_argument('--numtournament', type=int, nargs=1, default=[1],
+                        help='number of player for tournament winner')
     '''
     parser.add_argument('--num', type=int, dest='num_game', nargs='?',
     default=1, help="number of game")
@@ -121,7 +124,7 @@ if __name__ == '__main__':
     # play games #
     if args.tournament:
         _i = 0
-        while game.accounts.count(0) != game.num_players-1:
+        while game.accounts.count(0) != game.num_players-args.numtournament[0]:
             print("===== game", _i, "=====")
             game.play()
             _i += 1
