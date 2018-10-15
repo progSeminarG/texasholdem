@@ -29,7 +29,7 @@ class Card(object):
 
 
 class Dealer(object):
-    def __init__(self, game_inst, players_input, game_input):
+    def __init__(self, game_inst, players_input):
         self.__MIN_NUMBER_CARDS = 1  # smallest number of playing cards
         self.__MAX_NUMBER_CARDS = 13  # largest number of playing cards
         self.__SUITE = ['S', 'C', 'H', 'D']  # suit of playing cards
@@ -49,7 +49,8 @@ class Dealer(object):
         self.__field = []  # cards list on the field
         for player in self.__players:
             player.get_know_dealer(self)
-        self.smallb = game_input  # temporaru number of small-blined input from game class
+        #self.smallb = game_input  # temporaru number of small-blined input from game class
+        self.smallb = (self.__game_inst.DBTN +1)%self.__num_players
         while self.__money_each_player[self.smallb] == 0:  # if player have no money samll-blined position change
             self.smallb = (self.smallb+1) % self.__num_players
         self.bigb = (self.smallb+1) % self.__num_players  # decide big-blined
@@ -111,8 +112,12 @@ class Dealer(object):
                 ninzu_at_first = ninzu_at_first+1
         return ninzu_at_first
 
-    def smallb_kosin(self):  # number of small-blined(0~3)
-        return self.smallb
+#    def smallb_kosin(self):  # number of small-blined(0~3)
+    def DBTN_update(self):  # number of small-blined(0~3)
+        _DBTN = self.smallb -1
+        if _DBTN < 0:
+            _DBTN = self.__num_players-1
+        return _DBTN
 
     def get_response_from_one_person(self, player):
         self.player_number = len(self.resplist)
