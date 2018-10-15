@@ -98,7 +98,7 @@ if __name__ == '__main__':
     #  create list of players #
     players_list = []
     for player in args.players:
-        if player == 'Kawada':
+        if player in {'Kawada','KawadaAI'}:
             players_list.append(KawadaAI())
         elif player == 'Human':
             players_list.append(Human())
