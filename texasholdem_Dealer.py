@@ -50,7 +50,7 @@ class Dealer(object):
         for player in self.__players:
             player.get_know_dealer(self)
         #self.smallb = game_input  # temporaru number of small-blined input from game class
-        self.smallb = (self.__game_inst.DBTN +1)%self.__num_players
+        self.smallb = (self.__game_inst.DB +1)%self.__num_players
         while self.__money_each_player[self.smallb] == 0:  # if player have no money samll-blined position change
             self.smallb = (self.smallb+1) % self.__num_players
         self.bigb = (self.smallb+1) % self.__num_players  # decide big-blined
@@ -113,11 +113,11 @@ class Dealer(object):
         return ninzu_at_first
 
 #    def smallb_kosin(self):  # number of small-blined(0~3)
-    def DBTN_update(self):  # number of small-blined(0~3)
-        _DBTN = self.smallb -1
-        if _DBTN < 0:
-            _DBTN = self.__num_players-1
-        return _DBTN
+    def DB_update(self):  # number of small-blined(0~3)
+        _DB = self.smallb -1
+        if _DB < 0:
+            _DB = self.__num_players-1
+        return _DB
 
     def get_response_from_one_person(self, player):
         self.player_number = len(self.resplist)

@@ -17,8 +17,9 @@ class Game(object):
         self.__players = players_list
         self.__num_players = len(self.__players)
         self.__total_money = self.__INITIAL_MONEY * self.__num_players
-        self.__accounts = [self.__INITIAL_MONEY]*self.__num_players  # player's money at first
-        self.__DBTN = 0  # position of Dealer BuTtoN
+        # player's money at first
+        self.__accounts = [self.__INITIAL_MONEY]*self.__num_players
+        self.__DB = 0  # position of Dealer Button
 
     def play(self):
         self.__dealer = Dealer(self, self.__players)
@@ -38,7 +39,7 @@ class Game(object):
         print("open cards && calculate score")
         self.__dealer.calc()
         self.__accounts = self.__dealer.syozikin_kosin()
-        self.__DBTN = self.__dealer.DBTN_update()
+        self.__DB = self.__dealer.DB_update()
 
     @property
     def accounts(self):
@@ -49,8 +50,8 @@ class Game(object):
         return self.__total_money
 
     @property
-    def DBTN(self):  # position of Dealer BuTtoN
-        return self.__DBTN
+    def DB(self):  # position of Dealer BuTtoN
+        return self.__DB
 
     @property
     def num_players(self):
@@ -62,9 +63,8 @@ class Game(object):
 
 if __name__ == '__main__':
     class CustomFormatter(argparse.ArgumentDefaultsHelpFormatter,
-                      argparse.MetavarTypeHelpFormatter):
+                          argparse.MetavarTypeHelpFormatter):
         pass
-
 
     parser = argparse.ArgumentParser(description="play Texas Hold'em.",
                                      formatter_class=CustomFormatter)
@@ -75,7 +75,8 @@ if __name__ == '__main__':
     parser.add_argument('--numgames', type=int, default=[5], nargs=1,
                         help='set number of games')
 
-    parser.add_argument('--players', type=str, default=['Kawada','Human','Player','Player'],
+    parser.add_argument('--players', type=str,
+                        default=['Kawada', 'Human', 'Player', 'Player'],
                         nargs='+', help='set list of players')
 
     parser.add_argument('--tournament', action='store_true',
@@ -112,15 +113,14 @@ if __name__ == '__main__':
 
     # create game #
     game = Game(players_list)
-    print("players:",game.names_of_players())
+    print("players:", game.names_of_players())
 
     # play games #
     if args.tournament:
         while game.accounts.count(0) == game.num_players-1:
-            print("ACCOUNTS:",game.accounts)
+            print("===== game", i, "=====")
             game.play()
     else:
         for i in range(args.numgames[0]):
             print("===== game", i, "=====")
             game.play()
-
