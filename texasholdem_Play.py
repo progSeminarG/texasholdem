@@ -18,7 +18,7 @@ from texasholdem_Human import Human
 
 class Game(object):
     def __init__(self, players_list):
-        self.__INITIAL_MONEY = 500  # money each player has in initial
+        self.__INITIAL_MONEY = 10  # money each player has in initial
         self.__players = players_list
         self.__num_players = len(self.__players)
         self.__total_money = self.__INITIAL_MONEY * self.__num_players
@@ -100,6 +100,9 @@ if __name__ == '__main__':
 
     parser.add_argument('--tournament', action='store_true',
                         help='play untile one has all money')
+                        
+    parser.add_argument('--numtournament', type=int, nargs=1, default=[1],
+                        help='number of player for tournament winner')
     '''
     parser.add_argument('--num', type=int, dest='num_game', nargs='?',
     default=1, help="number of game")
