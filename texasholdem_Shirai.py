@@ -15,15 +15,18 @@ class Player(object):
 
 class ShiraiAI(Player):
     def respond(self):
-        cl=[]
-        for i in range(len(self.cards)):
-            cl.append(self.cards[i].card)
-        for i in range(len(self.dealer.field)):
-            cl.append(self.dealer.field[i].card)
-        cl=sorted(cl, key=lambda x: x[1])
-        #print("cards--",cl)
-        #print("Please input:'call','fold',or money[int]-->")
-        #res = input()
-        return 'call'
+        num=[]
+        suit=[]
+        card=[]
+        cl=self.cards+self.dealer.field
+        (num,suit,card)=self.dealer.choice(cl)
+        lt=[0]*14
+        for c in num:
+            lt[c]+=1
+        rsp=10*(max(lt)-1)
+        if rsp == 0:
+            rsp='call'
+        print("rsp---",rsp)
+        return rsp
     
     
