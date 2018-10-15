@@ -76,7 +76,7 @@ if __name__ == '__main__':
                         help='set number of games')
 
     parser.add_argument('--players', type=str,
-                        default=['Kawada', 'Human', 'Player', 'Player'],
+                        default=['Kawada', 'Player', 'Player', 'Player'],
                         nargs='+', help='set list of players')
 
     parser.add_argument('--tournament', action='store_true',

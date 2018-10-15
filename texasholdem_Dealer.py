@@ -326,7 +326,7 @@ class Dealer(object):
         # 4cards
         elif pp[0] >= 1:
             score = 7
-            for i in range(13):
+            for i in range(self.__MAX_NUMBER_CARDS):
                 if num.count(14-i) == 4:
                     for n in range(len(card_list)):
                         if card_list[6-n][1] == 14-i:
@@ -337,7 +337,7 @@ class Dealer(object):
         elif pp[1] == 2:  # 3c *2
             score = 6
             c = 0
-            for i in range(13):
+            for i in range(self.__MAX_NUMBER_CARDS):
                 if num.count(14-i) == 3:
                     num.remove(14-i)
                     num.remove(14-i)
@@ -347,7 +347,7 @@ class Dealer(object):
                             rtCards.append(card_list[6-n])
                             card_list.remove(card_list[6-n])
                     break
-            for i in range(13):
+            for i in range(self.__MAX_NUMBER_CARDS):
                 if num.count(14-i) == 3:
                     for n in range(len(card_list)):
                         if card_list[n][1] == (14-i):
@@ -358,7 +358,7 @@ class Dealer(object):
                                 break
         elif pp[1] == 1 and pp[2] >= 1:  # 3c+pair
             score = 6
-            for i in range(13):
+            for i in range(self.__MAX_NUMBER_CARDS):
                 if num.count(14-i) == 3:
                     num.remove(14-i)
                     num.remove(14-i)
@@ -368,7 +368,7 @@ class Dealer(object):
                             rtCards.append(card_list[6-n])
                             card_list.remove(card_list[6-n])
                     break
-            for i in range(13):
+            for i in range(self.__MAX_NUMBER_CARDS):
                 if num.count(14-i) == 2:
                     for n in range(len(card_list)):
                         if card_list[3-n][1] == (14-i):
@@ -386,7 +386,7 @@ class Dealer(object):
         # 3cards
         elif pp[1] == 1:
             score = 3
-            for i in range(13):
+            for i in range(self.__MAX_NUMBER_CARDS):
                 if num.count(14-i) == 3:
                     for n in range(len(card_list)):
                         if card_list[6-n][1] == (14-i):
@@ -400,7 +400,7 @@ class Dealer(object):
         elif pp[2] >= 2:
             score = 2
             c = 0
-            for i in range(13):
+            for i in range(self.__MAX_NUMBER_CARDS):
                 if num.count(14-i) == 2 and c != 2:
                     c += 1
                     num.remove(14-i)
@@ -416,7 +416,7 @@ class Dealer(object):
         # 1pair
         elif pp[2] == 1:
             score = 1
-            for i in range(13):
+            for i in range(self.__MAX_NUMBER_CARDS):
                 if num.count(14-i) == 2:
                     for n in range(len(card_list)):
                         if card_list[6-n][1] == 14-i:
@@ -460,7 +460,7 @@ class Dealer(object):
         for card in num:  # 数字の個数カウント
             num_list[card] += 1
         for i in range(10):
-            prod = num_list[14-i]*num_list[13-i]*num_list[12-i]*num_list[11-i]*num_list[10-i]
+            prod = num_list[14-i]*num_list[self.__MAX_NUMBER_CARDS-i]*num_list[12-i]*num_list[11-i]*num_list[10-i]
             if prod >= 1:
                 straight = 1  # st宣言
                 k = 0
@@ -477,7 +477,7 @@ class Dealer(object):
         for i in range(0, len(any_cards)):  # カードの枚数ぶんだけ試行
             pair[any_cards[i].number-1] = pair[any_cards[i].number-1]+1  # カードのnumber要素を参照し先ほどのリストpairの対応要素のカウントを1つ増やす
         pairs = [0, 0, 0]  # pairsは[4カード有無, 3カードの有無, ペアの数]のリスト
-        for i in range(0, 13):  # pairの要素A~13すべて順に参照
+        for i in range(0, self.__MAX_NUMBER_CARDS):  # pairの要素A~13すべて順に参照
             if pair[i] == 4:  # lその要素が４枚あるときpairs[0]のカウントを増やす
                 pairs[0] = pairs[0]+1
             elif pair[i] == 3:  # 同様に3枚
