@@ -557,3 +557,11 @@ class Dealer(object):
     @property
     def field(self):
         return self.__field
+
+    @property
+    def list_of_players(self):
+        return [i.__class__.__name__ for i in self.__players]
+
+    @property
+    def list_of_money(self):
+        return self.__money_each_player
