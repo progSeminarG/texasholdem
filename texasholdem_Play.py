@@ -147,7 +147,7 @@ if __name__ == '__main__':
     
     if args.tournament:
         _i = 0
-        while game.accounts.count(0) != game.num_players-2:
+        while game.accounts.count(0) != game.num_players-args.numtournament[0]:
             print("===== game", _i, "=====")
             game.plot(_i)
             _i += 1
