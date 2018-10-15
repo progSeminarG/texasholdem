@@ -62,7 +62,7 @@ class Dealer(object):
         # player can raise betting money the multiple of 2$ at first
         self.minimum_bet = 2
         self.playercheck = [True]*self.__num_players  # 返答を毎度更新し、降りた時に０にする
-        self.active_players_list = []  # the list of actionable players
+        self.active_players_list = self.__players  # the list of actionable players
         self.bettingrate = [0]*self.__num_players  # 各々が賭けたお金を記録するリスト
         self.bettingrate[self.smallb] = 1  # small-blined bet 1$ at first
         self.bettingrate[self.bigb] = 2  # big-blined bet 2$ at first
@@ -191,12 +191,12 @@ class Dealer(object):
 
     def active_players(self):
         self.active_players_list = []
-        for j in range(0, self.__num_players):  # 降りなかった人をリストで返す
+        for j in range(self.__num_players):  # 降りなかった人をリストで返す
             if self.playercheck[j] is True:
-                self.active_players_list.append('Player' + str(j+1))
+                self.active_players_list.append(self.__players[j])
 
     def printingdate(self):
-        print("next_turn_players_list", [self.active_players_list])
+        print("next_turn_players_list", [i.__class__.__name__ for i in self.active_players_list])
         # 次のターン参加する人のリスト
         print("betting_rate", self.money)  # レイズを繰り返した最終的にcallがそろった時の金額
         print("personal_betting_money", self.bettingrate)
@@ -208,7 +208,7 @@ class Dealer(object):
             for i in range(0, self.__num_players):
                 self.__money_each_player[i] = self.__money_each_player[i]-self.bettingrate[i]
             print("hanteimae-no-syozikin = ", self.__money_each_player)
-            print("syousya-hantei-taisyousya = ", self.active_players_list)
+            print("syousya-hantei-taisyousya = ", [i.__class__.__name__ for i in self.active_players_list])
             self.pot = sum(self.bettingrate)
             print("pot = ", self.pot)
             '''
@@ -271,7 +271,7 @@ class Dealer(object):
             # 同じ役の人たちを比較して新しいwinners_card_kistを返す関数を作成する 引数は[[player番号, カードリスト], [player番号, カードリスト]...], 役のスコア]
         '''
         print("///////////////////////////////////////////////")
-        print("/////////////winner", winner, "////////////////")  # print winner
+        print("/////////////winner", [i.__class__.__name__ for i in winner], "////////////////")  # print winner
         print("///////////////////////////////////////////////")
         winning_money = int(self.pot/len(winner))
         for i in range(len(winner)):
