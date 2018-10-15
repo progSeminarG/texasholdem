@@ -112,9 +112,6 @@ class Dealer(object):
     # //////////////////////////////////////////////////////////////////////////
     # ask players what they want to do "fold, call, raise"
 
-    def syozikin_kosin(self):  # money list of player have
-        return self.__money_each_player
-
     def sanka_kano_ninzu(self):  # number of players who play new game
         ninzu_at_first = 0
         for i in range(self.__num_players):
