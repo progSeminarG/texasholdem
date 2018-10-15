@@ -133,7 +133,7 @@ class Dealer(object):
         self.player_number = len(self.resplist)
         if self.flag >= self.__num_players or len(self.active_players_list) == 1:
             self.resplist.append("----")  # レイズから1巡以降無視
-        elif self.flag_atfirst <= self.bigb and self.bigb != 3:
+        elif self.flag_atfirst <= self.bigb and self.bigb != self.player_number - 1:
             self.resplist.append("----")  # BBや前ターン最終レイズ者までの無視
         elif self.playercheck[self.player_number] is False:
             self.resplist.append("----")  # 降りた人の無視
@@ -147,7 +147,7 @@ class Dealer(object):
     def hentounohosei(self, i):
         # while文でflagがプレイヤー数になるという次の工程に移行する条件を定義
         # flagでレイズから次にレイズがあるまでカウントししている
-        if self.flag_atfirst <= self.bigb and self.bigb != 3:
+        if self.flag_atfirst <= self.bigb and self.bigb != self.player_number - 1:
             self.flag = self.flag-1
         elif self.resplist[i] == "----":
             pass
@@ -228,7 +228,7 @@ class Dealer(object):
         self.flag_atfirst = 0
         while self.flag < self.__num_players and len(self.active_players_list) != 1:
             # while文でflagがプレイヤー数になるという次の工程に移行する条件を定義
-            if len(self.resplist) == 4:
+            if len(self.resplist) == self.__num_players:
                 self.resplist = []
             # 1人ずつ聞いて補正して反映させる
             self.resp = [
