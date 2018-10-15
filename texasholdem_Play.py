@@ -77,7 +77,7 @@ if __name__ == '__main__':
                         help='set number of games')
 
     parser.add_argument('--players', type=str,
-                        default=['Kawada', 'Shirai', 'Player', 'Player', 'Player'],
+                        default=['Kawada', 'Shirai', 'Player', 'Player'],
                         nargs='+', help='set list of players')
 
     parser.add_argument('--tournament', action='store_true',
@@ -99,9 +99,9 @@ if __name__ == '__main__':
     #  create list of players #
     players_list = []
     for player in args.players:
-        if player in {'Kawada','KawadaAI'}:
+        if player in {'Kawada', 'KawadaAI'}:
             players_list.append(KawadaAI())
-        elif player in {'Shirai','ShiraiAI'}:
+        elif player in {'Shirai', 'ShiraiAI'}:
             players_list.append(ShiraiAI())
         elif player == 'Human':
             players_list.append(Human())
