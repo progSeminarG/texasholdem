@@ -44,8 +44,9 @@ class Dealer(object):
             = self.__NUM_HAND * self.__num_players + self.__NUM_MAX_FIELD
         # player's hand money list
         self.__money_each_player = self.__game_inst.accounts
-        for _i in range(len(self.__players)):  # OBJECTIVE!!!
+        for _i in range(self.__num_players):  # OBJECTIVE!!!
             setattr(self.__players[_i], 'money', self.__game_inst.accounts[_i])
+        print([i.money for i in self.__players])
         print(self.__money_each_player)
         self.__field = []  # cards list on the field
         for player in self.__players:
@@ -205,8 +206,10 @@ class Dealer(object):
         print()
         if len(self.field) == 5:
             print("--------------------------------------------")
-            for i in range(0, self.__num_players):
+            for i in range(self.__num_players):
+                self.__players[i].money = self.__players[i].money - self.bettingrate[i]
                 self.__money_each_player[i] = self.__money_each_player[i]-self.bettingrate[i]
+            print("hanteimae-no-syozikin = ", [i.money for i in self.__players])
             print("hanteimae-no-syozikin = ", self.__money_each_player)
             print("syousya-hantei-taisyousya = ", [i.__class__.__name__ for i in self.active_players_list])
             self.pot = sum(self.bettingrate)
@@ -276,6 +279,7 @@ class Dealer(object):
         winning_money = int(self.pot/len(winner))
         for i in range(len(winner)):
             self.__money_each_player[winners_cards_list[i][0]] = self.__money_each_player[winners_cards_list[i][0]]+winning_money
+            self.__players[winners_cards_list[i][0]].money += winning_money
 
     # calculate best score from given set of cards
     # 担当：白井．7枚のカードリストを受け取り，役とベストカードを返します．

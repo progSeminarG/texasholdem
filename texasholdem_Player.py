@@ -3,6 +3,8 @@
 import random
 
 class Player(object):
+    def __init__(self):
+        self.money = 1000
     def get_know_dealer(self,dealer_input):
         self.dealer = dealer_input
     def get_hand(self,list_of_cards):
@@ -10,4 +12,6 @@ class Player(object):
     def open_cards(self):
         return self.cards
     def respond(self):
+        self.money = 1000
         return random.choice([ 'call', 'fold', int(10)])
+
