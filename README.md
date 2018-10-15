@@ -24,7 +24,7 @@ respond で許されるのは、'call' (最低金額で参加) [str], 'fold' (�
 - `minimum_bet` 最低掛け金
 
 ## プレイ方法
-`texasholdem_Play.py`
+`python3 texasholdem_Play.py [オプション]`
 ### オプション
 - `--noshuffle` プレイヤーのシャッフルをしない。AI 作成中に有益。
 - `--numgames <int>` ゲーム数を指定 (デフォルト: 5)。
