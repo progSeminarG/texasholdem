@@ -22,3 +22,11 @@ respond で許されるのは、'call' (最低金額で参加) [str], 'fold' (�
 - `players_money` 各プレイヤーの所持金
 - `field_money` 場に積まれている金額
 - `minimum_bet` 最低掛け金
+
+## プレイ方法
+`texasholdem_Play.py`
+### オプション
+- `--noshuffle` プレイヤーのシャッフルをしない。AI 作成中に有益。
+- `--numgames <int>` ゲーム数を指定 (デフォルト: 5)。
+- `--players <str> [<str> ...]` プレイヤーを指定 (AI 名を渡せば良い)。
+- `--tournament` トーナメント形式で実行 (1 人以外の所持金がゼロになるまで実行、numgames は無視される)。
