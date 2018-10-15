@@ -434,9 +434,9 @@ class Dealer(object):
     # for: calc_hand_score
     def choice(self, card_list):  # suit, num, cardのみを取り出してリスト化
         SS = ['S', 'C', 'H', 'D']
-        suit = [0]*7
-        num = [0]*7
-        card = [0]*7
+        suit = [0]*len(card_list)
+        num = [0]*len(card_list)
+        card = [0]*len(card_list)
         for i in range(len(card_list)):
             num[i] = card_list[i].number
             suit[i] = card_list[i].suit
