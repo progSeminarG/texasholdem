@@ -3,6 +3,7 @@
 import argparse
 import random
 from copy import deepcopy
+import sys
 
 from texasholdem_Dealer import Card, Dealer
 from texasholdem_Player import Player
@@ -72,8 +73,11 @@ if __name__ == '__main__':
     parser.add_argument('--noshuffle', action='store_false', dest='shuffle',
                         help='do not shuffle players')
 
-    parser.add_argument('--numgames', type=int, default=5, nargs=1,
+    parser.add_argument('--numgames', type=int, default=[5], nargs=1,
                         help='set number of games')
+
+    parser.add_argument('--players', type=str, default=['Kawada','Human','Player','Player'],
+                        nargs='+', help='set list of players')
     '''
     parser.add_argument('--num', type=int, dest='num_game', nargs='?',
     default=1, help="number of game")
@@ -88,22 +92,27 @@ if __name__ == '__main__':
     '''
     args = parser.parse_args()
 
-    # === create players ===
-    player1 = KawadaAI()
-    player2 = Human()
-    # player2 = Player()
-    player3 = Player()
-    player4 = Player()
+    #  create list of players #
+    players_list = []
+    for player in args.players:
+        if player == 'Kawada':
+            players_list.append(KawadaAI())
+        elif player == 'Human':
+            players_list.append(Human())
+        elif player == 'Player':
+            players_list.append(Player())
+        else:
+            raise ValueError("ERROR! No such an AI!")
 
-    players_list = [player1, player2, player3, player4]
-    if args.shuffle:  # shuffle players
+    # shuffle players #
+    if args.shuffle:
         random.shuffle(players_list)
 
-
-
+    # create game #
     game = Game(players_list)
     print("players:",game.names_of_players())
 
+    # play games #
     for i in range(args.numgames[0]):
         print("===== game", i, "=====")
         game.play()
