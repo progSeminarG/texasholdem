@@ -117,10 +117,12 @@ if __name__ == '__main__':
 
     # play games #
     if args.tournament:
-        while game.accounts.count(0) == game.num_players-1:
-            print("===== game", i, "=====")
+        _i = 0
+        while game.accounts.count(0) != game.num_players-1:
+            print("===== game", _i, "=====")
             game.play()
+            _i += 1
     else:
-        for i in range(args.numgames[0]):
-            print("===== game", i, "=====")
+        for _i in range(args.numgames[0]):
+            print("===== game", _i, "=====")
             game.play()

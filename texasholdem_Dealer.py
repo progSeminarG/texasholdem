@@ -9,10 +9,12 @@ class Card(object):
     def __init__(self, suit, number):
         if suit not in ("S", "C", "H", "D"):
             # S: spade, C: club, H: heart, D: Diamond
-            raise ValueError("ERROR: suit of card is not correct: " + str(suit))
+            raise ValueError("ERROR: suit of card is not correct: "
+                             + str(suit))
         self.__suit = suit
         if number not in range(1, 14):
-            raise ValueError("ERROR: number of card is not correct: " + str(number))
+            raise ValueError("ERROR: number of card is not correct: "
+                             + str(number))
         self.__number = number
 
     @property
@@ -36,25 +38,25 @@ class Dealer(object):
         self.__NUM_HAND = 2  # number of hands
         self.__NUM_MAX_FIELD = 5  # maximum number of field
         self.__game_inst = game_inst
-        self.__players = players_input  # instance of players
+        self.__players = deepcopy(players_input)  # instance of players
         self.__num_players = len(self.__players)  # number of players
-        self.__num_handling_cards = self.__NUM_HAND * self.__num_players + self.__NUM_MAX_FIELD
+        self.__num_handling_cards \
+            = self.__NUM_HAND * self.__num_players + self.__NUM_MAX_FIELD
         # number of cards that deal with
         '''self.__money_each_player = [self.__INITIAL_MONEY]*self.__num_players
         # money list of players
         '''
-        
-        self.__money_each_player = self.__game_inst.accounts  # player's hand money list
+        # player's hand money list
+        self.__money_each_player = self.__game_inst.accounts
         print(self.__money_each_player)
         self.__field = []  # cards list on the field
         for player in self.__players:
             player.get_know_dealer(self)
-        #self.smallb = game_input  # temporaru number of small-blined input from game class
-        self.smallb = (self.__game_inst.DB +1)%self.__num_players
+        self.smallb = (self.__game_inst.DB + 1) % self.__num_players
         while self.__money_each_player[self.smallb] == 0:  # if player have no money samll-blined position change
             self.smallb = (self.smallb+1) % self.__num_players
         self.bigb = (self.smallb+1) % self.__num_players  # decide big-blined
-        while self.__money_each_player[self.bigb]  == 0:  # if player have no money big-blined position change
+        while self.__money_each_player[self.bigb] == 0:  # if player have no money big-blined position change
             self.bigb = (self.bigb+1) % self.__num_players
         self.money = 2  # betting money at first
         self.minimum_bet = 2  # player can raise betting money the multiple of 2$ at first
@@ -114,9 +116,9 @@ class Dealer(object):
 
 #    def smallb_kosin(self):  # number of small-blined(0~3)
     def DB_update(self):  # number of small-blined(0~3)
-        _DB = self.smallb -1
+        _DB = self.smallb - 1
         if _DB < 0:
-            _DB = self.__num_players-1
+            _DB = self.__num_players - 1
         return _DB
 
     def get_response_from_one_person(self, player):
@@ -230,8 +232,6 @@ class Dealer(object):
         # /////////////////ここまでget_responses()関連////////////////////////////
         # ///////////////////////////////////////////////////////////////////////
 
-
-
     def calc(self):
         self.active_players()
         winner = []
@@ -251,11 +251,11 @@ class Dealer(object):
                     winner_num = []
                     winner_num.append(i)
                     winner_score = roll[j]
-                    winners_cards_list = [[i,seven_cards]]
+                    winners_cards_list = [[i, seven_cards]]
                 elif winner_score == roll[j]:
                     winner_num.append(i)
                     winner.append(self.active_players_list[j])
-                    winners_cards_list.append([i,seven_cards])
+                    winners_cards_list.append([i, seven_cards])
                 print()
                 j = j+1
             i = i+1
@@ -263,8 +263,8 @@ class Dealer(object):
         print(self.active_players_list, " = ", roll)  # print finalist and their score
         '''
         if  len(winner) != 0:
-            winners_cards_list = self.deside_winner_from_highcard(winners_cards_list,winner_score)
-            # 同じ役の人たちを比較して新しいwinners_card_kistを返す関数を作成する 引数は[[player番号,カードリスト],[player番号,カードリスト]...],役のスコア]
+            winners_cards_list = self.deside_winner_from_highcard(winners_cards_list, winner_score)
+            # 同じ役の人たちを比較して新しいwinners_card_kistを返す関数を作成する 引数は[[player番号, カードリスト], [player番号, カードリスト]...], 役のスコア]
         '''
         print("///////////////////////////////////////////////")
         print("/////////////winner", winner, "////////////////")  # print winner
@@ -273,21 +273,18 @@ class Dealer(object):
         for i in range(len(winner)):
             self.__money_each_player[winners_cards_list[i][0]] = self.__money_each_player[winners_cards_list[i][0]]+winning_money
 
-
-
-
     # calculate best score from given set of cards
-    #担当：白井．7枚のカードリストを受け取り，役とベストカードを返します．
-    def calc_hand_score(self,cards):#7カードリストクラスをもらう
-        SS=['S','C','H','D']
-        suit_list=[0,0,0,0]
+    # 担当：白井．7枚のカードリストを受け取り，役とベストカードを返します．
+    def calc_hand_score(self, cards):  # 7カードリストクラスをもらう
+        SS=['S', 'C', 'H', 'D']
+        suit_list=[0, 0, 0, 0]
         rtCrads=[]
 
-        (num,suit,card_list)=self.choice(cards)#クラスからnum,suit,cardを抜き出す
-        #card_list=sorted(card_list, key=lambda x: x[1])###<<DEBUG MODE>>###
-        #print("card:",card_list)
-        pp=self.checkpair(cards)#Kawadaさんの4cardsとか抜き出してリストにするやつ
-        ##REPLACE 1-->14
+        (num, suit, card_list)=self.choice(cards)  # クラスからnum, suit, cardを抜き出す
+        # card_list=sorted(card_list, key=lambda x: x[1]) ###<<DEBUG MODE>>###
+        # print("card:", card_list)
+        pp=self.checkpair(cards)  # Kawadaさんの4cardsとか抜き出してリストにするやつ
+        #  #REPLACE 1-->14
         num=self.rpc1(num)
         num.sort()
         nc=self.rpcards1(card_list)
@@ -297,17 +294,17 @@ class Dealer(object):
         flash=0
         straight=0
         straight_flash=0
-        #for flash:make flash_list
+        # for flash:make flash_list
         for SUIT in SS:
-            if suit.count(SUIT)>=5:#flash
+            if suit.count(SUIT)>=5:  # flash
                 flash=1
                 flash_list=[]
                 for i in range(len(card_list)):#flashの数字だけ取り出す
                     if card_list[6-i][0]==SUIT:
                         flash_list.append(card_list[6-i])
-        (straight,straight_list)=self.stlist(card_list)
+        (straight, straight_list)=self.stlist(card_list)
         if straight==1 and flash==1:
-            (st,st_list)=self.stlist(flash_list)
+            (st, st_list)=self.stlist(flash_list)
             if st==1:
                 score=8
                 straight_flash=1
@@ -431,12 +428,12 @@ class Dealer(object):
         ##RETURN!!##
         nc=self.rpcards2(rtCards)
         rtCards=nc
-        return (score,rtCards)
+        return (score, rtCards)
 
 ############################
 ### for: calc_hand_score ###
-    def choice(self,card_list):#suit,num,cardのみを取り出してリスト化
-        SS=['S','C','H','D']
+    def choice(self, card_list):#suit, num, cardのみを取り出してリスト化
+        SS=['S', 'C', 'H', 'D']
         suit=[0]*7
         num=[0]*7
         card=[0]*7
@@ -444,10 +441,10 @@ class Dealer(object):
             num[i]=card_list[i].number
             suit[i]=card_list[i].suit
             card[i]=card_list[i].card
-        return (num,suit,card)
+        return (num, suit, card)
 
     #for straight:make straight_list
-    def stlist(self,card_list):
+    def stlist(self, card_list):
         card_list=sorted(card_list, key=lambda x: x[1])
         num=[0]*len(card_list)
         for i in range(len(card_list)):
@@ -467,58 +464,58 @@ class Dealer(object):
                         straight_list.append(card_list[len(card_list)-1-t])
                         k+=1
                 break
-        return (straight,straight_list)
+        return (straight, straight_list)
 
 
     #Kawadaさんのもの
-    def checkpair(self,any_cards):#ペアの評価方法
-        pair=[0,0,0,0,0,0,0,0,0,0,0,0,0]#A~Kまでの13個のリスト要素を用意
-        for i in range (0,len(any_cards)):#カードの枚数ぶんだけ試行
+    def checkpair(self, any_cards):#ペアの評価方法
+        pair=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]#A~Kまでの13個のリスト要素を用意
+        for i in range (0, len(any_cards)):#カードの枚数ぶんだけ試行
             pair[any_cards[i].number-1]=pair[any_cards[i].number-1]+1#カードのnumber要素を参照し先ほどのリストpairの対応要素のカウントを1つ増やす
-        pairs=[0,0,0]#pairsは[4カード有無,3カードの有無,ペアの数]のリスト
-        for i in range (0,13):#pairの要素A~13すべて順に参照
+        pairs=[0, 0, 0]#pairsは[4カード有無, 3カードの有無, ペアの数]のリスト
+        for i in range (0, 13):#pairの要素A~13すべて順に参照
             if pair[i]==4:#その要素が４枚あるときpairs[0]のカウントを増やす
                 pairs[0]=pairs[0]+1
             elif pair[i]==3:#同様に3枚
                 pairs[1]=pairs[1]+1
             elif pair[i]==2:#同様に2枚
                 pairs[2]=pairs[2]+1
-        return pairs#pairsは[4カード有無,3カードの有無,ペアの数]のリスト
+        return pairs#pairsは[4カード有無, 3カードの有無, ペアの数]のリスト
 
-    def rpc1(self,cards):#最初に1-->14にする方　引数はリスト
+    def rpc1(self, cards):#最初に1-->14にする方 引数はリスト
         rp=[]
         for card in cards:
             card = (card+11)%13 + 2
             rp.append(card)
         return rp
 
-    def rpc2(self,cards):#最後に14-->1に戻す方　引数はリスト
+    def rpc2(self, cards):#最後に14-->1に戻す方 引数はリスト
         rp=[]
         for card in cards:
             card=(card-1)%13+1
             rp.append(card)
         return rp
 
-    def rpcards1(self,cards): #最初に1-->14にする方　引数はカードタプルリスト
+    def rpcards1(self, cards): #最初に1-->14にする方 引数はカードタプルリスト
         nc=[]
         for i in range(len(cards)):
             ss=cards[i][0]
             nn=(cards[i][1]+11)%13+2
-            nc.append((ss,nn))
+            nc.append((ss, nn))
         return nc
 
-    def rpcards2(self,cards): #最後に14-->1に戻す方　引数はカードタプルリスト
+    def rpcards2(self, cards): #最後に14-->1に戻す方 引数はカードタプルリスト
         nc=[]
         for i in range(len(cards)):
             ss=cards[i][0]
             nn=(cards[i][1]-1)%13+1
-            nc.append((ss,nn))
+            nc.append((ss, nn))
         return nc
 
 ### for: calc_hand_score ###
 ############################
 
-    def judge_flash(self,cl1,cl2):###FLASH判定 shirai###
+    def judge_flash(self, cl1, cl2):###FLASH判定 shirai###
         num1=[]
         num2=[]
         for k in range(5):
@@ -539,7 +536,7 @@ class Dealer(object):
                 num2.remove(max(num2))
         return sc
 
-    def judge_straight(self,cl1,cl2):###STRAIGHT判定 shirai###
+    def judge_straight(self, cl1, cl2):###STRAIGHT判定 shirai###
         num1=[]
         num2=[]
         for i in range(5):
