@@ -4,6 +4,10 @@ import argparse
 import random
 from copy import deepcopy
 import sys
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
 
 from texasholdem_Dealer import Card, Dealer
 from texasholdem_Player import Player
@@ -42,6 +46,20 @@ class Game(object):
         self.__accounts = self.__dealer.list_of_money
         self.__DB = self.__dealer.DB_update()
 
+    def plot(self,_i):
+        if _i == 0:
+            pp = str(0)
+            for k in range(len(self.__accounts)):
+                pp += "," + str(self.__accounts[k])
+            pp += "\n"
+            f.write(pp)
+        game.play()
+        pp = str(_i+1)
+        for k in range(len(self.__accounts)):
+            pp += "," + str(self.__accounts[k])
+        pp += "\n"
+        f.write(pp)
+
     @property
     def accounts(self):
         return self.__accounts
@@ -77,14 +95,11 @@ if __name__ == '__main__':
                         help='set number of games')
 
     parser.add_argument('--players', type=str,
-                        default=['Kawada', 'Shirai', 'Player', 'Player'],
+                        default=['Kawada', 'Shirai', 'Player', 'Player', 'Player', 'Player', 'Player', 'Player'],
                         nargs='+', help='set list of players')
 
     parser.add_argument('--tournament', action='store_true',
                         help='play untile one has all money')
-
-    parser.add_argument('--numtournament', type=int, nargs=1, default=[1],
-                        help='number of player for tournament winner')
     '''
     parser.add_argument('--num', type=int, dest='num_game', nargs='?',
     default=1, help="number of game")
@@ -122,13 +137,36 @@ if __name__ == '__main__':
     print("players:", game.names_of_players())
 
     # play games #
+    output = "stat.csv" # ログファイル
+    f = open(output,"w")
+    pp = "num"
+    for k in range(len( game.names_of_players() )):
+            pp += "," + str(game.names_of_players()[k])
+    pp += "\n"
+    f.write(pp) # header
+    
     if args.tournament:
         _i = 0
-        while game.accounts.count(0) != game.num_players-args.numtournament[0]:
+        while game.accounts.count(0) != game.num_players-2:
             print("===== game", _i, "=====")
-            game.play()
+            game.plot(_i)
             _i += 1
+        numgg = _i
     else:
+        numgg = args.numgames[0]
         for _i in range(args.numgames[0]):
             print("===== game", _i, "=====")
-            game.play()
+            game.plot(_i)
+    f.close()
+
+
+#plot
+df = pd.read_csv(output,header = 0,encoding = 'utf-8')
+color = ["red", "green", "blue", "yellow", "violet", "goldenrod", "crimson", "aqua", "black"]
+l = [0]*(len(players_list) + 1)
+for k in range(len(players_list) + 1):
+    l[k] = df.iloc[0:numgg+1, k].values.tolist()
+for k in range(1, len(players_list) + 1):
+    plt.plot(l[0], l[k], color[k-1])
+plt.show()
+    
