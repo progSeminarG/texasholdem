@@ -11,15 +11,14 @@ from texasholdem_Kawada import KawadaAI
 from texasholdem_Human import Human
 
 
-
-
 class Game(object):
     def __init__(self, players_list):
-        self.__players = players_list
         self.__INITIAL_MONEY = 500  # money each player has in initial
-        self.__accounts = [self.__INITIAL_MONEY]*len(self.__players)  # player's money at first
+        self.__players = players_list
+        self.__num_players = len(self.__players)
+        self.__total_money = self.__INITIAL_MONEY * self.__num_players
+        self.__accounts = [self.__INITIAL_MONEY]*self.__num_players  # player's money at first
         self.__DBTN = 0  # position of Dealer BuTtoN
-#        self.__smallb = 0  # number of small-blined at first
 
     def play(self):
         self.__dealer = Dealer(self, self.__players)
@@ -40,25 +39,25 @@ class Game(object):
         self.__dealer.calc()
         self.__accounts = self.__dealer.syozikin_kosin()
         self.__DBTN = self.__dealer.DBTN_update()
-#        self.smallb = (self.__dealer.smallb_kosin()+1)%len(self.__players)
-
-    def ninzu_kakunin(self):  # if the numer of players who can play new game is 1 return True
-        if self.__dealer.sanka_kano_ninzu() == 1:
-            return True
-        else:
-            return False
 
     @property
     def accounts(self):
         return self.__accounts
 
     @property
+    def total_money(self):
+        return self.__total_money
+
+    @property
     def DBTN(self):  # position of Dealer BuTtoN
         return self.__DBTN
 
+    @property
+    def num_players(self):
+        return self.__num_players
+
     def names_of_players(self):
         return [i.__class__.__name__ for i in players_list]
-
 
 
 if __name__ == '__main__':
@@ -78,6 +77,9 @@ if __name__ == '__main__':
 
     parser.add_argument('--players', type=str, default=['Kawada','Human','Player','Player'],
                         nargs='+', help='set list of players')
+
+    parser.add_argument('--tournament', action='store_true',
+                        help='play untile one has all money')
     '''
     parser.add_argument('--num', type=int, dest='num_game', nargs='?',
     default=1, help="number of game")
@@ -113,25 +115,12 @@ if __name__ == '__main__':
     print("players:",game.names_of_players())
 
     # play games #
-    for i in range(args.numgames[0]):
-        print("===== game", i, "=====")
-        game.play()
+    if args.tournament:
+        while game.accounts.count(0) == game.num_players-1:
+            print("ACCOUNTS:",game.accounts)
+            game.play()
+    else:
+        for i in range(args.numgames[0]):
+            print("===== game", i, "=====")
+            game.play()
 
-    '''
-    game = Game(players_list)
-    nl = []
-    for i in range(0,len(players_list)):
-        nl.append(players_list[i].__class__.__name__)
-    print("players;", nl)
-    game_end = False
-    i = 0
-    while game_end == False:
-        print("===== game", i, "=====")
-        game.play()
-        game_end = game.ninzu_kakunin()
-        i = i+1
-        print()
-        print("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■")
-    print(game.syozikin)
-    print("players;", nl)  # すみません毎回リストがシャッフルされて自分のAIが見づらいので書き足しました
-    '''
