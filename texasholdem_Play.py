@@ -55,6 +55,10 @@ class Game(object):
     def DBTN(self):  # position of Dealer BuTtoN
         return self.__DBTN
 
+    def names_of_players(self):
+        return [i.__class__.__name__ for i in players_list]
+
+
 
 if __name__ == '__main__':
     class CustomFormatter(argparse.ArgumentDefaultsHelpFormatter,
@@ -90,16 +94,13 @@ if __name__ == '__main__':
     player4 = Player()
 
     players_list = [player1, player2, player3, player4]
-    if args.shuffle:
+    if args.shuffle:  # shuffle players
         random.shuffle(players_list)
 
 
 
     game = Game(players_list)
-    nl = []
-    for i in range(0,len(players_list)):
-        nl.append(players_list[i].__class__.__name__)
-    print("players;", nl)
+    print("players:",game.names_of_players())
 
     NUM_GAME = 5
 
