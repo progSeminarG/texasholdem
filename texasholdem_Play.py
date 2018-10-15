@@ -72,6 +72,8 @@ if __name__ == '__main__':
     parser.add_argument('--noshuffle', action='store_false', dest='shuffle',
                         help='do not shuffle players')
 
+    parser.add_argument('--numgames', type=int, default=5, nargs=1,
+                        help='set number of games')
     '''
     parser.add_argument('--num', type=int, dest='num_game', nargs='?',
     default=1, help="number of game")
@@ -102,9 +104,7 @@ if __name__ == '__main__':
     game = Game(players_list)
     print("players:",game.names_of_players())
 
-    NUM_GAME = 5
-
-    for i in range(NUM_GAME):
+    for i in range(args.numgames[0]):
         print("===== game", i, "=====")
         game.play()
 
