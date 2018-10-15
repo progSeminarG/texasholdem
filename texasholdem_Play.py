@@ -39,7 +39,7 @@ class Game(object):
         print()
         print("open cards && calculate score")
         self.__dealer.calc()
-        self.__accounts = self.__dealer.syozikin_kosin()
+        self.__accounts = self.__dealer.list_of_money
         self.__DB = self.__dealer.DB_update()
 
     @property
