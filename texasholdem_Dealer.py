@@ -264,7 +264,7 @@ class Dealer(object):
                 j = j+1
             i = i+1
         print("--------------------------------------------")
-        print(self.active_players_list, " = ", roll)  # print finalist and their score
+        print([i.__class__.__name__ for i in self.active_players_list], " = ", roll)  # print finalist and their score
         '''
         if  len(winner) != 0:
             winners_cards_list = self.deside_winner_from_highcard(winners_cards_list, winner_score)
@@ -275,7 +275,7 @@ class Dealer(object):
         print("///////////////////////////////////////////////")
         winning_money = int(self.pot/len(winner))
         for i in range(len(winner)):
-            self.__money_each_player[winners_cards_list[i][0]] = self.__money_each_player[winners_cards_list[i][0]]+winning_money
+            self.__money_each_player[winners_cards_list[i][0]] = self.__money_each_player[winners_cards_list[i][0]] + winning_money
 
     # calculate best score from given set of cards
     # 担当：白井．7枚のカードリストを受け取り，役とベストカードを返します．
