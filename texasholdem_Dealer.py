@@ -42,12 +42,10 @@ class Dealer(object):
         self.__num_players = len(self.__players)  # number of players
         self.__num_handling_cards \
             = self.__NUM_HAND * self.__num_players + self.__NUM_MAX_FIELD
-        # number of cards that deal with
-        '''self.__money_each_player = [self.__INITIAL_MONEY]*self.__num_players
-        # money list of players
-        '''
         # player's hand money list
         self.__money_each_player = self.__game_inst.accounts
+        for _i in range(len(self.__players)):  # OBJECTIVE!!!
+            setattr(self.__players[_i], 'money', self.__game_inst.accounts[_i])
         print(self.__money_each_player)
         self.__field = []  # cards list on the field
         for player in self.__players:
@@ -562,3 +560,7 @@ class Dealer(object):
     @property
     def list_of_money(self):
         return self.__money_each_player
+
+    @property
+    def get_names(self,_list):
+        return [i.__class__.__name__ for i in _list]
