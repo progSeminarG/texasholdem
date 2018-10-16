@@ -95,7 +95,8 @@ if __name__ == '__main__':
                         help='set number of games')
 
     parser.add_argument('--players', type=str,
-                        default=['Kawada', 'Shirai', 'Player', 'Player', 'Player'],
+                        default=['Kawada', 'Shirai', 'Player',
+                                 'Player', 'Player'],
                         nargs='+', help='set list of players')
 
     parser.add_argument('--tournament', action='store_true',
@@ -140,13 +141,13 @@ if __name__ == '__main__':
     print("players:", game.names_of_players())
 
     # play games #
-    output = "stat.csv"  #ログファイル
+    output = "stat.csv"  # ログファイル
     f = open(output, "w")
     pp = "num"
     for k in range(len(game.names_of_players())):
             pp += "," + str(game.names_of_players()[k])
     pp += "\n"
-    f.write(pp)  #header
+    f.write(pp)  # header
 
     if args.tournament:
         _i = 0
@@ -166,7 +167,7 @@ if __name__ == '__main__':
 #plot
 df = pd.read_csv(output, header=0, encoding='utf-8')
 color = ["red", "green", "blue", "darkseagreen", "violet",
- "goldenrod", "crimson", "aqua", "black"]
+         "goldenrod", "crimson", "aqua", "black"]
 l = [0]*(len(players_list) + 1)
 for k in range(len(players_list) + 1):
     l[k] = df.iloc[0:numgg+1, k].values.tolist()
