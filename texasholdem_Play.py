@@ -146,29 +146,6 @@ if __name__ == '__main__':
     game = Game(players_list)
     print("players:", game.names_of_players())
 
-    # play games #
-    output = "stat.csv"  # ログファイル
-    f = open(output, "w")
-    pp = "num"
-    for k in range(len(game.names_of_players())):
-            pp += "," + str(game.names_of_players()[k])
-    pp += "\n"
-    f.write(pp)  # header
-
-    if args.tournament:
-        _i = 0
-        while game.accounts.count(0) != game.num_players-args.numtournament[0]:
-            print("===== game", _i, "=====")
-            game.plot(_i)
-            _i += 1
-        numgg = _i
-    else:
-        numgg = args.numgames[0]
-        for _i in range(args.numgames[0]):
-            print("===== game", _i, "=====")
-            game.plot(_i)
-    f.close()
-
     # play games and save result #
     _output = args.out[0]  # ログファイル
     with open(_output, "w") as f:
