@@ -95,7 +95,7 @@ if __name__ == '__main__':
                         help='set number of games')
 
     parser.add_argument('--players', type=str,
-                        default=['Kawada', 'Shirai', 'Player',
+                        default=['Kawada', 'Shirai', 'Player', 'Shirai', 'Shirai',
                                  'Player', 'Player'],
                         nargs='+', help='set list of players')
 
