@@ -18,7 +18,7 @@ from texasholdem_Human import Human
 
 class Game(object):
     def __init__(self, players_list):
-        self.__INITIAL_MONEY = 10  # money each player has in initial
+        self.__INITIAL_MONEY = 1000  # money each player has in initial
         self.__players = players_list
         self.__num_players = len(self.__players)
         self.__total_money = self.__INITIAL_MONEY * self.__num_players
@@ -46,7 +46,7 @@ class Game(object):
         self.__accounts = self.__dealer.list_of_money
         self.__DB = self.__dealer.DB_update()
 
-    def plot(self,_i):
+    def plot(self, _i):
         if _i == 0:
             pp = str(0)
             for k in range(len(self.__accounts)):
@@ -95,12 +95,12 @@ if __name__ == '__main__':
                         help='set number of games')
 
     parser.add_argument('--players', type=str,
-                        default=['Kawada', 'Shirai', 'Player', 'Player', 'Player', 'Player', 'Player', 'Player'],
+                        default=['Kawada', 'Shirai', 'Player', 'Player', 'Player'],
                         nargs='+', help='set list of players')
 
     parser.add_argument('--tournament', action='store_true',
                         help='play untile one has all money')
-                        
+
     parser.add_argument('--numtournament', type=int, nargs=1, default=[1],
                         help='number of player for tournament winner')
     '''
@@ -140,14 +140,14 @@ if __name__ == '__main__':
     print("players:", game.names_of_players())
 
     # play games #
-    output = "stat.csv" # ログファイル
-    f = open(output,"w")
+    output = "stat.csv"  #ログファイル
+    f = open(output, "w")
     pp = "num"
-    for k in range(len( game.names_of_players() )):
+    for k in range(len(game.names_of_players())):
             pp += "," + str(game.names_of_players()[k])
     pp += "\n"
-    f.write(pp) # header
-    
+    f.write(pp)  #header
+
     if args.tournament:
         _i = 0
         while game.accounts.count(0) != game.num_players-args.numtournament[0]:
@@ -164,12 +164,12 @@ if __name__ == '__main__':
 
 
 #plot
-df = pd.read_csv(output,header = 0,encoding = 'utf-8')
-color = ["red", "green", "blue", "yellow", "violet", "goldenrod", "crimson", "aqua", "black"]
+df = pd.read_csv(output, header=0, encoding='utf-8')
+color = ["red", "green", "blue", "darkseagreen", "violet",
+ "goldenrod", "crimson", "aqua", "black"]
 l = [0]*(len(players_list) + 1)
 for k in range(len(players_list) + 1):
     l[k] = df.iloc[0:numgg+1, k].values.tolist()
 for k in range(1, len(players_list) + 1):
     plt.plot(l[0], l[k], color[k-1])
 plt.show()
-    
