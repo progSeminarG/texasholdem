@@ -157,7 +157,8 @@ if __name__ == '__main__':
 
         if args.tournament:
             _i = 0
-            while game.accounts.count(0) != game.num_players-args.numtournament[0]:
+            while (game.accounts.count(0)
+                    != game.num_players-args.numtournament[0]):
                 print("===== game", _i, "=====")
                 game.plot(_i)
                 _i += 1
@@ -173,9 +174,9 @@ if __name__ == '__main__':
         df = pd.read_csv(_output, header=0, encoding='utf-8')
         color = ["red", "green", "blue", "yellow", "violet", "goldenrod",
                  "crimson", "aqua", "black"]
-        l = [0]*(len(players_list) + 1)
+        _l = [0]*(len(players_list) + 1)
         for k in range(len(players_list) + 1):
-            l[k] = df.iloc[0:numgg+1, k].values.tolist()
+            _l[k] = df.iloc[0:numgg+1, k].values.tolist()
         for k in range(1, len(players_list) + 1):
-            plt.plot(l[0], l[k], color[k-1])
+            plt.plot(_l[0], _l[k], color[k-1])
         plt.show()
