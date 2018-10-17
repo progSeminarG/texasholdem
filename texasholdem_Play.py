@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
+from texasholdem_Plot import ReadPlot
 
 from texasholdem_Dealer import Card, Dealer
 from texasholdem_Player import Player
@@ -111,13 +112,14 @@ if __name__ == '__main__':
 
     parser.add_argument('--plot', action='store_true',
                         help='plot graph')
+
+    parser.add_argument('--fig', type=str, dest='figfile', nargs='?',
+                        const=None, default=None, help="output figure name")
     '''
     parser.add_argument('--num', type=int, dest='num_game', nargs='?',
     default=1, help="number of game")
     parser.add_argument('--out', type=str, dest='outfile', nargs='?',
     default='stat.csv', help="output file")
-    parser.add_argument('--fig', type=str, dest='figfile', nargs='?',
-    default='stat.png', help="output figure file (png)")
     parser.add_argument('-q', '--quiet', action="store_true",
     help='reduce print sequence')
     parser.add_argument('--upload', type=str, dest='token', nargs=1,
@@ -174,12 +176,14 @@ if __name__ == '__main__':
 
     # plot
     if args.plot:
-        df = pd.read_csv(_output, header=0, encoding='utf-8')
-        color = ["red", "green", "blue", "yellow", "violet", "goldenrod",
-                 "crimson", "aqua", "black"]
-        _l = [0]*(len(players_list) + 1)
-        for k in range(len(players_list) + 1):
-            _l[k] = df.iloc[0:numgg+1, k].values.tolist()
-        for k in range(1, len(players_list) + 1):
-            plt.plot(_l[0], _l[k], color[k-1])
-        plt.show()
+        stat_inst = ReadPlot(datafile=args.out[0], figfile=args.figfile)
+        stat_inst.plot()
+#        df = pd.read_csv(_output, header=0, encoding='utf-8')
+#        color = ["red", "green", "blue", "yellow", "violet", "goldenrod",
+#                 "crimson", "aqua", "black"]
+#        _l = [0]*(len(players_list) + 1)
+#        for k in range(len(players_list) + 1):
+#            _l[k] = df.iloc[0:numgg+1, k].values.tolist()
+#        for k in range(1, len(players_list) + 1):
+#            plt.plot(_l[0], _l[k], color[k-1])
+#        plt.show()
