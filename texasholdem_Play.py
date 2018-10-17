@@ -120,18 +120,8 @@ if __name__ == '__main__':
 
     parser.add_argument('--fig', type=str, dest='figfile', nargs='?',
                         const=None, default=None, help="output figure name")
-    '''
-    parser.add_argument('--num', type=int, dest='num_game', nargs='?',
-    default=1, help="number of game")
-    parser.add_argument('--out', type=str, dest='outfile', nargs='?',
-    default='stat.csv', help="output file")
-    parser.add_argument('-q', '--quiet', action="store_true",
-    help='reduce print sequence')
-    parser.add_argument('--upload', type=str, dest='token', nargs=1,
-    help='upoad figure. parse token.')
-    '''
+
     args = parser.parse_args()
-    print(args)
 
     #  create list of players #
     players_list = []
