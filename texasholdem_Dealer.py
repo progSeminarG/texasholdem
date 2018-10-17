@@ -47,11 +47,13 @@ class Status(object):
 
 class Dealer(object):
     def __init__(self, game_inst, players_input):
+        # FIXED PARAMETERS
         self.__MIN_NUMBER_CARDS = 1  # smallest number of playing cards
         self.__MAX_NUMBER_CARDS = 13  # largest number of playing cards
         self.__SUITE = ['S', 'C', 'H', 'D']  # suit of playing cards
         self.__NUM_HAND = 2  # number of hands
         self.__NUM_MAX_FIELD = 5  # maximum number of field
+
         self.__game_inst = game_inst
         self.__players = deepcopy(players_input)  # instance of players
         self.__num_players = len(self.__players)  # number of players
@@ -71,7 +73,7 @@ class Dealer(object):
         self.__DB = self.__game_inst.DB
         self.__SB = self.__next_alive_player(self.__DB)
         self.__BB = self.__next_alive_player(self.__SB)
-        self.money = game_inst.minimum_bet  # betting money at first
+        self.__betting_cost = game_inst.minimum_bet  # betting money at first
         # player can raise betting money the multiple of game_inst.minimum_bet
         self.minimum_bet = game_inst.minimum_bet
         self.playercheck = [True]*self.__num_players  # 返答を毎度更新し、降りた時にFalseにする
@@ -169,36 +171,36 @@ class Dealer(object):
         elif self.resplist[i] == "fold":
             self.playercheck[i] = False  # 降りる
             self.__list_status[i].in_game = False
-        elif self.__money_each_player[i] <= self.money:
+        elif self.__money_each_player[i] <= self.__betting_cost:
             self.resplist[i] = "call"  # 掛け金に満たない場合で降りてないなら必然的にcall
             self.bettingrate[i] = self.__money_each_player[i]
         elif self.resplist[i] == "call" or 0:  # お金あるときのcall
-            self.bettingrate[i] = self.money
+            self.bettingrate[i] = self.__betting_cost
         elif type(self.resplist[i]) is str:
             self.resplist[i] = "call"
-            self.bettingrate[i] = self.money
-        elif self.money+self.minimum_bet >= self.__money_each_player[i]:
+            self.bettingrate[i] = self.__betting_cost
+        elif self.__betting_cost+self.minimum_bet >= self.__money_each_player[i]:
             self.bettingrate[i] = self.__money_each_player[i]
             self.flag = 0
-            self.money = self.money+self.minimum_bet
+            self.__betting_cost = self.__betting_cost+self.minimum_bet
         else:
             if self.minimum_bet > self.resplist[i]:
                 # minimum_betより小さい金額ならminimum_betに修正
                 self.resplist[i] = self.minimum_bet
-                self.money = self.money+self.resplist[i]
+                self.__betting_cost = self.__betting_cost+self.resplist[i]
                 # call金額の更新
-                self.bettingrate[i] = self.money
+                self.bettingrate[i] = self.__betting_cost
             else:
                 # minimum_betの整数倍をレイズするように返値を修正
                 j = int(self.resplist[i]/self.minimum_bet)
-                if self.__money_each_player[i] <= self.money+self.minimum_bet*j:
-                    j = int((self.__money_each_player[i]-self.money)/self.minimum_bet)+1
+                if self.__money_each_player[i] <= self.__betting_cost+self.minimum_bet*j:
+                    j = int((self.__money_each_player[i]-self.__betting_cost)/self.minimum_bet)+1
                 self.minimum_bet = self.minimum_bet*j
                 self.resplist[i] = self.minimum_bet
                 # minimum_betの更新
-                self.money = self.money+self.resplist[i]
+                self.__betting_cost = self.__betting_cost+self.resplist[i]
                 # call金額の更新
-                self.bettingrate[i] = self.money
+                self.bettingrate[i] = self.__betting_cost
             self.flag = 0
 
     def kakekinhosei(self):
@@ -219,7 +221,7 @@ class Dealer(object):
     def printingdate(self):
         print("next_turn_players_list", [i.__class__.__name__ for i in self.active_players_list])
         # 次のターン参加する人のリスト
-        print("betting_rate", self.money)  # レイズを繰り返した最終的にcallがそろった時の金額
+        print("betting_rate", self.__betting_cost)  # レイズを繰り返した最終的にcallがそろった時の金額
         print("personal_betting_money", self.bettingrate)
         # 降りた人も含めてこの時点でいくら賭けたかのリスト
         print()
@@ -586,4 +588,9 @@ class Dealer(object):
 
     @property
     def current_rate(self):
-        return self.money
+        return self.__betting_cost
+
+    # obsolete #
+    @property
+    def money(self):
+        return self.__betting_cost
