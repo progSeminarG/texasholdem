@@ -135,12 +135,9 @@ class Dealer(object):
     # //////////////////////////////////////////////////////////////////////////
     # ask players what they want to do "fold, call, raise"
 
-    def sanka_kano_ninzu(self):  # number of players who play new game
-        ninzu_at_first = 0
-        for i in range(self.__num_players):
-            if self.__money_each_player[i] != 0:
-                ninzu_at_first = ninzu_at_first+1
-        return ninzu_at_first
+    # number of players who play new game
+    def __num_possible_players(self):
+        return len([i for i in self.__list_status if i.alive])
 
 #    def SB_kosin(self):  # number of small-blined(0~3)
     def DB_update(self):  # number of small-blined(0~3)
@@ -585,10 +582,6 @@ class Dealer(object):
     @property
     def DB(self):
         return self.__DB
-
-#    @property
-#    def current_rate(self):
-#        return self.__betting_cost
 
     @property
     def betting_cost(self):
