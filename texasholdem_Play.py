@@ -13,6 +13,7 @@ from texasholdem_Dealer import Card, Dealer
 from texasholdem_Player import Player
 from texasholdem_Kawada import KawadaAI
 from texasholdem_Shirai import ShiraiAI
+from texasholdem_Takahashi import TakahashiAI
 from texasholdem_Human import Human
 
 
@@ -96,7 +97,7 @@ if __name__ == '__main__':
                         help='set number of games')
 
     parser.add_argument('--players', type=str,
-                        default=['Kawada', 'Shirai', 'Player'],
+                        default=['Kawada', 'Shirai','Takahashi' , 'Player'],
                         nargs='+', help='set list of players')
 
     parser.add_argument('--tournament', action='store_true',
@@ -111,7 +112,7 @@ if __name__ == '__main__':
     parser.add_argument('--plot', action='store_true',
                         help='plot graph')
     
-    parser.add_argument('--stat', type=int, nargs=1, default=[2], help='statistic mode')
+    parser.add_argument('--stat', type=int, nargs=1, help='statistic mode')
     '''
     parser.add_argument('--num', type=int, dest='num_game', nargs='?',
     default=1, help="number of game")
@@ -135,6 +136,8 @@ if __name__ == '__main__':
             players_list.append(ShiraiAI())
         elif player == 'Human':
             players_list.append(Human())
+        elif player in {'Takahashi', 'TakahashiAI'}:
+            players_list.append(TakahashiAI())
         elif player == 'Player':
             players_list.append(Player())
         else:
@@ -147,9 +150,9 @@ if __name__ == '__main__':
     # create game #
     game = Game(players_list)
     print("players:", game.names_of_players())
-
+    
     # statistic mode #
-    if args.stat == True:
+    if args.stat[0] >= 0:
         _output = args.out[0]  # log file
         with open(_output, "w") as f:
             pp = "tournament"
@@ -157,24 +160,24 @@ if __name__ == '__main__':
                     pp += "," + str(game.names_of_players()[k])
             pp += "\n"
             f.write(pp)  # header
-
             _i = 0
+            win_list = [0]*len(game.accounts)
             while _i <= args.stat[0]: 
                 print("===== tournament", _i, "=====")
                 game = Game(players_list)
                 print("players:", game.names_of_players())
                 while game.accounts.count(0) != game.num_players-args.numtournament[0]:
                     game.play()
-                pp=str(_i)
-                for k in range(len(game.accounts)):
-                    pp += "," + str(game.accounts[k])
-                pp += "\n"
-                f.write(pp)
+                for i in range(len(game.accounts)):
+                    if game.accounts[i] != 0:
+                        win_list[i] += 1
                 _i += 1
-            f.close()
+            print("win--",win_list)
+            plt.pie(win_list, labels = game.names_of_players())
+            plt.show()
 
     # normal play mode #
-    if args.stat != True:
+    elif args.stat != True:
         _output = args.out[0]  # log file
         with open(_output, "w") as f:
             pp = "num"
