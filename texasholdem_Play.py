@@ -178,12 +178,3 @@ if __name__ == '__main__':
     if args.plot:
         stat_inst = ReadPlot(datafile=args.out[0], figfile=args.figfile)
         stat_inst.plot()
-#        df = pd.read_csv(_output, header=0, encoding='utf-8')
-#        color = ["red", "green", "blue", "yellow", "violet", "goldenrod",
-#                 "crimson", "aqua", "black"]
-#        _l = [0]*(len(players_list) + 1)
-#        for k in range(len(players_list) + 1):
-#            _l[k] = df.iloc[0:numgg+1, k].values.tolist()
-#        for k in range(1, len(players_list) + 1):
-#            plt.plot(_l[0], _l[k], color[k-1])
-#        plt.show()

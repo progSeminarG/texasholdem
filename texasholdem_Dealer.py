@@ -29,6 +29,21 @@ class Card(object):
     def number(self):
         return self.__number
 
+class Status(object):
+    def __init__(self, money):
+        self.__money = money
+        self.__bet_money = 0
+        if self.__money > 0:
+            self.in_game = True
+            self.alive = True
+        else:
+            self.in_game = False
+            self.alive = False
+
+    def bet(self, money):
+        self.__money -= money
+        self.__bet_money += money
+        return money
 
 class Dealer(object):
     def __init__(self, game_inst, players_input):
@@ -44,13 +59,18 @@ class Dealer(object):
             = self.__NUM_HAND * self.__num_players + self.__NUM_MAX_FIELD
         # player's hand money list
         self.__money_each_player = self.__game_inst.accounts
-        for _i in range(len(self.__players)):  # OBJECTIVE!!!
-            setattr(self.__players[_i], 'money', self.__game_inst.accounts[_i])
+        # create list of players' status
+        self.__list_status = [Status(_money) for _money in self.__game_inst.accounts]
         print(self.__money_each_player)
-        self.__field = []  # cards list on the field
+        # cards list on the field
+        self.__field = []
+        # get players know dealer's instance
         for player in self.__players:
             player.get_know_dealer(self)
+        # DB, SB, BB positioning
         self.__DB = self.__game_inst.DB
+        self.__SB = self.__next_alive_player(self.__DB)
+        self.__BB = self.__next_alive_player(self.__SB)
         self.SB = (self.__DB + 1) % self.__num_players
         # if player have no money samll-blined position change
         while self.__money_each_player[self.SB] == 0:
@@ -62,25 +82,35 @@ class Dealer(object):
         self.money = 2  # betting money at first
         # player can raise betting money the multiple of 2$ at first
         self.minimum_bet = 2
-        self.playercheck = [True]*self.__num_players  # 返答を毎度更新し、降りた時に０にする
+        self.playercheck = [True]*self.__num_players  # 返答を毎度更新し、降りた時にFalseにする
         self.active_players_list = self.__players  # the list of actionable players
         self.bettingrate = [0]*self.__num_players  # 各々が賭けたお金を記録するリスト
         self.bettingrate[self.SB] = 1  # small-blined bet 1$ at first
         self.bettingrate[self.BB] = 2  # big-blined bet 2$ at first
+        self.__pot = self.__list_status[self.__SB].bet(self.minimum_bet/2)
+        self.__pot = self.__list_status[self.__BB].bet(self.minimum_bet)
         # this flag is used to compair to big-blined position
         self.flag_atfirst = 0
         # this flag is used to check the count of "call" and "fold"
         self.flag = 1
         # list of players respond("call"/"fold"/number of raise)
         self.resplist = []
-        for i in range(0, self.__num_players):
+        for i in range(self.__num_players):
             if self.__money_each_player[i] <= 0:
                 self.playercheck[i] = False
+                self.__list_status[i].in_game = False
                 # player who have no money can't play new game
         # print the player of small-blined position
-        print("small-blined  Player", self.SB+1)
+        print("SB Player", self.SB)
         # print the player of big-blined position
-        print(" big -blined  Player", self.BB+1)
+        print("BB Player", self.BB)
+
+    # give ith as int, return next player's index who is in the game
+    def __next_alive_player(self, ith):
+        _i = (ith + 1) % self.__num_players
+        while self.__list_status[_i].alive is False:
+            _i = (_i + 1) % self.__num_players
+        return _i
 
     # create a deck
     def __create_all_cards_stack(self):  # create list of [S1, S2, ..., D13]
@@ -120,10 +150,7 @@ class Dealer(object):
 
 #    def SB_kosin(self):  # number of small-blined(0~3)
     def DB_update(self):  # number of small-blined(0~3)
-        _DB = self.SB - 1
-        if _DB < 0:
-            _DB = self.__num_players - 1
-        return _DB
+        return self.__next_alive_player(self.__DB)
 
     def get_response_from_one_person(self, player):
         self.player_number = len(self.resplist)
@@ -149,6 +176,7 @@ class Dealer(object):
             pass
         elif self.resplist[i] == "fold":
             self.playercheck[i] = False  # 降りる
+            self.__list_status[i].in_game = False
         elif self.__money_each_player[i] <= self.money:
             self.resplist[i] = "call"  # 掛け金に満たない場合で降りてないなら必然的にcall
             self.bettingrate[i] = self.__money_each_player[i]

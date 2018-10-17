@@ -20,5 +20,7 @@ class TakahashiAI(object):
 
         if self.__current_rate < self.__my_money*0.2:
             return random.choice(['call', int(10)])
+        elif len(self.__field) > 4:
+            return 'call'
         else:
             return 'fold'
