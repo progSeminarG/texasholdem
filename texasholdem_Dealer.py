@@ -563,3 +563,7 @@ class Dealer(object):
     @property
     def DB(self):
         return self.__DB
+
+    @property
+    def current_rate(self):
+        return self.money
