@@ -586,8 +586,12 @@ class Dealer(object):
     def DB(self):
         return self.__DB
 
+#    @property
+#    def current_rate(self):
+#        return self.__betting_cost
+
     @property
-    def current_rate(self):
+    def betting_cost(self):
         return self.__betting_cost
 
     # obsolete #
