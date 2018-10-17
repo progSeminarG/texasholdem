@@ -35,8 +35,10 @@ class Status(object):
         self.__bet_money = 0
         if self.__money > 0:
             self.in_game = True
+            self.alive = True
         else:
             self.in_game = False
+            self.alive = False
 
     def bet(self, money):
         self.__money -= money
@@ -67,8 +69,8 @@ class Dealer(object):
             player.get_know_dealer(self)
         # DB, SB, BB positioning
         self.__DB = self.__game_inst.DB
-        self.__SB = self.__next_player(self.__DB)
-        self.__BB = self.__next_player(self.__SB)
+        self.__SB = self.__next_alive_player(self.__DB)
+        self.__BB = self.__next_alive_player(self.__SB)
         self.SB = (self.__DB + 1) % self.__num_players
         # if player have no money samll-blined position change
         while self.__money_each_player[self.SB] == 0:
@@ -96,6 +98,7 @@ class Dealer(object):
         for i in range(self.__num_players):
             if self.__money_each_player[i] <= 0:
                 self.playercheck[i] = False
+                self.__list_status[i].in_game = False
                 # player who have no money can't play new game
         # print the player of small-blined position
         print("SB Player", self.SB)
@@ -103,9 +106,9 @@ class Dealer(object):
         print("BB Player", self.BB)
 
     # give ith as int, return next player's index who is in the game
-    def __next_player(self, ith):
+    def __next_alive_player(self, ith):
         _i = (ith + 1) % self.__num_players
-        while self.__list_status[_i].in_game is False:
+        while self.__list_status[_i].alive is False:
             _i = (_i + 1) % self.__num_players
         return _i
 
@@ -147,10 +150,7 @@ class Dealer(object):
 
 #    def SB_kosin(self):  # number of small-blined(0~3)
     def DB_update(self):  # number of small-blined(0~3)
-        _DB = self.SB - 1
-        if _DB < 0:
-            _DB = self.__num_players - 1
-        return _DB
+        return self.__next_alive_player(self.__DB)
 
     def get_response_from_one_person(self, player):
         self.player_number = len(self.resplist)
@@ -176,6 +176,7 @@ class Dealer(object):
             pass
         elif self.resplist[i] == "fold":
             self.playercheck[i] = False  # 降りる
+            self.__list_status[i].in_game = False
         elif self.__money_each_player[i] <= self.money:
             self.resplist[i] = "call"  # 掛け金に満たない場合で降りてないなら必然的にcall
             self.bettingrate[i] = self.__money_each_player[i]
