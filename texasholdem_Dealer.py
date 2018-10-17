@@ -71,22 +71,14 @@ class Dealer(object):
         self.__DB = self.__game_inst.DB
         self.__SB = self.__next_alive_player(self.__DB)
         self.__BB = self.__next_alive_player(self.__SB)
-        self.SB = (self.__DB + 1) % self.__num_players
-        # if player have no money samll-blined position change
-        while self.__money_each_player[self.SB] == 0:
-            self.SB = (self.SB+1) % self.__num_players
-        self.BB = (self.SB+1) % self.__num_players  # decide big-blined
-        # if player have no money big-blined position change
-        while self.__money_each_player[self.BB] == 0:
-            self.BB = (self.BB+1) % self.__num_players
         self.money = 2  # betting money at first
         # player can raise betting money the multiple of 2$ at first
         self.minimum_bet = 2
         self.playercheck = [True]*self.__num_players  # 返答を毎度更新し、降りた時にFalseにする
         self.active_players_list = self.__players  # the list of actionable players
         self.bettingrate = [0]*self.__num_players  # 各々が賭けたお金を記録するリスト
-        self.bettingrate[self.SB] = 1  # small-blined bet 1$ at first
-        self.bettingrate[self.BB] = 2  # big-blined bet 2$ at first
+        self.bettingrate[self.__SB] = 1  # small-blined bet 1$ at first
+        self.bettingrate[self.__BB] = 2  # big-blined bet 2$ at first
         self.__pot = self.__list_status[self.__SB].bet(self.minimum_bet/2)
         self.__pot = self.__list_status[self.__BB].bet(self.minimum_bet)
         # this flag is used to compair to big-blined position
@@ -101,9 +93,9 @@ class Dealer(object):
                 self.__list_status[i].in_game = False
                 # player who have no money can't play new game
         # print the player of small-blined position
-        print("SB Player", self.SB)
+        print("SB Player", self.__SB)
         # print the player of big-blined position
-        print("BB Player", self.BB)
+        print("BB Player", self.__BB)
 
     # give ith as int, return next player's index who is in the game
     def __next_alive_player(self, ith):
@@ -156,7 +148,7 @@ class Dealer(object):
         self.player_number = len(self.resplist)
         if self.flag >= self.__num_players or len(self.active_players_list) == 1:
             self.resplist.append("----")  # レイズから1巡以降無視
-        elif self.flag_atfirst <= self.BB and self.BB != self.player_number - 1:
+        elif self.flag_atfirst <= self.__BB and self.__BB != self.player_number - 1:
             self.resplist.append("----")  # BBや前ターン最終レイズ者までの無視
         elif self.playercheck[self.player_number] is False:
             self.resplist.append("----")  # 降りた人の無視
@@ -170,7 +162,7 @@ class Dealer(object):
     def hentounohosei(self, i):
         # while文でflagがプレイヤー数になるという次の工程に移行する条件を定義
         # flagでレイズから次にレイズがあるまでカウントししている
-        if self.flag_atfirst <= self.BB and self.BB != self.player_number - 1:
+        if self.flag_atfirst <= self.__BB and self.__BB != self.player_number - 1:
             self.flag = self.flag-1
         elif self.resplist[i] == "----":
             pass
@@ -244,7 +236,7 @@ class Dealer(object):
     def get_responses(self):  # playersから返事を次のターンに進められるまで聞き続ける
         if len(self.field) != 0:
             self.flag = 0
-            self.BB = (self.SB-1) % self.__num_players
+            self.__BB = (self.__SB-1) % self.__num_players
         self.flag_atfirst = 0
         while self.flag < self.__num_players and len(self.active_players_list) != 1:
             # while文でflagがプレイヤー数になるという次の工程に移行する条件を定義
