@@ -28,7 +28,8 @@ class Game(object):
         self.__accounts = [self.__INITIAL_MONEY]*self.__num_players
         self.__DB = 0  # position of Dealer Button
 
-    def play(self):
+    def play(self, minimum_bet=2):
+        self.__minimum_bet = minimum_bet
         self.__dealer = Dealer(self, self.__players)
         self.__dealer.handout_cards()
         self.__dealer.get_responses()
@@ -48,19 +49,15 @@ class Game(object):
         self.__accounts = self.__dealer.list_of_money
         self.__DB = self.__dealer.DB_update()
 
-    def plot(self, _i):
-        if _i == 0:
-            pp = str(0)
-            for k in range(len(self.__accounts)):
-                pp += "," + str(self.__accounts[k])
-            pp += "\n"
-            f.write(pp)
-        game.play()
-        pp = str(_i+1)
-        for k in range(len(self.__accounts)):
-            pp += "," + str(self.__accounts[k])
-        pp += "\n"
-        f.write(pp)
+    def out_index(self, _file):
+        _list = self.names_of_players
+        print(_list)
+        _line = 'num,' + ','.join(_list) + "\n"
+        _file.write(_line)
+
+    def out_data(self, _file, _i):
+        pp = str(_i) + ',' + ','.join([str(i) for i in self.__accounts]) + "\n"
+        _file.write(pp)
 
     @property
     def accounts(self):
@@ -78,8 +75,13 @@ class Game(object):
     def num_players(self):
         return self.__num_players
 
+    @property
     def names_of_players(self):
         return [i.__class__.__name__ for i in players_list]
+
+    @property
+    def minimum_bet(self):
+        return self.__minimum_bet
 
 
 if __name__ == '__main__':
@@ -106,6 +108,9 @@ if __name__ == '__main__':
 
     parser.add_argument('--numtournament', type=int, nargs=1, default=[1],
                         help='number of player for tournament winner')
+
+#    parser.add_argument('--raserate', type=int, nargs=2, const=[1,0], default=[1,0],
+#                        help='raise minimum bet in each <int> steps by <int>')
 
     parser.add_argument('--out', '--output', type=str, nargs=1,
                         default=['stat.csv'], help='set output file')
@@ -149,30 +154,28 @@ if __name__ == '__main__':
 
     # create game #
     game = Game(players_list)
-    print("players:", game.names_of_players())
+    print("players:", game.names_of_players)
 
     # play games and save result #
     _output = args.out[0]  # ログファイル
-    with open(_output, "w") as f:
-        pp = "num"
-        for k in range(len(game.names_of_players())):
-                pp += "," + str(game.names_of_players()[k])
-        pp += "\n"
-        f.write(pp)  # header
-
+    with open(_output, "w") as _file:
+        game.out_index(_file)
+        game.out_data(_file,0)
         if args.tournament:
             _i = 0
             while (game.accounts.count(0)
                     != game.num_players-args.numtournament[0]):
                 print("===== game", _i, "=====")
-                game.plot(_i)
                 _i += 1
+                game.play()
+                game.out_data(_file,_i)
             numgg = _i
         else:
             numgg = args.numgames[0]
             for _i in range(args.numgames[0]):
                 print("===== game", _i, "=====")
-                game.plot(_i)
+                game.play()
+                game.out_data(_file,_i+1)
 
     # plot
     if args.plot:
