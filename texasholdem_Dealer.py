@@ -29,6 +29,13 @@ class Card(object):
     def number(self):
         return self.__number
 
+class Status(object):
+    def __init__(self, money):
+        self.__money = money
+        if self.__money > 0:
+            self.__alive = True
+        else:
+            self.__alive = False
 
 class Dealer(object):
     def __init__(self, game_inst, players_input):
@@ -44,8 +51,11 @@ class Dealer(object):
             = self.__NUM_HAND * self.__num_players + self.__NUM_MAX_FIELD
         # player's hand money list
         self.__money_each_player = self.__game_inst.accounts
-        for _i in range(len(self.__players)):  # OBJECTIVE!!!
-            setattr(self.__players[_i], 'money', self.__game_inst.accounts[_i])
+        # create list of players' status
+        self.__list_status = []  # each players' status: money, alive, ...
+        for _money in self.__game_inst.accounts:
+            self.__list_status.append(Status(_money))
+            
         print(self.__money_each_player)
         self.__field = []  # cards list on the field
         for player in self.__players:
