@@ -109,8 +109,8 @@ if __name__ == '__main__':
     parser.add_argument('--numtournament', type=int, nargs=1, default=[1],
                         help='number of player for tournament winner')
 
-#    parser.add_argument('--raserate', type=int, nargs=2, const=[1,0], default=[1,0],
-#                        help='raise minimum bet in each <int> steps by <int>')
+    parser.add_argument('--raiserate', type=int, nargs=2, default=[1,0],
+                        help='raise minimum bet in each <int> steps by <int>')
 
     parser.add_argument('--out', '--output', type=str, nargs=1,
                         default=['stat.csv'], help='set output file')
@@ -120,16 +120,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--fig', type=str, dest='figfile', nargs='?',
                         const=None, default=None, help="output figure name")
-    '''
-    parser.add_argument('--num', type=int, dest='num_game', nargs='?',
-    default=1, help="number of game")
-    parser.add_argument('--out', type=str, dest='outfile', nargs='?',
-    default='stat.csv', help="output file")
-    parser.add_argument('-q', '--quiet', action="store_true",
-    help='reduce print sequence')
-    parser.add_argument('--upload', type=str, dest='token', nargs=1,
-    help='upoad figure. parse token.')
-    '''
+
     args = parser.parse_args()
 
     #  create list of players #
@@ -163,15 +154,17 @@ if __name__ == '__main__':
         game.out_data(_file,0)
         if args.tournament:
             _i = 0
+            _minimum_bet = 2
             while (game.accounts.count(0)
                     != game.num_players-args.numtournament[0]):
                 print("===== game", _i, "=====")
                 _i += 1
+                print("#######", _i, _minimum_bet)
                 game.play()
                 game.out_data(_file,_i)
-            numgg = _i
+                if _i % args.raiserate[0] == 0:
+                    _minimum_bet += args.raiserate[1]
         else:
-            numgg = args.numgames[0]
             for _i in range(args.numgames[0]):
                 print("===== game", _i, "=====")
                 game.play()
