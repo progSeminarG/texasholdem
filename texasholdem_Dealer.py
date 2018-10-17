@@ -212,10 +212,6 @@ class Dealer(object):
             print("syousya-hantei-taisyousya = ", [i.__class__.__name__ for i in self.active_players_list])
             self.pot = sum(self.bettingrate)
             print("pot = ", self.pot)
-            '''
-            self.open = [
-                print([card.card for card in (player.open_cards())]) for player in self.__players
-                        ]'''
 
     def get_responses(self):  # playersから返事を次のターンに進められるまで聞き続ける
         if len(self.field) != 0:
@@ -248,9 +244,8 @@ class Dealer(object):
         roll = []
         for player in self.__players:
             if self.playercheck[i] is True:
-                # print(" == ", self.active_players_list[j], " == ")
-                seven_cards = player.open_cards()+self.field
-                roll.append(self.calc_hand_score(seven_cards)[0])  # open_cards()をなくしてhandout()で記録するように変更予定
+                seven_cards = self.__players_cards[self.__players.index(player)] + self.field
+                roll.append(self.calc_hand_score(seven_cards)[0])
                 if winner_score < roll[j]:
                     winner = [self.active_players_list[j]]
                     winner_num = []
@@ -562,9 +557,8 @@ class Dealer(object):
     def list_of_money(self):
         return self.__money_each_player
 
-    @property
-    def get_names(self,_list):
-        return [i.__class__.__name__ for i in _list]
+    def get_position(self,_your_inst):
+        return self.__players.index(_your_inst)
 
     @property
     def DB(self):
