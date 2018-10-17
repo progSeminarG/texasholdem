@@ -71,9 +71,9 @@ class Dealer(object):
         self.__DB = self.__game_inst.DB
         self.__SB = self.__next_alive_player(self.__DB)
         self.__BB = self.__next_alive_player(self.__SB)
-        self.money = 2  # betting money at first
-        # player can raise betting money the multiple of 2$ at first
-        self.minimum_bet = 2
+        self.money = game_inst.minimum_bet  # betting money at first
+        # player can raise betting money the multiple of game_inst.minimum_bet
+        self.minimum_bet = game_inst.minimum_bet
         self.playercheck = [True]*self.__num_players  # 返答を毎度更新し、降りた時にFalseにする
         self.active_players_list = self.__players  # the list of actionable players
         self.bettingrate = [0]*self.__num_players  # 各々が賭けたお金を記録するリスト
