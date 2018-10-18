@@ -143,20 +143,30 @@ class Dealer(object):
     def DB_update(self):  # number of small-blined(0~3)
         return self.__next_alive_player(self.__DB)
 
+    # ＜出てくるリストや変数＞
+    # self.resplistはplayerの返答をリストにしたもの
+    # "call"/"fold"/int() 参加資格が無いあるいは訊き始める条件にはない場合はskipし"----"を格納する
+    # self.player_numberはリストの何番目のplayerなのかを表したもの　追加した返答をルールに従うように補正する際関数に渡す
+    # self.flag self.flag_atfirstはそれぞれcallかfoldが続いたカウント、1ターン目のBB2ターン目以降のSBまでskipするためのカウンター
+    #
+    # <関数の構成>
+    # playerの番号を得る
+    # 必要があればskip("----"格納)してそれ以外はplayerに返答を訊きリストに格納
+    # 格納した返答がルールに従ったものになるように修正する
+    # 最後にフラグと生きているplayerのリストを更新する
     def get_response_from_one_person(self, player):
-        self.player_number = len(self.resplist)
+        self.player_number = len(self.resplist)  # know the number of player 0~4
         if self.flag >= self.__num_players or len(self.active_players_list) == 1:
-            self.resplist.append("----")  # レイズから1巡以降無視
+            self.resplist.append("----")  # skip players after fill the conditions to move nexat turn
         elif self.flag_atfirst <= self.__BB and self.__BB != self.player_number - 1:
-            self.resplist.append("----")  # BBや前ターン最終レイズ者までの無視
+            self.resplist.append("----")  # skip untill BB at first turn
         elif self.playercheck[self.player_number] is False:
-            self.resplist.append("----")  # 降りた人の無視
+            self.resplist.append("----")  # skip the player
         else:
-            self.resplist.append(player.respond())
-        self.hentounohosei(self.player_number)  # 返答をルールに従うように補正して解釈する
-        # 各フラグを1足して条件を満たせば次のターンの目印を更新
-        self.flagnokosin(self.player_number)
-        self.active_players()  # active_plyers_listを作成する
+            self.resplist.append(player.respond())  # get response from player
+        self.hentounohosei(self.player_number)  # correct response to follow the game rules
+        self.flagnokosin(self.player_number)  # move flags
+        self.active_players()  # renew active_plyers_list
 
     def hentounohosei(self, i):
         # while文でflagがプレイヤー数になるという次の工程に移行する条件を定義
