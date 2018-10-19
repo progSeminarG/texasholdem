@@ -20,6 +20,7 @@ class ShiraiAI(Player):
         for i in range(len(self.dealer.list_of_money)):
             mon += self.dealer.list_of_money[i]
         initial_money = mon/len(self.dealer.list_of_money)
+        my_money = self.dealer.list_of_money[self.dealer.list_of_players.index('ShiraiAI')]
         num=[]
         suit=[]
         card=[]
@@ -28,23 +29,28 @@ class ShiraiAI(Player):
         lt=[0]*14
         for c in num:
             lt[c]+=1
-        rsp=initial_money/10*(max(lt)-1)*(max(lt)-1)#pair
+        rsp=my_money/10*(max(lt)-1)*(max(lt)-1)#pair
         if (lt.count(3)==1 and lt.count(2)>=1) or (lt.count(3)==2):
-            rsp=initial_money/10 * 8
+            rsp=my_money/10 * 8
         (s,li)=self.dealer.stlist(card)
         if s==1:
-            rsp=initial_money/10 * 6
+            rsp=my_money/10 * 6
         for s in SS:
             if suit.count(s)==5:
-                rsp=initial_money/10 * 7
+                rsp=my_money/10 * 7
+                break
+            if li.count(s)==5:
+                rsp=my_money/10 * 9
+                break
         rsp=int(rsp)
-        if self.dealer.minimum_bet > initial_money/3:
-            rsp='call'
+        if self.dealer.minimum_bet > my_money/3 and rsp <= my_money/10*3:
+            rsp=random.choice([ 'call', 'fold'])
         if rsp == 0:
             rsp=random.choice([ 'call', 'fold'])
-        print("card--",card)
+        warn=random.randrange(200)
+        if warn == 1:
+            rsp=my_money
         print("rsp---",rsp)
-        print("money--",self.dealer.list_of_money)
         return rsp
     
     
