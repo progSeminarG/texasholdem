@@ -84,9 +84,9 @@ class Dealer(object):
         self.__pot = self.__list_status[self.__SB].bet(self.minimum_bet/2)
         self.__pot = self.__list_status[self.__BB].bet(self.minimum_bet)
         # this flag is used to compair to big-blined position
-        self.flag_atfirst = 0
+        self.__num_continuous_fold = 0
         # this flag is used to check the count of "call" and "fold"
-        self.flag = 1
+        self.__num_continuous_call = 1
         # list of players respond("call"/"fold"/number of raise)
         self.resplist = []
         for i in range(self.__num_players):
@@ -146,8 +146,11 @@ class Dealer(object):
     # ＜出てくるリストや変数＞
     # self.resplistはplayerの返答をリストにしたもの
     # "call"/"fold"/int() 参加資格が無いあるいは訊き始める条件にはない場合はskipしNoneを格納する
-    # self.player_numberはリストの何番目のplayerなのかを表したもの 追加した返答をルールに従うように補正する際関数に渡す
-    # self.flag self.flag_atfirstはそれぞれcallかfoldが続いたカウント、1ターン目のBB2ターン目以降のSBまでskipするためのカウンター
+    # self.player_numberはリストの何番目のplayerなのかを表したもの
+    # 追加した返答をルールに従うように補正する際関数に渡す
+    # self.__num_continuous_call: call が続いた回数
+    # self.__num_continuous_foldは: foldが続いたカウント
+    #   1ターン目のBB 2ターン目以降のSBまでskipするためのカウンター
     #
     # <関数の構成>
     # playerの番号を得る
@@ -156,9 +159,9 @@ class Dealer(object):
     # 最後にフラグと生きているplayerのリストを更新する
     def get_response_from_one_person(self, player):
         self.player_number = len(self.resplist)  # know the number of player 0~4
-        if self.flag >= self.__num_players or len(self.active_players_list) == 1:
-            self.resplist.append(None)  # skip players after fill the conditions to move nexat turn
-        elif self.flag_atfirst <= self.__BB and self.__BB != self.player_number - 1:
+        if self.__num_continuous_call >= self.__num_players or len(self.active_players_list) == 1:
+            self.resplist.append(None)  # skip players after fill the conditions to move next turn
+        elif self.__num_continuous_fold <= self.__BB and self.__BB != self.player_number - 1:
             self.resplist.append(None)  # skip untill BB at first turn
         elif self.playercheck[self.player_number] is False:
             self.resplist.append(None)  # skip the player
@@ -171,8 +174,8 @@ class Dealer(object):
     def hentounohosei(self, i):
         # while文でflagがプレイヤー数になるという次の工程に移行する条件を定義
         # flagでレイズから次にレイズがあるまでカウントししている
-        if self.flag_atfirst <= self.__BB and self.__BB != self.player_number - 1:
-            self.flag = self.flag-1
+        if self.__num_continuous_fold <= self.__BB and self.__BB != self.player_number - 1:
+            self.__num_continuous_call = self.__num_continuous_call-1
         elif self.resplist[i] == None:
             pass
         elif self.resplist[i] == "fold":
@@ -188,7 +191,7 @@ class Dealer(object):
             self.bettingrate[i] = self.__betting_cost
         elif self.__betting_cost+self.minimum_bet >= self.__money_each_player[i]:
             self.bettingrate[i] = self.__money_each_player[i]
-            self.flag = 0
+            self.__num_continuous_call = 0
             self.__betting_cost = self.__betting_cost+self.minimum_bet
         else:
             if self.minimum_bet > self.resplist[i]:
@@ -208,7 +211,7 @@ class Dealer(object):
                 self.__betting_cost = self.__betting_cost+self.resplist[i]
                 # call金額の更新
                 self.bettingrate[i] = self.__betting_cost
-            self.flag = 0
+            self.__num_continuous_call = 0
 
     def kakekinhosei(self):
         for i in range(0, self.__num_players):  # 最終的な掛け金の補正
@@ -216,8 +219,8 @@ class Dealer(object):
                 self.bettingrate[i] = self.__money_each_player[i]
 
     def flagnokosin(self, i):
-        self.flag = self.flag+1
-        self.flag_atfirst = self.flag_atfirst+1
+        self.__num_continuous_call = self.__num_continuous_call+1
+        self.__num_continuous_fold = self.__num_continuous_fold+1
 
     def active_players(self):
         self.active_players_list = []
@@ -244,10 +247,10 @@ class Dealer(object):
 
     def get_responses(self):  # playersから返事を次のターンに進められるまで聞き続ける
         if len(self.field) != 0:
-            self.flag = 0
+            self.__num_continuous_call = 0
             self.__BB = (self.__SB-1) % self.__num_players
-        self.flag_atfirst = 0
-        while self.flag < self.__num_players and len(self.active_players_list) != 1:
+        self.__num_continuous_fold = 0
+        while self.__num_continuous_call < self.__num_players and len(self.active_players_list) != 1:
             # while文でflagがプレイヤー数になるという次の工程に移行する条件を定義
             if len(self.resplist) == self.__num_players:
                 self.resplist = []
