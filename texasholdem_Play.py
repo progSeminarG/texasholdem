@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
+from texasholdem_Plot import ReadPlot
 
 from texasholdem_Dealer import Card, Dealer
 from texasholdem_Player import Player
@@ -27,7 +28,8 @@ class Game(object):
         self.__accounts = [self.__INITIAL_MONEY]*self.__num_players
         self.__DB = 0  # position of Dealer Button
 
-    def play(self):
+    def play(self, minimum_bet=2):
+        self.__minimum_bet = minimum_bet
         self.__dealer = Dealer(self, self.__players)
         self.__dealer.handout_cards()
         self.__dealer.get_responses()
@@ -47,20 +49,15 @@ class Game(object):
         self.__accounts = self.__dealer.list_of_money
         self.__DB = self.__dealer.DB_update()
 
-    def plot(self, _i):
-        if _i == 0:
-            pp = str(0)
-            for k in range(len(self.__accounts)):
-                pp += "," + str(self.__accounts[k])
-            pp += "\n"
-            f.write(pp)
-        game.play()
-        pp = str(_i+1)
-        for k in range(len(self.__accounts)):
-            pp += "," + str(self.__accounts[k])
-        pp += "\n"
-        f.write(pp)
+    def out_index(self, _file):
+        _list = self.names_of_players
+        print(_list)
+        _line = 'num,' + ','.join(_list) + "\n"
+        _file.write(_line)
 
+    def out_data(self, _file, _i):
+        pp = str(_i) + ',' + ','.join([str(i) for i in self.__accounts]) + "\n"
+        _file.write(pp)
 
     @property
     def accounts(self):
@@ -78,8 +75,13 @@ class Game(object):
     def num_players(self):
         return self.__num_players
 
+    @property
     def names_of_players(self):
         return [i.__class__.__name__ for i in players_list]
+
+    @property
+    def minimum_bet(self):
+        return self.__minimum_bet
 
 
 if __name__ == '__main__':
@@ -97,7 +99,8 @@ if __name__ == '__main__':
                         help='set number of games')
 
     parser.add_argument('--players', type=str,
-                        default=['Kawada', 'Shirai','Takahashi' , 'Player'],
+                        default=['Kawada', 'Shirai', 'Takahashi',
+                                 'Player', 'Player'],
                         nargs='+', help='set list of players')
 
     parser.add_argument('--tournament', action='store_true',
@@ -106,25 +109,20 @@ if __name__ == '__main__':
     parser.add_argument('--numtournament', type=int, nargs=1, default=[1],
                         help='number of player for tournament winner')
 
+    parser.add_argument('--raiserate', type=int, nargs=2, default=[1,0],
+                        help='raise minimum bet in each <int> steps by <int>')
+
     parser.add_argument('--out', '--output', type=str, nargs=1,
                         default=['stat.csv'], help='set output file')
 
     parser.add_argument('--plot', action='store_true',
                         help='plot graph')
-    
-    parser.add_argument('--stat', type=int, nargs=1, help='statistic mode')
-    '''
-    parser.add_argument('--num', type=int, dest='num_game', nargs='?',
-    default=1, help="number of game")
-    parser.add_argument('--out', type=str, dest='outfile', nargs='?',
-    default='stat.csv', help="output file")
+
     parser.add_argument('--fig', type=str, dest='figfile', nargs='?',
-    default='stat.png', help="output figure file (png)")
-    parser.add_argument('-q', '--quiet', action="store_true",
-    help='reduce print sequence')
-    parser.add_argument('--upload', type=str, dest='token', nargs=1,
-    help='upoad figure. parse token.')
-    '''
+                        const=None, default=None, help="output figure name")
+
+    parser.add_argument('--stat', type=int, nargs=1,default=[-1] , help='statistic mode')
+
     args = parser.parse_args()
 
     #  create list of players #
@@ -134,10 +132,10 @@ if __name__ == '__main__':
             players_list.append(KawadaAI())
         elif player in {'Shirai', 'ShiraiAI'}:
             players_list.append(ShiraiAI())
-        elif player == 'Human':
-            players_list.append(Human())
         elif player in {'Takahashi', 'TakahashiAI'}:
             players_list.append(TakahashiAI())
+        elif player == 'Human':
+            players_list.append(Human())
         elif player == 'Player':
             players_list.append(Player())
         else:
@@ -149,65 +147,53 @@ if __name__ == '__main__':
 
     # create game #
     game = Game(players_list)
-    print("players:", game.names_of_players())
+    print("players:", game.names_of_players)
     
     # statistic mode #
     if args.stat[0] >= 0:
         _output = args.out[0]  # log file
         with open(_output, "w") as f:
-            pp = "tournament"
-            for k in range(len(game.names_of_players())):
-                    pp += "," + str(game.names_of_players()[k])
-            pp += "\n"
-            f.write(pp)  # header
             _i = 0
             win_list = [0]*len(game.accounts)
             while _i <= args.stat[0]: 
                 print("===== tournament", _i, "=====")
                 game = Game(players_list)
-                print("players:", game.names_of_players())
+                print("players:", game.names_of_players)
                 while game.accounts.count(0) != game.num_players-args.numtournament[0]:
                     game.play()
                 for i in range(len(game.accounts)):
                     if game.accounts[i] != 0:
                         win_list[i] += 1
                 _i += 1
-            print("win--",win_list)
-            plt.pie(win_list, labels = game.names_of_players())
+            # plot
+            plt.pie(win_list, labels = game.names_of_players, startangle=90,)
             plt.show()
 
     # normal play mode #
-    elif args.stat != True:
-        _output = args.out[0]  # log file
-        with open(_output, "w") as f:
-            pp = "num"
-            for k in range(len(game.names_of_players())):
-                    pp += "," + str(game.names_of_players()[k])
-            pp += "\n"
-            f.write(pp)  # header
+    elif args.stat[0] == -1:
+        _output = args.out[0]  # ログファイル
+        with open(_output, "w") as _file:
+            game.out_index(_file)
+            game.out_data(_file,0)
             if args.tournament:
                 _i = 0
-                while game.accounts.count(0) != game.num_players-args.numtournament[0]:
+                _minimum_bet = 2
+                while (game.accounts.count(0)
+                        != game.num_players-args.numtournament[0]):
                     print("===== game", _i, "=====")
-                    game.plot(_i)
                     _i += 1
-                numgg = _i
+                    print("#######", _i, _minimum_bet)
+                    game.play()
+                    game.out_data(_file,_i)
+                    if _i % args.raiserate[0] == 0:
+                        _minimum_bet += args.raiserate[1]
             else:
-                numgg = args.numgames[0]
                 for _i in range(args.numgames[0]):
                     print("===== game", _i, "=====")
-                    game.plot(_i)
-            f.close()
+                    game.play()
+                    game.out_data(_file,_i+1)
 
     # plot
     if args.plot:
-        df = pd.read_csv(_output, header=0, encoding='utf-8')
-        # plt.xscale("log")
-        color = ["red", "lightgreen", "blue", "darkgreen", "violet", "goldenrod",
-                 "crimson", "aqua", "black"]
-        l = [0]*(len(players_list) + 1)
-        for k in range(len(players_list) + 1):
-            l[k] = df.iloc[0:numgg+1, k].values.tolist()
-        for k in range(1, len(players_list) + 1):
-            plt.plot(l[0], l[k], color[k-1])
-        plt.show()
+        stat_inst = ReadPlot(datafile=args.out[0], figfile=args.figfile)
+        stat_inst.plot()
