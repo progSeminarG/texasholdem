@@ -76,7 +76,6 @@ class Dealer(object):
         self.__betting_cost = game_inst.minimum_bet  # betting money at first
         # player can raise betting money the multiple of game_inst.minimum_bet
         self.minimum_bet = game_inst.minimum_bet
-        self.playercheck = [True]*self.__num_players  # 返答を毎度更新し、降りた時にFalseにする
         self.active_players_list = self.__players  # the list of actionable players
         self.bettingrate = [0]*self.__num_players  # 各々が賭けたお金を記録するリスト
         self.bettingrate[self.__SB] = 1  # small-blined bet 1$ at first
@@ -84,14 +83,13 @@ class Dealer(object):
         self.__pot = self.__list_status[self.__SB].bet(self.minimum_bet/2)
         self.__pot = self.__list_status[self.__BB].bet(self.minimum_bet)
         # this flag is used to compair to big-blined position
-        self.flag_atfirst = 0
+        self.__num_continuous_fold = 0
         # this flag is used to check the count of "call" and "fold"
-        self.flag = 1
+        self.__num_continuous_call = 1
         # list of players respond("call"/"fold"/number of raise)
         self.resplist = []
         for i in range(self.__num_players):
             if self.__money_each_player[i] <= 0:
-                self.playercheck[i] = False
                 self.__list_status[i].in_game = False
                 # player who have no money can't play new game
         # print the player of small-blined position
@@ -135,48 +133,46 @@ class Dealer(object):
     # //////////////////////////////////////////////////////////////////////////
     # ask players what they want to do "fold, call, raise"
 
-    # number of players who play new game
-    def __num_possible_players(self):
-        return len([i for i in self.__list_status if i.alive])
-
-#    def SB_kosin(self):  # number of small-blined(0~3)
-    def DB_update(self):  # number of small-blined(0~3)
-        return self.__next_alive_player(self.__DB)
-
     # ＜出てくるリストや変数＞
     # self.resplistはplayerの返答をリストにしたもの
-    # "call"/"fold"/int() 参加資格が無いあるいは訊き始める条件にはない場合はskipし"----"を格納する
-    # self.player_numberはリストの何番目のplayerなのかを表したもの　追加した返答をルールに従うように補正する際関数に渡す
-    # self.flag self.flag_atfirstはそれぞれcallかfoldが続いたカウント、1ターン目のBB2ターン目以降のSBまでskipするためのカウンター
+    # "call"/"fold"/int() 参加資格が無いあるいは訊き始める条件にはない場合はskipしNoneを格納する
+    # self.__num_playing_playerはリストの何番目のplayerなのかを表したもの
+    # 追加した返答をルールに従うように補正する際関数に渡す
+    # self.__num_continuous_call: call が続いた回数
+    # self.__num_continuous_fold: foldが続いたカウント
+    #   1ターン目のBB 2ターン目以降のSBまでskipするためのカウンター
     #
     # <関数の構成>
     # playerの番号を得る
-    # 必要があればskip("----"格納)してそれ以外はplayerに返答を訊きリストに格納
+    # 必要があればskip(None格納)してそれ以外はplayerに返答を訊きリストに格納
     # 格納した返答がルールに従ったものになるように修正する
     # 最後にフラグと生きているplayerのリストを更新する
     def get_response_from_one_person(self, player):
-        self.player_number = len(self.resplist)  # know the number of player 0~4
-        if self.flag >= self.__num_players or len(self.active_players_list) == 1:
-            self.resplist.append("----")  # skip players after fill the conditions to move nexat turn
-        elif self.flag_atfirst <= self.__BB and self.__BB != self.player_number - 1:
-            self.resplist.append("----")  # skip untill BB at first turn
-        elif self.playercheck[self.player_number] is False:
-            self.resplist.append("----")  # skip the player
+        self.__num_playing_player = len(self.resplist)  # playing player's index
+        # skip players after fill the conditions to move next turn
+        if self.__num_continuous_call >= self.__num_players or len(self.active_players_list) == 1:
+            self.resplist.append(None)
+        # skip untill BB at first turn
+        elif self.__num_continuous_fold <= self.__BB and self.__BB != self.__num_playing_player - 1:
+            self.resplist.append(None)
+        # get response from player if he/she is in game
+        elif self.__list_status[self.__num_playing_player].in_game:
+            self.resplist.append(player.respond())
+        # skip the player if he/she is not in game
         else:
-            self.resplist.append(player.respond())  # get response from player
-        self.hentounohosei(self.player_number)  # correct response to follow the game rules
-        self.flagnokosin(self.player_number)  # move flags
+            self.resplist.append(None)
+        self.hentounohosei(self.__num_playing_player)  # correct response to follow the game rules
+        self.flagnokosin(self.__num_playing_player)  # move flags
         self.active_players()  # renew active_plyers_list
 
     def hentounohosei(self, i):
         # while文でflagがプレイヤー数になるという次の工程に移行する条件を定義
         # flagでレイズから次にレイズがあるまでカウントししている
-        if self.flag_atfirst <= self.__BB and self.__BB != self.player_number - 1:
-            self.flag = self.flag-1
-        elif self.resplist[i] == "----":
+        if self.__num_continuous_fold <= self.__BB and self.__BB != self.__num_playing_player - 1:
+            self.__num_continuous_call = self.__num_continuous_call-1
+        elif self.resplist[i] == None:
             pass
         elif self.resplist[i] == "fold":
-            self.playercheck[i] = False  # 降りる
             self.__list_status[i].in_game = False
         elif self.__money_each_player[i] <= self.__betting_cost:
             self.resplist[i] = "call"  # 掛け金に満たない場合で降りてないなら必然的にcall
@@ -188,7 +184,7 @@ class Dealer(object):
             self.bettingrate[i] = self.__betting_cost
         elif self.__betting_cost+self.minimum_bet >= self.__money_each_player[i]:
             self.bettingrate[i] = self.__money_each_player[i]
-            self.flag = 0
+            self.__num_continuous_call = 0
             self.__betting_cost = self.__betting_cost+self.minimum_bet
         else:
             if self.minimum_bet > self.resplist[i]:
@@ -208,7 +204,7 @@ class Dealer(object):
                 self.__betting_cost = self.__betting_cost+self.resplist[i]
                 # call金額の更新
                 self.bettingrate[i] = self.__betting_cost
-            self.flag = 0
+            self.__num_continuous_call = 0
 
     def kakekinhosei(self):
         for i in range(0, self.__num_players):  # 最終的な掛け金の補正
@@ -216,13 +212,13 @@ class Dealer(object):
                 self.bettingrate[i] = self.__money_each_player[i]
 
     def flagnokosin(self, i):
-        self.flag = self.flag+1
-        self.flag_atfirst = self.flag_atfirst+1
+        self.__num_continuous_call = self.__num_continuous_call+1
+        self.__num_continuous_fold = self.__num_continuous_fold+1
 
     def active_players(self):
         self.active_players_list = []
         for j in range(self.__num_players):  # 降りなかった人をリストで返す
-            if self.playercheck[j] is True:
+            if self.__list_status[j].in_game:
                 self.active_players_list.append(self.__players[j])
 
     def printingdate(self):
@@ -244,10 +240,10 @@ class Dealer(object):
 
     def get_responses(self):  # playersから返事を次のターンに進められるまで聞き続ける
         if len(self.field) != 0:
-            self.flag = 0
+            self.__num_continuous_call = 0
             self.__BB = (self.__SB-1) % self.__num_players
-        self.flag_atfirst = 0
-        while self.flag < self.__num_players and len(self.active_players_list) != 1:
+        self.__num_continuous_fold = 0
+        while self.__num_continuous_call < self.__num_players and len(self.active_players_list) != 1:
             # while文でflagがプレイヤー数になるという次の工程に移行する条件を定義
             if len(self.resplist) == self.__num_players:
                 self.resplist = []
@@ -272,7 +268,7 @@ class Dealer(object):
         winner_score = 0
         roll = []
         for player in self.__players:
-            if self.playercheck[i] is True:
+            if self.__list_status[i].in_game:
                 seven_cards = self.__players_cards[self.__players.index(player)] + self.field
                 roll.append(self.calc_hand_score(seven_cards)[0])
                 if winner_score < roll[j]:
@@ -596,6 +592,9 @@ class Dealer(object):
     @property
     def betting_cost(self):
         return self.__betting_cost
+
+    def DB_update(self):
+        return self.__next_alive_player(self.__DB)
 
     # obsolete #
     @property
