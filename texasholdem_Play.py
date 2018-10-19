@@ -159,7 +159,6 @@ if __name__ == '__main__':
                     != game.num_players-args.numtournament[0]):
                 print("===== game", _i, "=====")
                 _i += 1
-                print("#######", _i, _minimum_bet)
                 game.play()
                 game.out_data(_file,_i)
                 if _i % args.raiserate[0] == 0:

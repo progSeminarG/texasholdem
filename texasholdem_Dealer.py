@@ -145,23 +145,23 @@ class Dealer(object):
 
     # ＜出てくるリストや変数＞
     # self.resplistはplayerの返答をリストにしたもの
-    # "call"/"fold"/int() 参加資格が無いあるいは訊き始める条件にはない場合はskipし"----"を格納する
-    # self.player_numberはリストの何番目のplayerなのかを表したもの　追加した返答をルールに従うように補正する際関数に渡す
+    # "call"/"fold"/int() 参加資格が無いあるいは訊き始める条件にはない場合はskipしNoneを格納する
+    # self.player_numberはリストの何番目のplayerなのかを表したもの 追加した返答をルールに従うように補正する際関数に渡す
     # self.flag self.flag_atfirstはそれぞれcallかfoldが続いたカウント、1ターン目のBB2ターン目以降のSBまでskipするためのカウンター
     #
     # <関数の構成>
     # playerの番号を得る
-    # 必要があればskip("----"格納)してそれ以外はplayerに返答を訊きリストに格納
+    # 必要があればskip(None格納)してそれ以外はplayerに返答を訊きリストに格納
     # 格納した返答がルールに従ったものになるように修正する
     # 最後にフラグと生きているplayerのリストを更新する
     def get_response_from_one_person(self, player):
         self.player_number = len(self.resplist)  # know the number of player 0~4
         if self.flag >= self.__num_players or len(self.active_players_list) == 1:
-            self.resplist.append("----")  # skip players after fill the conditions to move nexat turn
+            self.resplist.append(None)  # skip players after fill the conditions to move nexat turn
         elif self.flag_atfirst <= self.__BB and self.__BB != self.player_number - 1:
-            self.resplist.append("----")  # skip untill BB at first turn
+            self.resplist.append(None)  # skip untill BB at first turn
         elif self.playercheck[self.player_number] is False:
-            self.resplist.append("----")  # skip the player
+            self.resplist.append(None)  # skip the player
         else:
             self.resplist.append(player.respond())  # get response from player
         self.hentounohosei(self.player_number)  # correct response to follow the game rules
@@ -173,7 +173,7 @@ class Dealer(object):
         # flagでレイズから次にレイズがあるまでカウントししている
         if self.flag_atfirst <= self.__BB and self.__BB != self.player_number - 1:
             self.flag = self.flag-1
-        elif self.resplist[i] == "----":
+        elif self.resplist[i] == None:
             pass
         elif self.resplist[i] == "fold":
             self.playercheck[i] = False  # 降りる
