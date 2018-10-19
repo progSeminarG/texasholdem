@@ -135,14 +135,6 @@ class Dealer(object):
     # //////////////////////////////////////////////////////////////////////////
     # ask players what they want to do "fold, call, raise"
 
-    # number of players who play new game
-    def __num_possible_players(self):
-        return len([i for i in self.__list_status if i.alive])
-
-#    def SB_kosin(self):  # number of small-blined(0~3)
-    def DB_update(self):  # number of small-blined(0~3)
-        return self.__next_alive_player(self.__DB)
-
     # ＜出てくるリストや変数＞
     # self.resplistはplayerの返答をリストにしたもの
     # "call"/"fold"/int() 参加資格が無いあるいは訊き始める条件にはない場合はskipしNoneを格納する
@@ -599,6 +591,9 @@ class Dealer(object):
     @property
     def betting_cost(self):
         return self.__betting_cost
+
+    def DB_update(self):
+        return self.__next_alive_player(self.__DB)
 
     # obsolete #
     @property
