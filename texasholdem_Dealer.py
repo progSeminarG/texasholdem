@@ -146,7 +146,7 @@ class Dealer(object):
     # ＜出てくるリストや変数＞
     # self.resplistはplayerの返答をリストにしたもの
     # "call"/"fold"/int() 参加資格が無いあるいは訊き始める条件にはない場合はskipしNoneを格納する
-    # self.__index_playing_playerはリストの何番目のplayerなのかを表したもの
+    # self.__num_playing_playerはリストの何番目のplayerなのかを表したもの
     # 追加した返答をルールに従うように補正する際関数に渡す
     # self.__num_continuous_call: call が続いた回数
     # self.__num_continuous_fold: foldが続いたカウント
@@ -158,23 +158,23 @@ class Dealer(object):
     # 格納した返答がルールに従ったものになるように修正する
     # 最後にフラグと生きているplayerのリストを更新する
     def get_response_from_one_person(self, player):
-        self.__index_playing_player = len(self.resplist)  # know the number of player 0~4
+        self.__num_playing_player = len(self.resplist)  # playing player's index
         if self.__num_continuous_call >= self.__num_players or len(self.active_players_list) == 1:
             self.resplist.append(None)  # skip players after fill the conditions to move next turn
-        elif self.__num_continuous_fold <= self.__BB and self.__BB != self.__index_playing_player - 1:
+        elif self.__num_continuous_fold <= self.__BB and self.__BB != self.__num_playing_player - 1:
             self.resplist.append(None)  # skip untill BB at first turn
-        elif self.playercheck[self.__index_playing_player] is False:
+        elif self.playercheck[self.__num_playing_player] is False:
             self.resplist.append(None)  # skip the player
         else:
             self.resplist.append(player.respond())  # get response from player
-        self.hentounohosei(self.__index_playing_player)  # correct response to follow the game rules
-        self.flagnokosin(self.__index_playing_player)  # move flags
+        self.hentounohosei(self.__num_playing_player)  # correct response to follow the game rules
+        self.flagnokosin(self.__num_playing_player)  # move flags
         self.active_players()  # renew active_plyers_list
 
     def hentounohosei(self, i):
         # while文でflagがプレイヤー数になるという次の工程に移行する条件を定義
         # flagでレイズから次にレイズがあるまでカウントししている
-        if self.__num_continuous_fold <= self.__BB and self.__BB != self.__index_playing_player - 1:
+        if self.__num_continuous_fold <= self.__BB and self.__BB != self.__num_playing_player - 1:
             self.__num_continuous_call = self.__num_continuous_call-1
         elif self.resplist[i] == None:
             pass
