@@ -76,7 +76,6 @@ class Dealer(object):
         self.__betting_cost = game_inst.minimum_bet  # betting money at first
         # player can raise betting money the multiple of game_inst.minimum_bet
         self.minimum_bet = game_inst.minimum_bet
-        self.playercheck = [True]*self.__num_players  # 返答を毎度更新し、降りた時にFalseにする
         self.active_players_list = self.__players  # the list of actionable players
         self.bettingrate = [0]*self.__num_players  # 各々が賭けたお金を記録するリスト
         self.bettingrate[self.__SB] = 1  # small-blined bet 1$ at first
@@ -91,7 +90,6 @@ class Dealer(object):
         self.resplist = []
         for i in range(self.__num_players):
             if self.__money_each_player[i] <= 0:
-                self.playercheck[i] = False
                 self.__list_status[i].in_game = False
                 # player who have no money can't play new game
         # print the player of small-blined position
@@ -151,14 +149,18 @@ class Dealer(object):
     # 最後にフラグと生きているplayerのリストを更新する
     def get_response_from_one_person(self, player):
         self.__num_playing_player = len(self.resplist)  # playing player's index
+        # skip players after fill the conditions to move next turn
         if self.__num_continuous_call >= self.__num_players or len(self.active_players_list) == 1:
-            self.resplist.append(None)  # skip players after fill the conditions to move next turn
+            self.resplist.append(None)
+        # skip untill BB at first turn
         elif self.__num_continuous_fold <= self.__BB and self.__BB != self.__num_playing_player - 1:
-            self.resplist.append(None)  # skip untill BB at first turn
-        elif self.playercheck[self.__num_playing_player] is False:
-            self.resplist.append(None)  # skip the player
+            self.resplist.append(None)
+        # get response from player if he/she is in game
+        elif self.__list_status[self.__num_playing_player].in_game:
+            self.resplist.append(player.respond())
+        # skip the player if he/she is not in game
         else:
-            self.resplist.append(player.respond())  # get response from player
+            self.resplist.append(None)
         self.hentounohosei(self.__num_playing_player)  # correct response to follow the game rules
         self.flagnokosin(self.__num_playing_player)  # move flags
         self.active_players()  # renew active_plyers_list
@@ -171,7 +173,6 @@ class Dealer(object):
         elif self.resplist[i] == None:
             pass
         elif self.resplist[i] == "fold":
-            self.playercheck[i] = False  # 降りる
             self.__list_status[i].in_game = False
         elif self.__money_each_player[i] <= self.__betting_cost:
             self.resplist[i] = "call"  # 掛け金に満たない場合で降りてないなら必然的にcall
@@ -217,7 +218,7 @@ class Dealer(object):
     def active_players(self):
         self.active_players_list = []
         for j in range(self.__num_players):  # 降りなかった人をリストで返す
-            if self.playercheck[j] is True:
+            if self.__list_status[j].in_game:
                 self.active_players_list.append(self.__players[j])
 
     def printingdate(self):
@@ -267,7 +268,7 @@ class Dealer(object):
         winner_score = 0
         roll = []
         for player in self.__players:
-            if self.playercheck[i] is True:
+            if self.__list_status[i].in_game:
                 seven_cards = self.__players_cards[self.__players.index(player)] + self.field
                 roll.append(self.calc_hand_score(seven_cards)[0])
                 if winner_score < roll[j]:
