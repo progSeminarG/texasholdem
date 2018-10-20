@@ -99,7 +99,7 @@ if __name__ == '__main__':
                         help='set number of games')
 
     parser.add_argument('--players', type=str,
-                        default=['Kawada', 'Shirai', 'Takahashi', 'Shirai',
+                        default=['Kawada', 'Shirai', 'Takahashi',
                                  'Player', 'Player'],
                         nargs='+', help='set list of players')
 
@@ -165,8 +165,11 @@ if __name__ == '__main__':
                         win_list[i] += 1
                 _i += 1
             # print data #
-            print("players:", game.names_of_players)
-            print("win_perc:",win_list)
+            print("--------------------------------------------------")
+            print("{:15}{:15}".format('players','winning percentage'))
+            print("--------------------------------------------------")
+            for i in range(len(win_list)):
+                print("{:15}{:15}" .format(game.names_of_players[i],win_list[i]))
             # plot
             plt.pie(win_list, labels = game.names_of_players, startangle=90,)
             plt.show()
