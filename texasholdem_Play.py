@@ -170,6 +170,7 @@ if __name__ == '__main__':
             print("--------------------------------------------------")
             for i in range(len(win_list)):
                 print("{:15}{:15}" .format(game.names_of_players[i],win_list[i]))
+            print("--------------------------------------------------")
             # plot
             if args.plot:
                 plt.pie(win_list, labels = game.names_of_players, startangle=90,)
