@@ -121,11 +121,13 @@ if __name__ == '__main__':
     parser.add_argument('--fig', type=str, dest='figfile', nargs='?',
                         const=None, default=None, help="output figure name")
 
-    parser.add_argument('--stat', type=int, nargs=1,default=[-1] , help='statistic mode')
+    parser.add_argument('--stat', action='store_true', help='static mode: play many tournaments')
+
+    parser.add_argument('--statnum', type=int, nargs=1, default=[100], help='number of tournament in statistic mode')
 
     args = parser.parse_args()
 
-    #  create list of players #
+    # create list of players #
     players_list = []
     for player in args.players:
         if player in {'Kawada', 'KawadaAI'}:
@@ -150,12 +152,12 @@ if __name__ == '__main__':
     print("players:", game.names_of_players)
 
     # statistic mode #
-    if args.stat[0] >= 0:
+    if args.stat:
         _output = args.out[0]  # log file
         with open(_output, "w") as f:
             _i = 0
             win_list = [0]*len(game.accounts)
-            while _i <= args.stat[0]: 
+            while _i <= args.statnum[0]: 
                 print("===== tournament", _i, "=====")
                 game = Game(players_list)
                 while game.accounts.count(0) != game.num_players-args.numtournament[0]:
@@ -177,7 +179,7 @@ if __name__ == '__main__':
                 plt.show()
 
     # normal play mode #
-    elif args.stat[0] == -1:
+    else:
         _output = args.out[0]  # log file
         with open(_output, "w") as _file:
             game.out_index(_file)
