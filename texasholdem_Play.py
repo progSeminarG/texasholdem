@@ -171,8 +171,9 @@ if __name__ == '__main__':
             for i in range(len(win_list)):
                 print("{:15}{:15}" .format(game.names_of_players[i],win_list[i]))
             # plot
-            plt.pie(win_list, labels = game.names_of_players, startangle=90,)
-            plt.show()
+            if args.plot:
+                plt.pie(win_list, labels = game.names_of_players, startangle=90,)
+                plt.show()
 
     # normal play mode #
     elif args.stat[0] == -1:
@@ -198,7 +199,7 @@ if __name__ == '__main__':
                     game.play()
                     game.out_data(_file,_i+1)
 
-    # plot
-    if args.plot:
-        stat_inst = ReadPlot(datafile=args.out[0], figfile=args.figfile)
-        stat_inst.plot()
+        # plot
+        if args.plot:
+            stat_inst = ReadPlot(datafile=args.out[0], figfile=args.figfile)
+            stat_inst.plot()
