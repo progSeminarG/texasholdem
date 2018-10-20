@@ -20,7 +20,7 @@ from texasholdem_Human import Human
 
 class Game(object):
     def __init__(self, players_list):
-        self.__INITIAL_MONEY = 500  # money each player has in initial
+        self.__INITIAL_MONEY = 100  # money each player has in initial
         self.__players = players_list
         self.__num_players = len(self.__players)
         self.__total_money = self.__INITIAL_MONEY * self.__num_players
@@ -121,7 +121,6 @@ if __name__ == '__main__':
     parser.add_argument('--fig', type=str, dest='figfile', nargs='?',
                         const=None, default=None, help="output figure name")
 
-    args = parser.parse_args()
 
     #  create list of players #
     players_list = []
@@ -139,6 +138,8 @@ if __name__ == '__main__':
         else:
             raise ValueError("ERROR! No such an AI!")
 
+    print("lll---",players_list)
+    input()
     # shuffle players #
     if args.shuffle:
         random.shuffle(players_list)
