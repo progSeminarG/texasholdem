@@ -141,8 +141,6 @@ if __name__ == '__main__':
         else:
             raise ValueError("ERROR! No such an AI!")
 
-    print("lll---",players_list)
-    input()
     # shuffle players #
     if args.shuffle:
         random.shuffle(players_list)
@@ -160,13 +158,15 @@ if __name__ == '__main__':
             while _i <= args.stat[0]: 
                 print("===== tournament", _i, "=====")
                 game = Game(players_list)
-                print("players:", game.names_of_players)
                 while game.accounts.count(0) != game.num_players-args.numtournament[0]:
                     game.play()
                 for i in range(len(game.accounts)):
                     if game.accounts[i] != 0:
                         win_list[i] += 1
                 _i += 1
+            # print data #
+            print("players:", game.names_of_players)
+            print("win_perc:",win_list)
             # plot
             plt.pie(win_list, labels = game.names_of_players, startangle=90,)
             plt.show()
