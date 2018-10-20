@@ -43,14 +43,13 @@ class ShiraiAI(Player):
                 rsp=my_money/10 * 9
                 break
         rsp=int(rsp)
-        if self.dealer.minimum_bet > my_money/3 and rsp <= my_money/10*3:
+        if self.dealer.minimum_bet > my_money/3 and rsp <= my_money/10:
             rsp=random.choice([ 'call', 'fold'])
         if rsp == 0:
             rsp=random.choice([ 'call', 'fold'])
         warn=random.randrange(200)
         if warn == 1:
-            rsp=my_money
-        print("rsp---",rsp)
+            rsp=my_money/1.1 # たまにはこういうこともする
         return rsp
     
     

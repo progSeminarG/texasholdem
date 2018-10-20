@@ -20,7 +20,7 @@ from texasholdem_Human import Human
 
 class Game(object):
     def __init__(self, players_list):
-        self.__INITIAL_MONEY = 500  # money each player has in initial
+        self.__INITIAL_MONEY = 100  # money each player has in initial
         self.__players = players_list
         self.__num_players = len(self.__players)
         self.__total_money = self.__INITIAL_MONEY * self.__num_players
@@ -123,7 +123,6 @@ if __name__ == '__main__':
 
     parser.add_argument('--stat', type=int, nargs=1,default=[-1] , help='statistic mode')
 
-
     args = parser.parse_args()
 
     #  create list of players #
@@ -142,6 +141,8 @@ if __name__ == '__main__':
         else:
             raise ValueError("ERROR! No such an AI!")
 
+    print("lll---",players_list)
+    input()
     # shuffle players #
     if args.shuffle:
         random.shuffle(players_list)
@@ -172,7 +173,7 @@ if __name__ == '__main__':
 
     # normal play mode #
     elif args.stat[0] == -1:
-        _output = args.out[0]  # ログファイル
+        _output = args.out[0]  # log file
         with open(_output, "w") as _file:
             game.out_index(_file)
             game.out_data(_file,0)
