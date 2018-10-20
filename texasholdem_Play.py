@@ -121,6 +121,9 @@ if __name__ == '__main__':
     parser.add_argument('--fig', type=str, dest='figfile', nargs='?',
                         const=None, default=None, help="output figure name")
 
+    parser.add_argument('--stat', type=int, nargs=1,default=[-1] , help='statistic mode')
+
+
     args = parser.parse_args()
 
     #  create list of players #
@@ -147,27 +150,49 @@ if __name__ == '__main__':
     game = Game(players_list)
     print("players:", game.names_of_players)
 
-    # play games and save result #
-    _output = args.out[0]  # ログファイル
-    with open(_output, "w") as _file:
-        game.out_index(_file)
-        game.out_data(_file,0)
-        if args.tournament:
+    # statistic mode #
+    if args.stat[0] >= 0:
+        _output = args.out[0]  # log file
+        with open(_output, "w") as f:
             _i = 0
-            _minimum_bet = 2
-            while (game.accounts.count(0)
-                    != game.num_players-args.numtournament[0]):
-                print("===== game", _i, "=====")
+            win_list = [0]*len(game.accounts)
+            while _i <= args.stat[0]: 
+                print("===== tournament", _i, "=====")
+                game = Game(players_list)
+                print("players:", game.names_of_players)
+                while game.accounts.count(0) != game.num_players-args.numtournament[0]:
+                    game.play()
+                for i in range(len(game.accounts)):
+                    if game.accounts[i] != 0:
+                        win_list[i] += 1
                 _i += 1
-                game.play()
-                game.out_data(_file,_i)
-                if _i % args.raiserate[0] == 0:
-                    _minimum_bet += args.raiserate[1]
-        else:
-            for _i in range(args.numgames[0]):
-                print("===== game", _i, "=====")
-                game.play()
-                game.out_data(_file,_i+1)
+            # plot
+            plt.pie(win_list, labels = game.names_of_players, startangle=90,)
+            plt.show()
+
+    # normal play mode #
+    elif args.stat[0] == -1:
+        _output = args.out[0]  # ログファイル
+        with open(_output, "w") as _file:
+            game.out_index(_file)
+            game.out_data(_file,0)
+            if args.tournament:
+                _i = 0
+                _minimum_bet = 2
+                while (game.accounts.count(0)
+                        != game.num_players-args.numtournament[0]):
+                    print("===== game", _i, "=====")
+                    _i += 1
+                    print("#######", _i, _minimum_bet)
+                    game.play()
+                    game.out_data(_file,_i)
+                    if _i % args.raiserate[0] == 0:
+                        _minimum_bet += args.raiserate[1]
+            else:
+                for _i in range(args.numgames[0]):
+                    print("===== game", _i, "=====")
+                    game.play()
+                    game.out_data(_file,_i+1)
 
     # plot
     if args.plot:
