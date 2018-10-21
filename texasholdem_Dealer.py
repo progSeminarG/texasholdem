@@ -326,8 +326,8 @@ class Dealer(object):
         winning_money = int(self.pot/len(winner))
         for i in range(len(winner)):
             self.__money_each_player[winners_cards_list[i][0]] = \
-                self.__money_each_player[winners_cards_list[i][0]] +
-            winning_money
+                self.__money_each_player[
+                    winners_cards_list[i][0]]+winning_money
 
     # calculate best score from given set of cards
     # 担当：白井．7枚のカードリストを受け取り，役とベストカードを返します．
