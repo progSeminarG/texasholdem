@@ -2,6 +2,7 @@
 import random
 from texasholdem_Dealer import Card
 
+
 class Player(object):  # とりあえず仮のベースのメゾットこれを継承する
     def get_know_dealer(self, dealer_input):
         self.dealer = dealer_input
@@ -104,19 +105,28 @@ class KawadaAI(Player):  # プレイ可能カードのリスト
             return "call"  # 掛け金増やさないで参加できるなら参加する(絶対)
         elif self.dealer.betting_cost == 2:
             return "call"
-        elif len(self.get_playable_cards()) == 2 and self.ablepair() == [0, 0, 1]:
+        elif (len(self.get_playable_cards())
+              == 2 and self.ablepair() == [0, 0, 1]):
             if self.dealer.betting_cost >= 12:
                 return "fold"
             return "call"
         elif pairrate == [0, 0, 0] and straight == [0, 0]:
             return "fold"  # 役がないなら降りる
-        elif self.dealer.betting_cost/(self.dealer.betting_cost-self.dealer.minimum_bet) >= 10:
+        elif (self.dealer.betting_cost /
+              (self.dealer.betting_cost-self.dealer.minimum_bet) >= 10):
             return "fold"
         elif len(self.dealer.field) == 0:
             return "call"  # 初ターン役ありならcall
-        elif self.dealer.betting_cost >= sorted(self.dealer.list_of_money)[len(self.dealer.list_of_players)-2]-self.dealer.minimum_bet:
+        elif (len(self.dealer.field) == 5
+              and pairrate == [0, 0, 1] and straight == [0, 0]):
+            return "fold"
+        elif (self.dealer.betting_cost >= sorted(self.dealer.list_of_money)
+              [len(self.dealer.list_of_players)-2]-self.dealer.betting_cost):
             return "call"
         elif pairrate == [1, 0, 0] or pairrate == [0, 1, 1]:
+            money_potit = self.search_money_class(my_number)
+            if money_potit[1] != 0:
+                return self.money_potit[0][self.money_potit[1]-1]
             return self.dealer.list_of_money[my_number]
             return self.dealer.minimum_bet*10  # 特にこの条件なら掛け金を増やす
         elif pairrate == [0, 0, 2] or flash == 1:
