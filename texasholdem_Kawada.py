@@ -17,12 +17,16 @@ class Player(object):  # とりあえず仮のベースのメゾットこれを�
 class KawadaAI(Player):  # プレイ可能カードのリスト
     def get_hand(self, dealer_input):
         self.my_cards = dealer_input
-        # print([card.card for card in self.my_cards])
+        print([card.card for card in self.my_cards])
         print()
 
-
-    def open_cards(self):
-        return self.my_cards
+    def search_money_class(self, my_number):
+        full = sorted(self.dealer.list_of_money)
+        j = self.dealer.list_of_money[my_number]
+        for i in range(len(self.dealer.__players)):
+            if full[i] == j:
+                money_class = i
+        return [full, money_class]
 
     def get_playable_cards(self):
         playable_cards = self.dealer.field+self.my_cards
@@ -96,20 +100,27 @@ class KawadaAI(Player):  # プレイ可能カードのリスト
         if pairrate == [0, 0, 3]:
             pairrate = [0, 0, 2]
         straight = self.straightchecker()
-        if self.dealer.money == self.dealer.bettingrate[my_number]:
+        if self.dealer.betting_cost == self.dealer.bettingrate[my_number]:
             return "call"  # 掛け金増やさないで参加できるなら参加する(絶対)
-        elif self.dealer.money == 2:
+        elif self.dealer.betting_cost == 2:
             return "call"
         elif len(self.get_playable_cards()) == 2 and self.ablepair() == [0, 0, 1]:
+            if self.dealer.betting_cost >= 12:
+                return "fold"
             return "call"
         elif pairrate == [0, 0, 0] and straight == [0, 0]:
             return "fold"  # 役がないなら降りる
+        elif self.dealer.betting_cost/(self.dealer.betting_cost-self.dealer.minimum_bet) >= 10:
+            return "fold"
         elif len(self.dealer.field) == 0:
             return "call"  # 初ターン役ありならcall
+        elif self.dealer.betting_cost >= sorted(self.dealer.list_of_money)[len(self.dealer.list_of_players)-2]-self.dealer.minimum_bet:
+            return "call"
         elif pairrate == [1, 0, 0] or pairrate == [0, 1, 1]:
+            return self.dealer.list_of_money[my_number]
             return self.dealer.minimum_bet*10  # 特にこの条件なら掛け金を増やす
         elif pairrate == [0, 0, 2] or flash == 1:
-            return self.dealer.minimum_bet*5
+            return self.dealer.minimum_bet*3
         else:
             return "call"  # とりあえず合う条件が無ければcall
         # ////////////未実装事項////////////
