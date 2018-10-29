@@ -16,6 +16,7 @@ from texasholdem_Kawada import KawadaAI
 from texasholdem_Shirai import ShiraiAI
 from texasholdem_Takahashi import TakahashiAI
 from texasholdem_Human import Human
+from texasholdem_Muto import MutoAI
 
 
 class Game(object):
@@ -100,7 +101,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--players', type=str,
                         default=['Kawada', 'Shirai', 'Takahashi',
-                                 'Player', 'Player'],
+                                 'Player', 'Player', 'Muto'],
                         nargs='+', help='set list of players')
 
     parser.add_argument('--tournament', action='store_true',
@@ -132,6 +133,8 @@ if __name__ == '__main__':
     for player in args.players:
         if player in {'Kawada', 'KawadaAI'}:
             players_list.append(KawadaAI())
+        elif player in {'Muto', 'MutoAI'}:
+            players_list.append(MutoAI())
         elif player in {'Shirai', 'ShiraiAI'}:
             players_list.append(ShiraiAI())
         elif player in {'Takahashi', 'TakahashiAI'}:
@@ -157,7 +160,7 @@ if __name__ == '__main__':
         with open(_output, "w") as f:
             _i = 0
             win_list = [0]*len(game.accounts)
-            while _i <= args.statnum[0]: 
+            while _i <= args.statnum[0]:
                 print("===== tournament", _i, "=====")
                 game = Game(players_list)
                 while game.accounts.count(0) != game.num_players-args.numtournament[0]:
