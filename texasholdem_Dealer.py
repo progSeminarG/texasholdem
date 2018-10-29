@@ -3,6 +3,7 @@
 import random
 import sys
 from copy import deepcopy
+import collections
 
 
 class Card(object):
@@ -602,6 +603,55 @@ class Dealer(object):
         elif max(num1) == max(num2):
             sc = 2
         return sc
+
+    # //////////////////////////////////////////////////
+    # ここから2人を比較するメソッド（同役）
+    # //////////////////////////////////////////////////
+    def compair_high_cards(self, cardslist1, cardslist2):  # cardslist(5cards)
+        number_list1 = self.convert_cardslist_to_numberlist(cardslist1)
+        number_list2 = self.convert_cardslist_to_numberlist(cardslist2)
+        array = [number_list1, number_list2]
+        collect = [[],[]]
+        value = [[],[]]
+        counts = [[],[]]
+        for i in range(2):
+            array[i].sort()
+            array[i].reverse()
+            collect[i] = collections.Counter(array[i])
+            value[i], counts[i] = zip(*collect[i].most_common())
+        decide_winner = False
+        for i in range(len(value[0])):
+            if value[0][i] > value[1][i]:
+                return 0
+            elif value[0][i] < value[1][i]:
+                return 1
+        if decide_winner is False:
+            return 2
+    '''
+    5枚のカードリストを２つ受け取り、数字のリストへと変換
+    枚数が多い数字順に数字を並べ替え、左からカードの強弱を比較
+    先に前者のリストが強い判定が出れば　０
+    後者のリストが強い判定が出れば　１
+    最後まで強弱の関係が無ければ　２
+
+    ＜現状の問題点＞
+    １が弱く扱われている　→　途中で１を１４に変換する？
+    '''
+
+    def convert_cardslist_to_numberlist(self, cards_list):
+        number_list = []
+        for i in lenge(len(cards_list)):
+            number_list.append(cards_list[i].number)
+        '''
+        for i in range(len(cardslist)):
+            if number_list[i] == 1:
+                number_list[i] =14
+        '''
+        return number_list
+    # //////////////////////////////////////////////////
+    # ここまで2人を比較するメソッド
+    # //////////////////////////////////////////////////
+
 
     @property
     def field(self):
