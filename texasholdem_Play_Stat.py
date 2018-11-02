@@ -28,15 +28,28 @@ Player4 = Player()
 
 players_list = [Player1, Player2, Player3, Player4 ]
 game = Game(players_list)
+############WARNING!!!!#############
+##Playのshuffleはコメントアウトしてから##
+####################################
 
-### number of games ###
-num_stat = 10
-#######################
+MAX=10000
+n=50
+dif = int(MAX/n) 
+
+output='st2.csv'
+
+###MAX回トーナメント###
+f=open(output, "w")
+f.write("num")
+p=''
+for i in range(len(players_list)):
+    p += ", " + str(players_list[i].__class__.__name__)
+p+="\n"
+f.write(p)
 
 _i = 0
-win_list = [0]*len(game.accounts)
-while _i < num_stat: 
-    print("===== tournament", _i, "=====")
+while _i < MAX: 
+    win_list = [0]*len(game.accounts)
     game = Game(players_list)
     label = [i.__class__.__name__ for i in players_list]
     while game.accounts.count(0) != len(players_list)-1: # death match
@@ -44,8 +57,37 @@ while _i < num_stat:
     for i in range(len(game.accounts)):
         if game.accounts[i] != 0:
             win_list[i] += 1
+    p=str(_i)
+    for i in range(len(win_list)):
+        p+=", "+str(win_list[i])
+    p+="\n"
+    f.write(p)
     _i += 1
-# plot
-plt.pie(win_list, labels = label, startangle=90,)
+f.close()
+######
+
+
+##以下では，トーナメント回数ごとの勝率を計算してグラフ化します．統計のための統計用プログラムです．
+df = pd.read_csv(output, header=0, encoding='utf-8')
+color=["red","green","blue","black"]
+win_list = [0]*len(game.accounts)
+num=dif # initial
+y=[0]*len(players_list)
+while num < MAX:
+    j=0
+    while j < 100 and j+num < MAX:
+        for i in range(len(players_list)):
+            print("num,i,j",num,i,j)
+            y[i]=df.iloc[j:j+num,i+1].values.tolist()
+            win_list[i]=sum(y[i])
+        tot=sum(win_list)
+        for i in range(len(win_list)):
+            win_list[i]=win_list[i]/tot
+        print("---",win_list)
+        x=[num]
+        for i in range(len(win_list)):
+            plt.scatter(x, win_list[i], s=10, c=color[i], alpha=0.2) # label=players_list[i].__class__.__name__)
+        j+=1
+    num+=dif
 plt.show()
 
