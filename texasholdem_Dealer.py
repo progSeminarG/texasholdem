@@ -3,7 +3,7 @@
 import random
 import sys
 from copy import deepcopy
-import collections
+import os
 
 
 class Card(object):
@@ -356,8 +356,8 @@ class Dealer(object):
                 flash = 1
                 flash_list = []
                 for i in range(len(card_list)):  # flashの数字だけ取り出す
-                    if card_list[6-i][0] == SUIT:
-                        flash_list.append(card_list[6-i])
+                    if card_list[-1-i][0] == SUIT:
+                        flash_list.append(card_list[-1-i])
         (straight, straight_list) = self.stlist(card_list)
         if straight == 1 and flash == 1:
             (st, st_list) = self.stlist(flash_list)
@@ -366,6 +366,7 @@ class Dealer(object):
                 straight_flash = 1
 
         # == JUDGE BELOW ==
+        
         rtCards = []
         # Straight-Flash
         if straight_flash == 1:
@@ -374,12 +375,12 @@ class Dealer(object):
         elif pp[0] >= 1:
             score = 7
             for i in range(self.__MAX_NUMBER_CARDS):
-                if num.count(14-i) == 4:
+                if num.count(14-i) == 4: # 4cards
                     for n in range(len(card_list)):
-                        if card_list[6-n][1] == 14-i:
-                            rtCards.append(card_list[6-n])
-                            card_list.remove(card_list[6-n])
-            rtCards.append(card_list[2])
+                        if card_list[len(cards)-1-n][1] == 14-i:
+                            rtCards.append(card_list[len(cards)-1-n])
+                            card_list.remove(card_list[len(cards)-1-n])
+            rtCards.append(card_list[-1])
         # Fullhouse
         elif pp[1] == 2:  # 3c *2
             score = 6
@@ -390,37 +391,37 @@ class Dealer(object):
                     num.remove(14-i)
                     num.remove(14-i)
                     for n in range(len(card_list)):
-                        if card_list[6-n][1] == (14-i):
-                            rtCards.append(card_list[6-n])
-                            card_list.remove(card_list[6-n])
+                        if card_list[len(cards)-1-n][1] == (14-i):
+                            rtCards.append(card_list[len(cards)-1-n])
+                            card_list.remove(card_list[len(cards)-1-n])
                     break
             for i in range(self.__MAX_NUMBER_CARDS):
                 if num.count(14-i) == 3:
                     for n in range(len(card_list)):
                         if card_list[n][1] == (14-i):
-                            rtCards.append(card_list[3-n])
-                            card_list.remove(card_list[3-n])
+                            rtCards.append(card_list[len(cards)-4-n])
+                            card_list.remove(card_list[len(cards)-4-n])
                             c += 1
                             if c == 2:  # 小さい方の3cは2個だけ取る
                                 break
         elif pp[1] == 1 and pp[2] >= 1:  # 3c+pair
             score = 6
             for i in range(self.__MAX_NUMBER_CARDS):
-                if num.count(14-i) == 3:
+                if num.count(14-i) == 3: # 3cards
                     num.remove(14-i)
                     num.remove(14-i)
                     num.remove(14-i)
                     for n in range(len(card_list)):
-                        if card_list[6-n][1] == (14-i):
-                            rtCards.append(card_list[6-n])
-                            card_list.remove(card_list[6-n])
+                        if card_list[len(cards)-1-n][1] == (14-i):
+                            rtCards.append(card_list[len(cards)-1-n])
+                            card_list.remove(card_list[len(cards)-1-n])
                     break
             for i in range(self.__MAX_NUMBER_CARDS):
-                if num.count(14-i) == 2:
+                if num.count(14-i) == 2: # pair
                     for n in range(len(card_list)):
-                        if card_list[3-n][1] == (14-i):
-                            rtCards.append(card_list[3-n])
-                            card_list.remove(card_list[3-n])
+                        if card_list[len(cards)-4-n][1] == (14-i):
+                            rtCards.append(card_list[len(cards)-4-n])
+                            card_list.remove(card_list[len(cards)-4-n])
                     break
         # Flash
         elif flash == 1:
@@ -436,19 +437,20 @@ class Dealer(object):
             for i in range(self.__MAX_NUMBER_CARDS):
                 if num.count(14-i) == 3:
                     for n in range(len(card_list)):
-                        if card_list[6-n][1] == (14-i):
-                            rtCards.append(card_list[6-n])
-                            card_list.remove(card_list[6-n])
+                        if card_list[len(cards)-1-n][1] == (14-i):
+                            rtCards.append(card_list[len(cards)-1-n])
+                            card_list.remove(card_list[len(cards)-1-n])
                     break
-            for i in range(2):
-                rtCards.append(card_list[3-i])
-                card_list.remove(card_list[3-i])
+            for i in range(min(2,len(card_list))):
+                rtCards.append(card_list[-1])#　maxを2つ
+                card_list.remove(card_list[-1])
         # 2pairs
         elif pp[2] >= 2:
+            print("cc-",card_list)
             score = 2
             c = 0
             for i in range(self.__MAX_NUMBER_CARDS):
-                if num.count(14-i) == 2 and c != 2:
+                if num.count(14-i) == 2 and c < 2:
                     c += 1
                     num.remove(14-i)
                     num.remove(14-i)
@@ -459,24 +461,30 @@ class Dealer(object):
                             card_list.remove(card_list[len(card_list)-1-n])
                             card_list.remove(card_list[len(card_list)-1-n])
                             break
-            rtCards.append(card_list[2])
+            print("cc-",card_list)
+            if card_list != []:
+                rtCards.append(card_list[min(2,len(card_list)-1)])
+            else:
+                pass
         # 1pair
         elif pp[2] == 1:
             score = 1
             for i in range(self.__MAX_NUMBER_CARDS):
                 if num.count(14-i) == 2:
                     for n in range(len(card_list)):
-                        if card_list[6-n][1] == 14-i:
-                            rtCards.append(card_list[6-n])
-                            card_list.remove(card_list[6-n])
+                        if card_list[len(cards)-1-n][1] == 14-i:
+                            rtCards.append(card_list[len(cards)-1-n])
+                            card_list.remove(card_list[len(cards)-1-n])
                     break
-            for i in range(3):
-                rtCards.append(card_list[4-i])
-                card_list.remove(card_list[4-i])
+            for i in range(min(3,len(card_list))):
+                rtCards.append(card_list[-1]) # maxを3つ
+                card_list.remove(card_list[-1])
         # no pair
         else:
             score = 0
-            rtCards = card_list[2:7]
+            for i in range(min(5,len(card_list))):
+                rtCards.append(card_list[-1])
+                card_list.remove(card_list[-1])
 
         # RETURN!!
         nc = self.rpcards2(rtCards)
@@ -507,7 +515,7 @@ class Dealer(object):
         for card in num:  # 数字の個数カウント
             num_list[card] += 1
         for i in range(10):
-            prod = num_list[14-i]*num_list[13-i] *\
+            prod = num_list[14-i]*num_list[13-i]*\
                 num_list[12-i]*num_list[11-i]*num_list[10-i]
             if prod >= 1:
                 straight = 1  # st宣言
@@ -603,55 +611,6 @@ class Dealer(object):
         elif max(num1) == max(num2):
             sc = 2
         return sc
-
-    # //////////////////////////////////////////////////
-    # ここから2人を比較するメソッド（同役）
-    # //////////////////////////////////////////////////
-    def compair_high_cards(self, cardslist1, cardslist2):  # cardslist(5cards)
-        number_list1 = self.convert_cardslist_to_numberlist(cardslist1)
-        number_list2 = self.convert_cardslist_to_numberlist(cardslist2)
-        array = [number_list1, number_list2]
-        collect = [[],[]]
-        value = [[],[]]
-        counts = [[],[]]
-        for i in range(2):
-            array[i].sort()
-            array[i].reverse()
-            collect[i] = collections.Counter(array[i])
-            value[i], counts[i] = zip(*collect[i].most_common())
-        decide_winner = False
-        for i in range(len(value[0])):
-            if value[0][i] > value[1][i]:
-                return 0
-            elif value[0][i] < value[1][i]:
-                return 1
-        if decide_winner is False:
-            return 2
-    '''
-    5枚のカードリストを２つ受け取り、数字のリストへと変換
-    枚数が多い数字順に数字を並べ替え、左からカードの強弱を比較
-    先に前者のリストが強い判定が出れば　０
-    後者のリストが強い判定が出れば　１
-    最後まで強弱の関係が無ければ　２
-
-    ＜現状の問題点＞
-    １が弱く扱われている　→　途中で１を１４に変換する？
-    '''
-
-    def convert_cardslist_to_numberlist(self, cards_list):
-        number_list = []
-        for i in lenge(len(cards_list)):
-            number_list.append(cards_list[i].number)
-        '''
-        for i in range(len(cardslist)):
-            if number_list[i] == 1:
-                number_list[i] =14
-        '''
-        return number_list
-    # //////////////////////////////////////////////////
-    # ここまで2人を比較するメソッド
-    # //////////////////////////////////////////////////
-
 
     @property
     def field(self):
