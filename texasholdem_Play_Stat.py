@@ -66,10 +66,10 @@ while _i < MAX:
 f.close()
 ######
 
-# make data frame #
+
+##以下では，トーナメント回数ごとの勝率を計算してグラフ化します．統計のための統計用プログラムです．
 df = pd.read_csv(output, header=0, encoding='utf-8')
 color=["red","green","blue","black"]
-
 win_list = [0]*len(game.accounts)
 num=dif # initial
 y=[0]*len(players_list)
@@ -89,6 +89,5 @@ while num < MAX:
             plt.scatter(x, win_list[i], s=10, c=color[i], alpha=0.2) # label=players_list[i].__class__.__name__)
         j+=1
     num+=dif
-#plt.legend(bbox_to_anchor=(1, 1), loc='upper right', fontsize=7)
 plt.show()
 
