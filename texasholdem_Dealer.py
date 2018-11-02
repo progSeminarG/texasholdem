@@ -380,7 +380,10 @@ class Dealer(object):
                         if card_list[len(cards)-1-n][1] == 14-i:
                             rtCards.append(card_list[len(cards)-1-n])
                             card_list.remove(card_list[len(cards)-1-n])
-            rtCards.append(card_list[-1])
+            if card_list != []:
+                rtCards.append(card_list[-1])
+            else:
+                pass
         # Fullhouse
         elif pp[1] == 2:  # 3c *2
             score = 6
