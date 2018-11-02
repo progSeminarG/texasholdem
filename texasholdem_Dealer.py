@@ -446,7 +446,6 @@ class Dealer(object):
                 card_list.remove(card_list[-1])
         # 2pairs
         elif pp[2] >= 2:
-            print("cc-",card_list)
             score = 2
             c = 0
             for i in range(self.__MAX_NUMBER_CARDS):
@@ -461,7 +460,6 @@ class Dealer(object):
                             card_list.remove(card_list[len(card_list)-1-n])
                             card_list.remove(card_list[len(card_list)-1-n])
                             break
-            print("cc-",card_list)
             if card_list != []:
                 rtCards.append(card_list[min(2,len(card_list)-1)])
             else:
