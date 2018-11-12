@@ -149,7 +149,7 @@ class Dealer(object):
     # "call"/"fold"/int() 参加資格が無いあるいは訊き始める条件にはない場合はskipしNoneを格納する
     # self.__num_playing_playerはリストの何番目のplayerなのかを表したもの
     # 追加した返答をルールに従うように補正する際関数に渡す
-    # self.__num_continuous_call: call が続いた回数
+    # self.__num_continuous_call: raise 以降の人数 (raise の人が 0)
     # self.__num_continuous_fold: foldが続いたカウント
     #   1ターン目のBB 2ターン目以降のSBまでskipするためのカウンター
     #
@@ -162,12 +162,12 @@ class Dealer(object):
         self.__num_playing_player = \
             len(self.resplist)  # playing player's index
         # skip players after fill the conditions to move next turn
-        if self.__num_continuous_call >= \
-                self.__num_players or len(self.active_players_list) == 1:
+        if self.__num_continuous_call >= self.__num_players \
+                or len(self.active_players_list) == 1:
             self.resplist.append(None)
         # skip untill BB at first turn
-        elif self.__num_continuous_fold <= \
-                self.__BB and self.__BB != self.__num_playing_player - 1:
+        elif self.__num_continuous_fold <= self.__BB \
+                and self.__BB != self.__num_playing_player - 1:
             self.resplist.append(None)
         # get response from player if he/she is in game
         elif self.__list_status[self.__num_playing_player].in_game:
