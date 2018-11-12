@@ -16,6 +16,10 @@ class Player(object):  # とりあえず仮のベースのメゾットこれを�
 
 
 class KawadaAI(Player):  # プレイ可能カードのリスト
+
+    def __init__(self):
+        pass  # print("hello")
+
     def get_hand(self, dealer_input):
         self.my_cards = dealer_input
         print([card.card for card in self.my_cards])
@@ -112,8 +116,19 @@ class KawadaAI(Player):  # プレイ可能カードのリスト
             return "call"
         elif pairrate == [0, 0, 0] and straight == [0, 0]:
             return "fold"  # 役がないなら降りる
+        elif pairrate == [1, 0, 0] or pairrate == [0, 1, 1]:
+            money_potit = self.search_money_class(my_number)
+            if money_potit[1] != 0:
+                return self.money_potit[0][self.money_potit[1]-1]
+            return self.dealer.list_of_money[my_number]
+            return self.dealer.minimum_bet*10  # 特にこの条件なら掛け金を増やす
+        elif len(self.dealer.active_players_list) == 2:
+            if self.dealer.list_of_money[my_number] >= 400:
+                return len(self.dealer.list_of_players)*100-self.dealer.list_of_money[my_number]
+
+            return 'call'
         elif (self.dealer.betting_cost /
-              (self.dealer.betting_cost-self.dealer.minimum_bet) >= 10):
+              (self.dealer.betting_cost-self.dealer.minimum_bet) >= 10) and random.randint(0,3) != 0:
             return "fold"
         elif len(self.dealer.field) == 0:
             return "call"  # 初ターン役ありならcall
