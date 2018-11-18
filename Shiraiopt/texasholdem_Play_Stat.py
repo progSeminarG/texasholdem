@@ -72,7 +72,7 @@ while _i < MAX:
         game.play()
         c+=1
     win_list[game.accounts.index(max(game.accounts))] += 1
-    ff=open("tour.txt","a")
+    ff=open("tour.txt","a")#回数記録ファイル
     ff.write(str(_i)+"\n")
     ff.close()
     q=str(_i)
@@ -85,7 +85,7 @@ while _i < MAX:
         df = pd.read_csv(output, header=0, encoding='utf-8')
         y=df.iloc[_i-100:_i,len(players_list)].values.tolist()
         win=sum(y)/100
-        if win>0.55:
+        if win>0.55:#勝率がこれ以上なら終わりにする
             break
         gg=open("win.txt","a")
         gg.write(str(win)+"\n")
