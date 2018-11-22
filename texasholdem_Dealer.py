@@ -33,7 +33,8 @@ class Card(object):
 
 
 class Status(object):
-    def __init__(self, money):
+    def __init__(self, index, money):
+        self.__index = index
         self.__money = money
         self.__bet_money = 0
         if self.__money > 0:
@@ -47,6 +48,13 @@ class Status(object):
         self.__money -= money
         self.__bet_money += money
         return money
+
+    @property
+    def index(self):
+        return self.__index
+    @property
+    def money(self):
+        return self.__money
 
 
 class Dealer(object):
@@ -68,8 +76,8 @@ class Dealer(object):
             = self.__game_inst.accounts
         # create list of players' status
         self.__list_status = \
-            [Status(_money) for _money in
-             self.__game_inst.accounts]
+            [Status(_index,_money) for _index,_money in
+                    enumerate(self.__game_inst.accounts)]
         print(self.__money_each_player)
         # cards list on the field
         self.__field = []
@@ -80,6 +88,8 @@ class Dealer(object):
         self.__DB = self.__game_inst.DB
         self.__SB = self.__next_alive_player(self.__DB)
         self.__BB = self.__next_alive_player(self.__SB)
+        self.__minimum_bet = game_inst.minimum_bet
+        self.__minimum_raise = self.__minimum_bet
         self.__betting_cost = game_inst.minimum_bet  # betting money at first
         # player can raise betting money the multiple of game_inst.minimum_bet
         self.minimum_bet = game_inst.minimum_bet
@@ -225,6 +235,16 @@ class Dealer(object):
                 # call金額の更新
                 self.bettingrate[i] = self.__betting_cost
             self.__num_continuous_call = 0
+        elif _responce == "fold":
+            self.__list_status[_index].in_game = False
+        elif self.__money_each_player[i] <= self.__betting_cost:
+            _responce = "call"  # 掛け金に満たない場合で降りてないなら必然的にcall
+            self.bettingrate[i] = self.__money_each_player[i]
+        elif _responce == "call" or 0:  # お金あるときのcall
+            self.bettingrate[i] = self.__betting_cost
+        elif type(_responce) is str:
+            _responce = "call"
+            self.bettingrate[i] = self.__betting_cost
 
     def kakekinhosei(self):
         for i in range(0, self.__num_players):  # 最終的な掛け金の補正
@@ -263,12 +283,55 @@ class Dealer(object):
             self.pot = sum(self.bettingrate)
             print("pot = ", self.pot)
 
+    def handle_raise(self, _raise):
+        _factor = _raise % self.__minimum_raise
+        if _factor > 0:
+            # update 
+            self.__mininum_raise = _factor * self__minimum_raise
+        return self.__minimum_raise
+    def handle_responce(self, _index, _responce):
+        # while文でflagがプレイヤー数になるという次の工程に移行する条件を定義
+        # flagでレイズから次にレイズがあるまでカウントししている
+        if type(_responce) is int:
+            if self.__betting_cost+self.minimum_bet >= self.__money_each_player[i]:
+                self.bettingrate[i] = self.__money_each_player[i]
+                self.__num_continuous_call = 0
+                self.__betting_cost = self.__betting_cost+self.minimum_bet
+            else:
+                if self.minimum_bet > _responce:
+                    # minimum_betより小さい金額ならminimum_betに修正
+                    _responce = self.minimum_bet
+                    self.__betting_cost = self.__betting_cost+_responce
+                    # call金額の更新
+                    self.bettingrate[i] = self.__betting_cost
+                else:
+                    # minimum_betの整数倍をレイズするように返値を修正
+                    j = int(_responce/self.minimum_bet)
+                    if self.__money_each_player[i] <= \
+                            self.__betting_cost+self.minimum_bet*j:
+                        j = int((self.__money_each_player[i] -
+                                self.__betting_cost)/self.minimum_bet)+1
+                    self.minimum_bet = self.minimum_bet*j
+                    _responce = self.minimum_bet
+                    # minimum_betの更新
+                    self.__betting_cost = self.__betting_cost+_responce
+                    # call金額の更新
+                    self.bettingrate[i] = self.__betting_cost
+                self.__num_continuous_call = 0
+
     def get_responses(self):  # playersから返事を次のターンに進められるまで聞き続ける
-        if len(self.field) == 0:
-            __cycle__player = self.__list_status[self.__BB:] \
+        if len(self.field) != 0:
+            _cycle_player = self.__list_status
+        else:
+            _cycle_player = self.__list_status[self.__BB:] \
                 + self.__list_status[:self.__BB]
-            print(__cycle_player)
+        for _player in cycle(_cycle_player):
+            if _player.in_game:
+                _responce = self.__players[_player.index].respond()
+            print(_responce)
             sys.exit(1)
+
+
         if len(self.field) != 0:
             self.__num_continuous_call = 0
             self.__BB = (self.__SB-1) % self.__num_players

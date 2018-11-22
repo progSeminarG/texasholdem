@@ -13,7 +13,8 @@ from texasholdem_Plot import ReadPlot
 from texasholdem_Dealer import Card, Dealer
 from texasholdem_Player import Player
 from texasholdem_Kawada import KawadaAI
-from texasholdem_Shirai import Shirai2AI
+from texasholdem_Shirai import ShiraiAI
+#from texasholdem_Shirai import Shirai2AI
 from texasholdem_Takahashi import TakahashiAI
 from texasholdem_Human import Human
 from texasholdem_Muto import MutoAI
@@ -136,7 +137,8 @@ if __name__ == '__main__':
         elif player in {'Muto', 'MutoAI'}:
             players_list.append(MutoAI())
         elif player in {'Shirai', 'ShiraiAI'}:
-            players_list.append(Shirai2AI())
+            players_list.append(ShiraiAI())
+#            players_list.append(Shirai2AI())
         elif player in {'Takahashi', 'TakahashiAI'}:
             players_list.append(TakahashiAI())
         elif player == 'Human':
