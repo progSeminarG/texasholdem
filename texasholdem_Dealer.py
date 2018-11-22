@@ -4,6 +4,7 @@ import random
 import sys
 from copy import deepcopy
 import collections
+from itertools import cycle
 
 
 class Card(object):
