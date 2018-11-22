@@ -264,6 +264,11 @@ class Dealer(object):
             print("pot = ", self.pot)
 
     def get_responses(self):  # playersから返事を次のターンに進められるまで聞き続ける
+        if len(self.field) == 0:
+            __cycle__player = self.__list_status[self.__BB:] \
+                + self.__list_status[:self.__BB]
+            print(__cycle_player)
+            sys.exit(1)
         if len(self.field) != 0:
             self.__num_continuous_call = 0
             self.__BB = (self.__SB-1) % self.__num_players
