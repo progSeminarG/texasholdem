@@ -13,7 +13,7 @@ from texasholdem_Plot import ReadPlot
 from texasholdem_Dealer import Card, Dealer
 from texasholdem_Player import Player
 from texasholdem_Kawada import KawadaAI
-from texasholdem_Shirai import Shirai2AI
+from texasholdem_Shirai import ShiraiAI
 from texasholdem_Takahashi import TakahashiAI
 from texasholdem_Human import Human
 from texasholdem_Muto import MutoAI
