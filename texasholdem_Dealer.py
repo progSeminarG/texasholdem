@@ -49,7 +49,7 @@ class Status(object):
     def bet(self, money):
         self.__money -= money
         self.__bet_money += money
-        return money
+#        return money
 
     def add_cards(self, cards):
         self.__cards = cards
@@ -111,12 +111,12 @@ class Dealer(object):
         self.bettingrate = [0]*self.__num_players  # 各々が賭けたお金を記録するリスト
         self.bettingrate[self.__SB] = 1  # small-blined bet 1$ at first
         self.bettingrate[self.__BB] = 2  # big-blined bet 2$ at first
-        self.__ipot = 0
-        self.__pot_limit = [max([_status.money for _status in self.__list_status])]
-        self.__pot = [self.__list_status[self.__SB].bet(self.minimum_bet/2)]
-        self.__pot[self.__ipot] += self.__list_status[self.__BB].bet(self.minimum_bet)  # check! if BB has only 1!
-        print(self.__pot_limit)
-        sys.exit(1)
+#        self.__ipot = 0
+#        self.__pot_limit = [max([_status.money for _status in self.__list_status])]
+#        self.__pot = [self.__list_status[self.__SB].bet(self.minimum_bet/2)]
+#        self.__pot[self.__ipot] += self.__list_status[self.__BB].bet(self.minimum_bet)  # check! if BB has only 1!
+#        print(self.__pot_limit)
+#        sys.exit(1)
 #        self.__pot = self.__list_status[self.__SB].bet(self.minimum_bet/2)
 #        self.__pot = self.__list_status[self.__BB].bet(self.minimum_bet)
         # this flag is used to compair to big-blined position
@@ -220,45 +220,35 @@ class Dealer(object):
     # raising money has to be multiply of previous rasing rate
     # otherwise return little less or minimum raising rate
     def handle_raise(self, _raise):
-        _factor = _raise % self.__minimum_raise
+        _factor = int(_raise / self.__minimum_raise)
+        print("factor",_factor)
         if _factor > 0: # update minimum_raise, minimum_bet
             self.__mininum_raise = _factor * self.__minimum_raise
             self.__minimum_bet += self.__minimum_raise
         return self.__minimum_raise
 
-    def handle_pot(self, _spent, _bet):
-        _total = _spent + _bet
-        for _ith, _limit in enumerate(self.__pot_limit):
-            if _total < _limit:
-                self.__pot[_ith] += _bet
-            else:
-                _diff = _total - _limit
-                self.__pot[_ith] = 
-            
-        
+    def money_check(self, _status, _bet):
+        if _bet < _status.money:
+            _status.bet(_bet)
+        else:
+            _factor = (_status.money - self.__betting_cost) / self.__mininum_raise
+            _status.bet(_status.money)
+
+
 
     # handle response depending on each player's status
-    # 
     def handle_response(self, _status, _response):
         if _response is 'call':
             _cost = self.__betting_cost - _status.bet_money  # cost for call
             if _cost < _status.money:  # has enough money
-                self.__pot[self.__ipot] += _status.bet(_cost)
+                _status.bet(_cost)
             else:  # all-in case
-                self.__pot[self.__ipot] += _stauts.bet(_status.money)
-                self.__pot_limit.insert(self.__ipot,_status.bet_money)
-                for _player in self.__list_status:
-                    _over_bet = _player.bet_money - self.__pot_limit[self.__ipot]
-                    if _over_bet > 0:
-                        self.__pot[self.__ipot] - _over_bet
-                        slef.__pot[self.__ipot+1] += _over_bet
-                self.__ipot += 1
+                _status.bet(_status.money)
         elif _response is 'fold':
             _status.in_game = False
         elif _response > 0:
-            _raise = self.handle_raise(_response)
-            self.__pot[self.__ipot]
-            self.handle_raise(_raise)
+            _raise = self.handle_raise(int(_response))
+            _status.bet(_raise)
             self.__starter = _status.index  # update starter
         else:
            raise ValueError("respond 'call', 'fold', or raise money <int>")
@@ -278,13 +268,19 @@ class Dealer(object):
             if _status.in_game:
                 _response = self.__players[_status.index].respond()
                 self.handle_response(_status,_response)
-                print(_response)
+                print(_status.index,":",_response,":",_status.bet_money)
             if (_status.index + 1) % self.__num_players == self.__starter:
                 break
 
+    def create_pot(self):
+        #_list_bet_money = set([i.bet_money for i in self.__list_status if i.in_game])
+        #_list_bet_money = [i.bet_money for i in self.__list_status if i.in_game]
+        _list_bet_money = [i.bet_money for i in self.__list_status]
+        print("list_bet_money",_list_bet_money)
 
 
     def calc(self):
+        self.create_pot()
         # calculate strength of each hands and save in each status
         for _status in self.__list_status:
             if _status.in_game:
