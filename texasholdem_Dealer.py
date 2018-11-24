@@ -7,6 +7,7 @@ import collections
 from itertools import cycle
 from collections import Counter
 from scipy.stats import rankdata
+from math import ceil
 
 
 class Card(object):
@@ -47,9 +48,14 @@ class Status(object):
             self.alive = False
 
     def bet(self, money):
-        self.__money -= money
-        self.__bet_money += money
-#        return money
+        if money <= self.__money:
+            self.__bet_money += money
+            self.__money -= money
+            return True
+        else:
+            self.__bet_money += self.__money
+            self.__money = 0
+            return False
 
     def add_cards(self, cards):
         self.__cards = cards
@@ -101,11 +107,12 @@ class Dealer(object):
         self.__SB = self.__next_alive_player(self.__DB)
         self.__BB = self.__next_alive_player(self.__SB)
         self.__starter = (self.__BB + 1) % self.__num_players
-        self.__minimum_bet = game_inst.minimum_bet
-        self.__minimum_raise = self.__minimum_bet
-        self.__betting_cost = game_inst.minimum_bet  # betting money at first
+        self.__unit_bet = game_inst.minimum_bet
+        self.__minimum_bet = self.__unit_bet
+        self.__minimum_raise = self.__unit_bet
+#        self.__betting_cost = game_inst.minimum_bet  # betting money at first
         # player can raise betting money the multiple of game_inst.minimum_bet
-        self.minimum_bet = game_inst.minimum_bet
+#        self.minimum_bet = game_inst.minimum_bet
         self.active_players_list \
             = self.__players  # the list of actionable players
         self.bettingrate = [0]*self.__num_players  # 各々が賭けたお金を記録するリスト
@@ -162,11 +169,6 @@ class Dealer(object):
             _status.add_cards([self.__handling_cards.pop(i)
                 for i in range(self.__NUM_HAND)])
             self.__players[_status.index].get_hand(_status.cards)
-#        self.__players_cards = []  # each player's hand
-#        for player in self.__players:
-#            self.__players_cards.append([self.__handling_cards.pop(i) for i in
-#                                         range(self.__NUM_HAND)])
-#            player.get_hand(self.__players_cards[-1])
 
     # open one card to a table
     def put_field(self):
@@ -198,7 +200,8 @@ class Dealer(object):
         print("next_turn_players_list", [i.__class__.__name__
               for i in self.active_players_list])
         # 次のターン参加する人のリスト
-        print("betting_rate", self.__betting_cost)
+        #print("betting_rate", self.__betting_cost)
+        print("betting_rate", self.__minimum_bet)
         # レイズを繰り返した最終的にcallがそろった時の金額
         print("personal_betting_money", self.bettingrate)
         # 降りた人も含めてこの時点でいくら賭けたかのリスト
@@ -220,36 +223,36 @@ class Dealer(object):
     # raising money has to be multiply of previous rasing rate
     # otherwise return little less or minimum raising rate
     def handle_raise(self, _raise):
-        _factor = int(_raise / self.__minimum_raise)
+        _factor = ceil(_raise / self.__minimum_raise)
         print("factor",_factor)
         if _factor > 0: # update minimum_raise, minimum_bet
             self.__mininum_raise = _factor * self.__minimum_raise
             self.__minimum_bet += self.__minimum_raise
         return self.__minimum_raise
 
-    def money_check(self, _status, _bet):
-        if _bet < _status.money:
-            _status.bet(_bet)
-        else:
-            _factor = (_status.money - self.__betting_cost) / self.__mininum_raise
-            _status.bet(_status.money)
 
-
+    # bet minimum cost that is self.__minimum_bet
+    def bet_minimum(self,_status):
+        _diff = self.__minimum_bet - _status.bet_money
+        return _status.bet(_diff)
 
     # handle response depending on each player's status
     def handle_response(self, _status, _response):
         if _response is 'call':
-            _cost = self.__betting_cost - _status.bet_money  # cost for call
-            if _cost < _status.money:  # has enough money
-                _status.bet(_cost)
-            else:  # all-in case
-                _status.bet(_status.money)
+            # bet enough money otherwise put all
+            _sucess = self.bet_minimum(_status)
         elif _response is 'fold':
             _status.in_game = False
         elif _response > 0:
-            _raise = self.handle_raise(int(_response))
-            _status.bet(_raise)
-            self.__starter = _status.index  # update starter
+            # bet minimum money and raise if True is returned
+            if self.bet_minimum(_status):
+                if _response > _status.money:
+                    _response = _status.money
+                self.__minimum_raise \
+                        = self.handle_raise(int(_response))
+                self.__minimum_bet += self.__minimum_raise
+                _status.bet(self.__mininum_raise)
+                self.__starter = _status.index  # update starter
         else:
            raise ValueError("respond 'call', 'fold', or raise money <int>")
 
@@ -715,14 +718,12 @@ class Dealer(object):
         return self.__DB
 
     @property
-    def betting_cost(self):
-        return self.__betting_cost
+    def unit_bet(self):
+        return self.__unit_bet
+
+    @property
+    def minimum_bet(self):
+        return self.__minimum_bet
 
     def DB_update(self):
         return self.__next_alive_player(self.__DB)
-
-    # obsolete #
-    @property
-    def money(self):
-        return self.__betting_cost
-

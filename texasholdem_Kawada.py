@@ -105,13 +105,13 @@ class KawadaAI(Player):  # プレイ可能カードのリスト
         if pairrate == [0, 0, 3]:
             pairrate = [0, 0, 2]
         straight = self.straightchecker()
-        if self.dealer.betting_cost == self.dealer.bettingrate[my_number]:
+        if self.dealer.minimum_bet == self.dealer.bettingrate[my_number]:
             return "call"  # 掛け金増やさないで参加できるなら参加する(絶対)
-        elif self.dealer.betting_cost == 2:
+        elif self.dealer.minimum_bet == 2:
             return "call"
         elif (len(self.get_playable_cards())
               == 2 and self.ablepair() == [0, 0, 1]):
-            if self.dealer.betting_cost >= 12:
+            if self.dealer.minimum_bet >= 12:
                 return "fold"
             return "call"
         elif pairrate == [0, 0, 0] and straight == [0, 0]:
@@ -127,16 +127,16 @@ class KawadaAI(Player):  # プレイ可能カードのリスト
                 return len(self.dealer.list_of_players)*100-self.dealer.list_of_money[my_number]
 
             return 'call'
-        elif (self.dealer.betting_cost /
-              (self.dealer.betting_cost-self.dealer.minimum_bet) >= 10) and random.randint(0,3) != 0:
+        elif (self.dealer.minimum_bet /
+              (self.dealer.minimum_bet-self.dealer.minimum_bet) >= 10) and random.randint(0,3) != 0:
             return "fold"
         elif len(self.dealer.field) == 0:
             return "call"  # 初ターン役ありならcall
         elif (len(self.dealer.field) == 5
               and pairrate == [0, 0, 1] and straight == [0, 0]):
             return "fold"
-        elif (self.dealer.betting_cost >= sorted(self.dealer.list_of_money)
-              [len(self.dealer.list_of_players)-2]-self.dealer.betting_cost):
+        elif (self.dealer.minimum_bet >= sorted(self.dealer.list_of_money)
+              [len(self.dealer.list_of_players)-2]-self.dealer.minimum_bet):
             return "call"
         elif pairrate == [1, 0, 0] or pairrate == [0, 1, 1]:
             money_potit = self.search_money_class(my_number)
