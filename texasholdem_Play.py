@@ -61,11 +61,11 @@ class Game(object):
         self.__dealer.put_field()
         print("field:", [card.card for card in self.__dealer.field])
         self.__dealer.get_responses()
-        print()
         print("open cards && calculate score")
         self.__dealer.calc()
         self.__accounts = self.__dealer.list_of_money
         self.__DB = self.__dealer.DB_update()
+        print(self.__accounts)
 
     def out_index(self, _file):
         _list = self.names_of_players
