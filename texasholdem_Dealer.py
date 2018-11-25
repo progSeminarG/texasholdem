@@ -216,8 +216,6 @@ class Dealer(object):
             print("hanteimae-no-syozikin = ", self.__money_each_player)
             print("syousya-hantei-taisyousya = ",
                   [i.__class__.__name__ for i in self.active_players_list])
-#            self.pot = sum(self.bettingrate)
-#            print("pot = ", self.pot)
 
     # optimize raising money
     # raising money has to be multiply of previous rasing rate
