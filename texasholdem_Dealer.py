@@ -110,21 +110,19 @@ class Dealer(object):
         self.__SUITE = ['S', 'C', 'H', 'D']  # suit of playing cards
         self.__NUM_HAND = 2  # number of hands
         self.__NUM_MAX_FIELD = 5  # maximum number of field
-
+        # import instances and other parameters
         self.__game_inst = game_inst
         self.__players = deepcopy(players_input)  # instance of players
         self.__num_players = len(self.__players)  # number of players
         self.__num_handling_cards \
             = self.__NUM_HAND * self.__num_players + self.__NUM_MAX_FIELD
-        # player's hand money list
-        self.__money_each_player \
-            = self.__game_inst.accounts
+        # player's money list
+        self.__money_each_player = self.__game_inst.accounts
         # create list of players' status
         self.__list_status = [
                 Status(_index, _money) for _index, _money
                 in enumerate(self.__game_inst.accounts)]
-        print(self.__money_each_player)
-        # cards list on the field
+        # card list on the field
         self.__field = []
         # get players know dealer's instance
         for player in self.__players:
@@ -135,37 +133,20 @@ class Dealer(object):
         self.__BB = self.__next_alive_player(self.__SB)
         self.__starter = (self.__BB + 1) % self.__num_players
         self.__unit_bet = game_inst.minimum_bet
-        self.__minimum_bet = self.__unit_bet
-        self.__minimum_raise = self.__unit_bet
-        # player can raise betting money the multiple of game_inst.minimum_bet
-        self.active_players_list \
-            = self.__players  # the list of actionable players
-        self.bettingrate = [0]*self.__num_players  # 各々が賭けたお金を記録するリスト
-        self.bettingrate[self.__SB] = 1  # small-blined bet 1$ at first
-        self.bettingrate[self.__BB] = 2  # big-blined bet 2$ at first
-        # this flag is used to compair to big-blined position
-        self.__num_continuous_fold = 0
-        # this flag is used to check the count of "call" and "fold"
-        self.__num_continuous_call = 1
-        # list of players respond("call"/"fold"/number of raise)
-        self.resplist = []
+        self.__minimum_bet = self.__unit_bet  # current betting cost
+        self.__minimum_raise = self.__unit_bet  # current raising cost
         for i in range(self.__num_players):
             if self.__money_each_player[i] <= 0:
                 self.__list_status[i].in_game = False
                 # player who have no money can't play new game
-        # print the player of small-blined position
-        print("SB Player", self.__SB)
-        # print the player of big-blined position
-        print("BB Player", self.__BB)
 
-    # give ith as int, return next player's index who is in the game
+    # give 'ith' as int, return next player's index who is in the game
     def __next_alive_player(self, ith):
         _i = (ith + 1) % self.__num_players
         while self.__list_status[_i].alive is False:
             _i = (_i + 1) % self.__num_players
         return _i
 
-    # create a deck
     # create list of [S1, S2, ..., D13]
     def __create_all_cards_stack(self):
         _cards = []
@@ -190,40 +171,7 @@ class Dealer(object):
 
     # open one card to a table
     def put_field(self):
-        self.__field.append(self.
-                            __handling_cards.pop(0))
-
-    # /////////////////////////////////////////////////////////////////////////
-    # /////////////////ここから先get_responses関連///////////////////////////////
-    # /////////////////////////////////////////////////////////////////////////
-    # ask players what they want to do "fold, call, raise"
-
-    def active_players(self):
-        self.active_players_list = []
-        for j in range(self.__num_players):  # 降りなかった人をリストで返す
-            if self.__list_status[j].in_game:
-                self.active_players_list.append(self.__players[j])
-
-    def printingdate(self):
-        print("next_turn_players_list", [i.__class__.__name__
-              for i in self.active_players_list])
-        # 次のターン参加する人のリスト
-        # print("betting_rate", self.__betting_cost)
-        print("betting_rate", self.__minimum_bet)
-        # レイズを繰り返した最終的にcallがそろった時の金額
-        print("personal_betting_money", self.bettingrate)
-        # 降りた人も含めてこの時点でいくら賭けたかのリスト
-        print()
-        print()
-        if len(self.field) == 5:
-            print("--------------------- \
-                  -----------------------")
-            for i in range(0, self.__num_players):
-                self.__money_each_player[i] = \
-                    self.__money_each_player[i]-self.bettingrate[i]
-            print("hanteimae-no-syozikin = ", self.__money_each_player)
-            print("syousya-hantei-taisyousya = ",
-                  [i.__class__.__name__ for i in self.active_players_list])
+        self.__field.append(self.__handling_cards.pop(0))
 
     # optimize raising money
     # raising money has to be multiply of previous rasing rate
@@ -628,12 +576,12 @@ class Dealer(object):
     '''
     5枚のカードリストを２つ受け取り、数字のリストへと変換
     枚数が多い数字順に数字を並べ替え、左からカードの強弱を比較
-    先に前者のリストが強い判定が出れば　０
-    後者のリストが強い判定が出れば　１
-    最後まで強弱の関係が無ければ　２
+    先に前者のリストが強い判定が出れば ０
+    後者のリストが強い判定が出れば １
+    最後まで強弱の関係が無ければ ２
 
     ＜現状の問題点＞
-    １が弱く扱われている　→　途中で１を１４に変換する？
+    １が弱く扱われている → 途中で１を１４に変換する？
     '''
 
     def convert_cardslist_to_numberlist(self, cards_list):
@@ -682,3 +630,18 @@ class Dealer(object):
 
     def DB_update(self):
         return self.__next_alive_player(self.__DB)
+
+    @property
+    def resplist(self):
+        return self.response_list
+
+    @property
+    def response_list(self):
+        _response_list = []
+        for _status in self.__list_status:
+            if _status.in_game:
+                _response_list.append(_status.bet_money)
+            else:
+                _response_list.append(_status.in_game)
+        return _response_list
+
