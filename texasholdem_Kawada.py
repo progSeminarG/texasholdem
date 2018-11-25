@@ -129,7 +129,7 @@ class KawadaAI(Player):  # プレイ可能カードのリスト
 
             return 'call'
         elif (self.dealer.minimum_bet /
-              (self.dealer.minimum_bet-self.dealer.minimum_bet) >= 10) and random.randint(0,3) != 0:
+              (self.dealer.minimum_bet-self.dealer.unit_bet) >= 10) and random.randint(0,3) != 0:
             return "fold"
         elif len(self.dealer.field) == 0:
             return "call"  # 初ターン役ありならcall
