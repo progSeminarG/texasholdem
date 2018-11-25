@@ -631,9 +631,6 @@ class Dealer(object):
     def DB_update(self):
         return self.__next_alive_player(self.__DB)
 
-    @property
-    def resplist(self):
-        return self.response_list
 
     @property
     def response_list(self):
@@ -645,3 +642,11 @@ class Dealer(object):
                 _response_list.append(_status.in_game)
         return _response_list
 
+    # --- obsolete ---
+    @property
+    def resplist(self):
+        return self.response_list
+
+    @property
+    def bettingrate(self):
+        return self.response_list
