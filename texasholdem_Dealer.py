@@ -112,7 +112,8 @@ class Dealer(object):
         self.__NUM_MAX_FIELD = 5  # maximum number of field
         # import instances and other parameters
         self.__game_inst = game_inst
-        self.__players = deepcopy(players_input)  # instance of players
+        #self.__players = deepcopy(players_input)  # instance of players
+        self.__players = players_input  # instance of players
         self.__num_players = len(self.__players)  # number of players
         self.__num_handling_cards \
             = self.__NUM_HAND * self.__num_players + self.__NUM_MAX_FIELD
@@ -608,6 +609,14 @@ class Dealer(object):
     @property
     def list_of_players(self):
         return [i.__class__.__name__ for i in self.__players]
+
+    def your_index(self, instance):
+        for _i, _player in enumerate(self.__players):
+            if _player == instance:
+                return _i
+    @property
+    def active_players_list(self):
+        return [i.in_game for i in self.__list_status]
 
     @property
     def list_of_money(self):

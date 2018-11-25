@@ -20,6 +20,22 @@ from texasholdem_Human import Human
 from texasholdem_Muto import MutoAI
 
 
+def silence(flagquiet):
+    if flagquiet:
+        __stdout_original = sys.stdout
+        nullfile = open(os.devnull, 'w')
+        sys.stdout = nullfile
+        try:
+            yield
+        finally:
+            sys.stdout = __stdout_original
+    else:
+        try:
+            yield
+        finally:
+            pass
+
+
 class Game(object):
     def __init__(self, players_list):
         self.__INITIAL_MONEY = 100  # money each player has in initial

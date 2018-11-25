@@ -22,8 +22,8 @@ class KawadaAI(Player):  # プレイ可能カードのリスト
 
     def get_hand(self, dealer_input):
         self.my_cards = dealer_input
-        print([card.card for card in self.my_cards])
-        print()
+#        print([card.card for card in self.my_cards])
+#        print()
 
     def search_money_class(self, my_number):
         full = sorted(self.dealer.list_of_money)
@@ -94,7 +94,8 @@ class KawadaAI(Player):  # プレイ可能カードのリスト
         return straight
 
     def get_players_number(self):  # my_numberを得る
-        return len(self.dealer.resplist)
+        #return len(self.dealer.resplist)
+        return self.dealer.your_index(self)
 
     def respond(self):
         my_number = self.get_players_number()
