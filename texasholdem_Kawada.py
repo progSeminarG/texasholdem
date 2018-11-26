@@ -22,8 +22,8 @@ class KawadaAI(Player):  # プレイ可能カードのリスト
 
     def get_hand(self, dealer_input):
         self.my_cards = dealer_input
-        print([card.card for card in self.my_cards])
-        print()
+#        print([card.card for card in self.my_cards])
+#        print()
 
     def search_money_class(self, my_number):
         full = sorted(self.dealer.list_of_money)
@@ -93,8 +93,9 @@ class KawadaAI(Player):  # プレイ可能カードのリスト
                     straightlevel = i
         return straight
 
-    def get_players_number(self):  # my_number（＝何番目に訊かれてるのか）を得る
-        return len(self.dealer.resplist)
+    def get_players_number(self):  # my_numberを得る
+        #return len(self.dealer.resplist)
+        return self.dealer.your_index(self)
 
     def respond(self):
         my_number = self.get_players_number()
@@ -105,9 +106,9 @@ class KawadaAI(Player):  # プレイ可能カードのリスト
         if pairrate == [0, 0, 3]:
             pairrate = [0, 0, 2]
         straight = self.straightchecker()
-        if self.dealer.betting_cost == self.dealer.bettingrate[my_number]:
+        if self.dealer.minimum_bet == self.dealer.bettingrate[my_number]:
             return "call"  # 掛け金増やさないで参加できるなら参加する(絶対)
-        elif self.dealer.betting_cost == 2:
+        elif self.dealer.minimum_bet == 2:
             return "call"
         elif (len(self.get_playable_cards())
               == 2 and self.ablepair() != [0, 0, 1] and self.my_cards[0].suit == self.my_cards[1].suit):
@@ -134,14 +135,14 @@ class KawadaAI(Player):  # プレイ可能カードのリスト
                 return len(self.dealer.list_of_players)*100-self.dealer.list_of_money[my_number]
 
             return 'call'
-        elif (self.dealer.betting_cost /
-              (self.dealer.betting_cost-self.dealer.minimum_bet) >= 10) and random.randint(0,3) != 0:
+        elif (self.dealer.minimum_bet /
+              (self.dealer.minimum_bet-self.dealer.unit_bet) >= 10) and random.randint(0,3) != 0:
             return "fold"
         elif (len(self.dealer.field) == 5
               and pairrate == [0, 0, 1] and straight == [0, 0]) and flash == 0:
             return "fold"
-        elif (self.dealer.betting_cost >= sorted(self.dealer.list_of_money)
-              [len(self.dealer.list_of_players)-2]-self.dealer.betting_cost):
+        elif (self.dealer.minimum_bet >= sorted(self.dealer.list_of_money)
+              [len(self.dealer.list_of_players)-2]-self.dealer.minimum_bet):
             return "call"
         elif pairrate == [1, 0, 0] or pairrate == [0, 1, 1]:
             money_potit = self.search_money_class(my_number)

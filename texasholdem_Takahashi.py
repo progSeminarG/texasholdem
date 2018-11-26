@@ -16,10 +16,12 @@ class TakahashiAI(object):
         self.__field = self.__dealer.field
         self.__list_of_money = self.__dealer.list_of_money
         self.__my_money = self.__list_of_money[self.__position]
-        self.__betting_cost = self.__dealer.betting_cost
+        self.__minimum_bet = self.__dealer.minimum_bet
 
-        if self.__betting_cost < self.__my_money*0.2:
-            return random.choice(['call', int(10)])
+
+        return random.choice(['call',30,30,40,50,60,70,100])
+        if self.__minimum_bet < self.__my_money:
+            return random.choice(['call', int(30)])
         elif len(self.__field) > 4:
             return 'call'
         else:
