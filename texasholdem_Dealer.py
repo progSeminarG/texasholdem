@@ -62,17 +62,17 @@ class Status(object):
             return False
 
     # move bet_money from status:
-    # return T/F (success/fail) and moved money
+    # return T/F (all moved/still remain) and moved money
     def move_to_pot(self, money):
         # case can put enough money
-        if money <= self.__bet_money:
+        if money < self.__bet_money:
             self.__bet_money -= money
-            return True, money
+            return False, money
         # case can NOT put enough money
         else:
             _pot = self.__bet_money
             self.__bet_money = 0
-            return False, _pot
+            return True, _pot
 
     # increase __money:
     # called when money is distributed at last
@@ -236,25 +236,25 @@ class Dealer(object):
     # distribute money to winners
     def calc(self):
         # usually pots are created during the game, but here create at the last
-        self.create_pot()
-        self.calc_scores()
+        self.__create_pot()
+        self.__calc_scores()
         self.__max_rank = self.calc_ranking()
-        self.distribute_money()
+        self.__distribute_money()
 
     # create list of pot
-    def create_pot(self):
+    def __create_pot(self):
         _list_bet_money = sorted(
                 set([i.bet_money for i in self.__list_status if i.in_game]))
         self.__pot = [0] * len(_list_bet_money)
-        for _status in self.__list_status:
+        for _status in self.__list_status:  # loop for status
             for _i, _limit in enumerate(_list_bet_money):
-                _success, _money = _status.move_to_pot(_limit)
+                _all_moved, _money = _status.move_to_pot(_limit)
                 self.__pot[_i] += _money
-                if not _success:
+                if _all_moved:  # if bet_money is 0 (empty)
                     _status.pot_rank = _i
                     break
 
-    def calc_scores(self):
+    def __calc_scores(self):
         # calculate strength of each hands and save in each status
         for _status in self.__list_status:
             if _status.in_game:
@@ -273,24 +273,25 @@ class Dealer(object):
             _status.ranking = _ranking[_i]
         return max(_ranking)
 
-    def distribute_money(self):
+    def __distribute_money(self):
         # re-order list of status with playing order: first to last player
         _ordered_status = self.__shift_list(self.__list_status, self.__SB)
-        for _ranking in range(1, self.__max_rank):
-            for _ipot in range(len(self.__pot)):
+        for _ranking in range(1, self.__max_rank):  # distribute from top winner
+            for _ipot in range(len(self.__pot)):  # distribute from left pot
                 _list = [
                         i for i in _ordered_status
                         if i.ranking == _ranking and i.pot_rank >= _ipot]
                 _num = len(_list)
-                # fraction is given to latter player
-                _extra = self.__pot[_ipot] % _num  # fraction
-                _list[-1].add_money(_extra)  # latter player
-                self.__pot[_ipot] -= _extra
-                _payout = int(self.__pot[_ipot]/_num)
-                for _status in _list:  # distribute money
-                    _status.add_money(_payout)
-                    self.__pot[_ipot] -= _payout
-            if sum(self.__pot) <= 0:
+                if _num > 0:
+                    # fraction is given to latter player
+                    _extra = self.__pot[_ipot] % _num  # fraction
+                    _list[-1].add_money(_extra)  # latter player
+                    self.__pot[_ipot] -= _extra
+                    _payout = int(self.__pot[_ipot]/_num)
+                    for _status in _list:  # distribute money
+                        _status.add_money(_payout)
+                        self.__pot[_ipot] -= _payout
+            if sum(self.__pot) == 0:
                 break  # whole loop finished
 
     # calculate best score from given set of cards
