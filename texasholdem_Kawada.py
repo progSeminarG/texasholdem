@@ -93,7 +93,7 @@ class KawadaAI(Player):  # プレイ可能カードのリスト
                     straightlevel = i
         return straight
 
-    def get_players_number(self):  # my_numberを得る
+    def get_players_number(self):  # my_number（＝何番目に訊かれてるのか）を得る
         return len(self.dealer.resplist)
 
     def respond(self):
@@ -110,18 +110,25 @@ class KawadaAI(Player):  # プレイ可能カードのリスト
         elif self.dealer.betting_cost == 2:
             return "call"
         elif (len(self.get_playable_cards())
-              == 2 and self.ablepair() == [0, 0, 1]):
-            if self.dealer.betting_cost >= 12:
+              == 2 and self.ablepair() != [0, 0, 1] and self.my_cards[0].suit == self.my_cards[1].suit):
+            if len(self.dealer.active_players_list) != 2:
+                return 'fold'
+            if self.dealer.betting_cost >= random.randint(8, 12) and random.randint(0, 5) != 1:
                 return "fold"
             return "call"
-        elif pairrate == [0, 0, 0] and straight == [0, 0]:
+        elif len(self.dealer.field) == 0:
+            return "call"  # 初ターン役ありならcall
+
+
+
+
+        elif pairrate == [0, 0, 0] and straight == [0, 0] and flash == 0:
             return "fold"  # 役がないなら降りる
         elif pairrate == [1, 0, 0] or pairrate == [0, 1, 1]:
             money_potit = self.search_money_class(my_number)
             if money_potit[1] != 0:
                 return self.money_potit[0][self.money_potit[1]-1]
             return self.dealer.list_of_money[my_number]
-            return self.dealer.minimum_bet*10  # 特にこの条件なら掛け金を増やす
         elif len(self.dealer.active_players_list) == 2:
             if self.dealer.list_of_money[my_number] >= 400:
                 return len(self.dealer.list_of_players)*100-self.dealer.list_of_money[my_number]
@@ -130,10 +137,8 @@ class KawadaAI(Player):  # プレイ可能カードのリスト
         elif (self.dealer.betting_cost /
               (self.dealer.betting_cost-self.dealer.minimum_bet) >= 10) and random.randint(0,3) != 0:
             return "fold"
-        elif len(self.dealer.field) == 0:
-            return "call"  # 初ターン役ありならcall
         elif (len(self.dealer.field) == 5
-              and pairrate == [0, 0, 1] and straight == [0, 0]):
+              and pairrate == [0, 0, 1] and straight == [0, 0]) and flash == 0:
             return "fold"
         elif (self.dealer.betting_cost >= sorted(self.dealer.list_of_money)
               [len(self.dealer.list_of_players)-2]-self.dealer.betting_cost):
@@ -143,12 +148,12 @@ class KawadaAI(Player):  # プレイ可能カードのリスト
             if money_potit[1] != 0:
                 return self.money_potit[0][self.money_potit[1]-1]
             return self.dealer.list_of_money[my_number]
-            return self.dealer.minimum_bet*10  # 特にこの条件なら掛け金を増やす
         elif pairrate == [0, 0, 2] or flash == 1:
             return self.dealer.minimum_bet*3
-        else:
-            return "call"  # とりあえず合う条件が無ければcall
+        return "call"  # とりあえず合う条件が無ければcall
         # ////////////未実装事項////////////
         # ポーカーフェイスではったりをかますplayerを洗い出したい
         # 今は白井君対策しかしてないがほかに強いplayerが出てきたときにどうするか検討
         # 最適化または単純化
+        # 学習妨害案の検討　現在は最後の二人になったら手持ちの強さではなくお金の賭け方で勝とうとしてみる
+        # →勝率が5割いけばいいかなと
