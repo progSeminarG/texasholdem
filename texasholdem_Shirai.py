@@ -149,7 +149,7 @@ class ShiraiAI(Player):
         mbet=self.dealer.minimum_bet #arg6
         maxmon=max(self.dealer.list_of_money) #arg7
         args=np.array([self.inimon, my_money, 100*fsc, 100*msc, 10*fmax, 10*mmax, mbet, maxmon, 10*len(cards)])
-        print("args--",args)
+#        print("args--",args)
         
         a1=np.dot(args,self.mat[0])
         a1=self.relu(a1)
@@ -176,7 +176,7 @@ class ShiraiAI(Player):
             rt='fold'
         else:
             rt=int( (my_money/0.67)*rtvec[2]-(my_money/2) )
-        print("rt--",rt)
+#        print("rt--",rt)
         
         self.presc=my_money
         return rt
