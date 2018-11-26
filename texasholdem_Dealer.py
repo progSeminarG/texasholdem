@@ -169,8 +169,8 @@ class Dealer(object):
         for _i in range(ith):
             if self.__list_status[_i].in_game:
                 return _i
-        return None
-        _i = (ith + 1) % self.__num_players
+        return ith
+#        _i = (ith + 1) % self.__num_players
 #        while self.__list_status[_i].in_game is False:
 #            _i = (_i + 1) % self.__num_players
 #        return _i
@@ -237,13 +237,9 @@ class Dealer(object):
     def calc(self):
         # usually pots are created during the game, but here create at the last
         self.create_pot()
-        print("check0")
         self.calc_scores()
-        print("check1")
         self.__max_rank = self.calc_ranking()
-        print("check2")
         self.distribute_money()
-        print("check3")
 
     # create list of pot
     def create_pot(self):

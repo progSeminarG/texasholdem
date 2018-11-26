@@ -14,7 +14,7 @@ from texasholdem_Dealer import Card, Dealer
 from texasholdem_Player import Player
 from texasholdem_Kawada import KawadaAI
 from texasholdem_Shirai import ShiraiAI
-#from texasholdem_Shirai import Shirai2AI
+# from texasholdem_Shirai import Shirai2AI
 from texasholdem_Takahashi import TakahashiAI
 from texasholdem_Human import Human
 from texasholdem_Muto import MutoAI
@@ -109,39 +109,30 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description="play Texas Hold'em.",
                                      formatter_class=CustomFormatter)
-
     parser.add_argument('--noshuffle', action='store_false', dest='shuffle',
                         help='do not shuffle players')
-
     parser.add_argument('--numgames', type=int, default=[5], nargs=1,
                         help='set number of games')
-
     parser.add_argument('--players', type=str,
                         default=['Kawada', 'Shirai', 'Takahashi',
                                  'Player', 'Player', 'Muto'],
                         nargs='+', help='set list of players')
-
     parser.add_argument('--tournament', action='store_true',
                         help='play untile one has all money')
-
     parser.add_argument('--numtournament', type=int, nargs=1, default=[1],
                         help='number of player for tournament winner')
-
-    parser.add_argument('--raiserate', type=int, nargs=2, default=[1,0],
+    parser.add_argument('--raiserate', type=int, nargs=2, default=[1, 0],
                         help='raise minimum bet in each <int> steps by <int>')
-
     parser.add_argument('--out', '--output', type=str, nargs=1,
                         default=['stat.csv'], help='set output file')
-
     parser.add_argument('--plot', action='store_true',
                         help='plot graph')
-
     parser.add_argument('--fig', type=str, dest='figfile', nargs='?',
                         const=None, default=None, help="output figure name")
-
-    parser.add_argument('--stat', action='store_true', help='static mode: play many tournaments')
-
-    parser.add_argument('--statnum', type=int, nargs=1, default=[100], help='number of tournament in statistic mode')
+    parser.add_argument('--stat', action='store_true',
+                        help='static mode: play many tournaments')
+    parser.add_argument('--statnum', type=int, nargs=1, default=[100],
+                        help='number of tournament in statistic mode')
 
     args = parser.parse_args()
 
@@ -181,7 +172,8 @@ if __name__ == '__main__':
             while _i <= args.statnum[0]:
                 print("===== tournament", _i, "=====")
                 game = Game(players_list)
-                while game.accounts.count(0) != game.num_players-args.numtournament[0]:
+                while (game.accounts.count(0)
+                        != game.num_players - args.numtournament[0]):
                     game.play()
                 for i in range(len(game.accounts)):
                     if game.accounts[i] != 0:
@@ -189,14 +181,15 @@ if __name__ == '__main__':
                 _i += 1
             # print data #
             print("--------------------------------------------------")
-            print("{:15}{:15}".format('players','winning percentage'))
+            print("{:15}{:15}".format('players', 'winning percentage'))
             print("--------------------------------------------------")
             for i in range(len(win_list)):
-                print("{:15}{:15}" .format(game.names_of_players[i],win_list[i]))
+                print("{:15}{:15}" .format(
+                    game.names_of_players[i], win_list[i]))
             print("--------------------------------------------------")
             # plot
             if args.plot:
-                plt.pie(win_list, labels = game.names_of_players, startangle=90,)
+                plt.pie(win_list, labels=game.names_of_players, startangle=90)
                 plt.show()
 
     # normal play mode #
@@ -204,7 +197,7 @@ if __name__ == '__main__':
         _output = args.out[0]  # log file
         with open(_output, "w") as _file:
             game.out_index(_file)
-            game.out_data(_file,0)
+            game.out_data(_file, 0)
             if args.tournament:
                 _i = 0
                 _minimum_bet = 2
@@ -214,14 +207,14 @@ if __name__ == '__main__':
                     _i += 1
                     print("#######", _i, _minimum_bet)
                     game.play()
-                    game.out_data(_file,_i)
+                    game.out_data(_file, _i)
                     if _i % args.raiserate[0] == 0:
                         _minimum_bet += args.raiserate[1]
             else:
                 for _i in range(args.numgames[0]):
                     print("===== game", _i, "=====")
                     game.play()
-                    game.out_data(_file,_i+1)
+                    game.out_data(_file, _i+1)
 
         # plot
         if args.plot:
