@@ -18,7 +18,8 @@ class Player(object):  # とりあえず仮のベースのメゾットこれを�
 class KawadaAI(Player):  # プレイ可能カードのリスト
 
     def __init__(self):
-        pass  # print("hello")
+        self.shirai_data = [[]]
+        self.money_check = 500
 
     def get_hand(self, dealer_input):
         self.my_cards = dealer_input
@@ -93,6 +94,11 @@ class KawadaAI(Player):  # プレイ可能カードのリスト
                     straightlevel = i
         return straight
 
+    def shirai_vs_kawada(self, my_number):
+        if self.money_check != self.dealer.list_of_money[my_number]:
+            self.shirai_data.append([])
+        self.shirai_data[-1].append(self.dealer.minimum_bet)
+
     def get_players_number(self):  # my_number（＝何番目に訊かれてるのか）を得る
         return len(self.dealer.resplist)
 
@@ -105,6 +111,8 @@ class KawadaAI(Player):  # プレイ可能カードのリスト
         if pairrate == [0, 0, 3]:
             pairrate = [0, 0, 2]
         straight = self.straightchecker()
+        if len(self.dealer.active_players_list) == 2:
+            self.shirai_vs_kawada(my_number)
         if self.dealer.betting_cost == self.dealer.bettingrate[my_number]:
             return "call"  # 掛け金増やさないで参加できるなら参加する(絶対)
         elif self.dealer.betting_cost == 2:
