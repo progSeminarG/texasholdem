@@ -170,10 +170,6 @@ class Dealer(object):
             if self.__list_status[_i].in_game:
                 return _i
         return ith
-#        _i = (ith + 1) % self.__num_players
-#        while self.__list_status[_i].in_game is False:
-#            _i = (_i + 1) % self.__num_players
-#        return _i
 
     # MAIN PLAYING METHOD
     # get responses from all players from starter
