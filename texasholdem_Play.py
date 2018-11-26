@@ -136,7 +136,7 @@ if __name__ == '__main__':
         elif player in {'Muto', 'MutoAI'}:
             players_list.append(MutoAI())
         elif player in {'Shirai', 'ShiraiAI'}:
-            players_list.append(Shirai2AI())
+            players_list.append(ShiraiAI())
         elif player in {'Takahashi', 'TakahashiAI'}:
             players_list.append(TakahashiAI())
         elif player == 'Human':
