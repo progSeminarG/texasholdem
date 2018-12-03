@@ -96,10 +96,14 @@ class KawadaAI(Player):  # プレイ可能カードのリスト
         return straight
 
     def shirai_vs_kawada(self, my_number):
+        self.ret = False
         if self.money_check != self.dealer.list_of_money[my_number]:
             self.shirai_data.append([])
             self.money_check = self.dealer.list_of_money[my_number]
         self.shirai_data[-1].append(self.dealer.minimum_bet)
+        if self.dealer.list_of_money[my_number] >= 400:
+            self.ret = len(self.dealer.list_of_players)*100-self.dealer.list_of_money[my_number]
+
         # print()
         # print("shirai_date ", self.shirai_data)
         # print()
@@ -121,6 +125,8 @@ class KawadaAI(Player):  # プレイ可能カードのリスト
         # print(self.dealer.active_players_list.count(True))
         if self.dealer.active_players_list.count(True) == 2:
             self.shirai_vs_kawada(my_number)
+            if self.ret != False:
+                return self.ret
         if self.dealer.minimum_bet == self.dealer.bettingrate[my_number]:
             return "call"  # 掛け金増やさないで参加できるなら参加する(絶対)
         elif self.dealer.minimum_bet == 2:
