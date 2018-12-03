@@ -109,7 +109,8 @@ class Dealer(object):
         # FIXED PARAMETERS
         self.__MIN_NUMBER_CARDS = 1  # smallest number of playing cards
         self.__MAX_NUMBER_CARDS = 13  # largest number of playing cards
-        self.__SUITE = ['S', 'C', 'H', 'D']  # suit of playing cards
+        self.__NUM_CARDS = self.__MAX_NUMBER_CARDS - self.__MIN_NUMBER_CARDS +1
+        self.__SUITS = ['S', 'C', 'H', 'D']  # suit of playing cards
         self.__NUM_HAND = 2  # number of hands
         self.__NUM_MAX_FIELD = 5  # maximum number of field
         # import instances and other parameters
@@ -153,7 +154,7 @@ class Dealer(object):
         _cards = []
         for inumber in range(self.__MIN_NUMBER_CARDS,
                              self.__MAX_NUMBER_CARDS+1):
-            for suit in self.__SUITE:
+            for suit in self.__SUITS:
                 _cards.append(Card(suit, inumber))
         return _cards
 
@@ -161,7 +162,8 @@ class Dealer(object):
     def put_field(self):
         self.__field.append(self.__handling_cards.pop(0))
 
-    # give 'ith' as int, return next player's index who is in the game
+    # give player index 'ith' as int,
+    # return next player's index who is in the game
     def __next_alive_player(self, ith):
         for _i in range(ith+1,self.__num_players):
             if self.__list_status[_i].in_game:
@@ -292,45 +294,59 @@ class Dealer(object):
 
     # calculate best score from given set of cards
     # 担当：白井．7枚のカードリストを受け取り，役とベストカードを返します．
-    def calc_hand_score(self, cards):  # 7カードリストクラスをもらう
-        SS = ['S', 'C', 'H', 'D']
-        suit_list = [0, 0, 0, 0]
-        rtCrads = []
 
+    # calculate statistics
+    def csrds_stat(self, card_list):  # suit, num, cardのみを取り出してリスト化
+        _suit_stat = [0]*len(self.__SUITS)
+        for _suit in self.__SUITS:
+            self.__suit_stat[_isuit] = sum(1 for _card in card_list if _card.suit == _suit)
+        _number_stat = [0]*len(self.__MIN_NUMBER_CARDS,self.__NUM_CARDS)
+        
+
+
+    def calc_hand_score(self, cards):  # カードリストクラスをもらう
+        suit_list = [0, 0, 0, 0]  # number of suit
+        rtCrads = []  # set of best hand
+
+        # cards: list of cards
+        # num: list of numbers. ex) (1,7,5,...)
+        # suit: list of suit. ex) ('S','H','D',...)
+        # card_list: list of tuple. ex) (('S',1),('H',7,),('D',5),...)
         (num, suit, card_list) = self.choice(cards)
         # クラスからnum, suit, cardを抜き出す
-        pp = self.checkpair(cards)
-        # REPLACE 1-->14
-        num = self.rpc1(num)
+        # statistics of numbers
+        # [num of 4 cards, num of 3 cards, num of 2 cards, ...]
+        pp = self.checkpair(cards)  
+        num = self.rpc1(num)  # REPLACE 1-->14. num: list of numbers
         num.sort()
-        nc = self.rpcards1(card_list)
-        card_list = nc
+        card_list = self.rpcards1(card_list)  # REPLACE 1-->14. for tuple
         card_list = sorted(card_list, key=lambda x: x[1])  # 2ndでsort
 
         flash = 0
         straight = 0
         straight_flash = 0
-        # for flash:make flash_list
-        for SUIT in SS:
+        # for flash: make flash_list
+        for SUIT in self.__SUITS:
             if suit.count(SUIT) >= 5:  # flash
                 flash = 1
                 flash_list = []
                 for i in range(len(card_list)):  # flashの数字だけ取り出す
                     if card_list[-1-i][0] == SUIT:
                         flash_list.append(card_list[-1-i])
+        # (1,2,3,4,5) is missing # check #
         (straight, straight_list) = self.stlist(card_list)
         if straight == 1 and flash == 1:
             (st, st_list) = self.stlist(flash_list)
             if st == 1:
-                score = 8
                 straight_flash = 1
 
         # == JUDGE BELOW ==
         rtCards = []
         # Straight-Flash
         if straight_flash == 1:
+            score = 8
             rtCards = st_list
-        # 4cards
+        # 4 cards
         elif pp[0] >= 1:
             score = 7
             for i in range(self.__MAX_NUMBER_CARDS):
@@ -343,7 +359,7 @@ class Dealer(object):
                 rtCards.append(card_list[-1])
             else:
                 pass
-        # Fullhouse
+        # Fullhouse (case 1)
         elif pp[1] == 2:  # 3c *2
             score = 6
             c = 0
@@ -366,6 +382,7 @@ class Dealer(object):
                             c += 1
                             if c == 2:  # 小さい方の3cは2個だけ取る
                                 break
+        # Fullhouse (case 2)
         elif pp[1] == 1 and pp[2] >= 1:  # 3c+pair
             score = 6
             for i in range(self.__MAX_NUMBER_CARDS):
@@ -447,13 +464,11 @@ class Dealer(object):
                 card_list.remove(card_list[-1])
 
         # RETURN!!
-        nc = self.rpcards2(rtCards)
-        rtCards = nc
+        rtCards = self.rpcards2(rtCards)  # 14 --> 1. rtCards: best tuple list
         return (score, rtCards)
 
     # for: calc_hand_score
     def choice(self, card_list):  # suit, num, cardのみを取り出してリスト化
-        SS = ['S', 'C', 'H', 'D']
         suit = [0]*len(card_list)
         num = [0]*len(card_list)
         card = [0]*len(card_list)
@@ -463,7 +478,7 @@ class Dealer(object):
             card[i] = card_list[i].card
         return (num, suit, card)
 
-    # for straight:make straight_list
+    # for straight: make straight_list
     def stlist(self, card_list):
         card_list = sorted(card_list, key=lambda x: x[1])
         num = [0]*len(card_list)
@@ -478,12 +493,13 @@ class Dealer(object):
             prod = num_list[14-i]*num_list[13-i] *\
                 num_list[12-i]*num_list[11-i]*num_list[10-i]
             if prod >= 1:
-                straight = 1  # st宣言
-                k = 0
-                for t in range(len(card_list)):
-                    if card_list[len(card_list)-1-t][1] == 14-i-k and k < 5:
-                        straight_list.append(card_list[len(card_list)-1-t])
-                        k += 1
+                straight = 1  # st 宣言
+                straight_list = num_list[10-i:14-i]
+#                k = 0
+#                for t in range(len(card_list)):
+#                    if card_list[len(card_list)-1-t][1] == 14-i-k and k < 5:
+#                        straight_list.append(card_list[len(card_list)-1-t])
+#                        k += 1
                 break
         return (straight, straight_list)
 
@@ -535,7 +551,7 @@ class Dealer(object):
         return nc
 
     # == for: calc_hand_score
-    def judge_flash(self, cl1, cl2):  # == FLASH判定 shirai
+    def compare_flash(self, cl1, cl2):  # == FLASH判定 shirai
         num1 = []
         num2 = []
         for k in range(5):
@@ -556,7 +572,7 @@ class Dealer(object):
                 num2.remove(max(num2))
         return sc
 
-    def judge_straight(self, cl1, cl2):  # == STRAIGHT判定 shirai
+    def compare_straight(self, cl1, cl2):  # == STRAIGHT判定 shirai
         num1 = []
         num2 = []
         for i in range(5):
