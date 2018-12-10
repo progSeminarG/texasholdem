@@ -112,6 +112,7 @@ class Dealer(object):
         self.__NUM_CARDS = self.__MAX_NUMBER_CARDS - self.__MIN_NUMBER_CARDS +1
         self.__SUITS = ['S', 'C', 'H', 'D']  # suit of playing cards
         self.__NUM_HAND = 2  # number of hands
+        self.__NUM_PORKER_HAND = 5  # comparing hands
         self.__NUM_MAX_FIELD = 5  # maximum number of field
         # import instances and other parameters
         self.__game_inst = game_inst
@@ -293,18 +294,39 @@ class Dealer(object):
                 break  # whole loop finished
 
     # calculate best score from given set of cards
-    # 担当：白井．7枚のカードリストを受け取り，役とベストカードを返します．
+    # 担当：白井．n 枚のカードリストを受け取り，役とベストカードを返します．
 
     # calculate statistics
-    def csrds_stat(self, card_list):  # suit, num, cardのみを取り出してリスト化
-        _suit_stat = [0]*len(self.__SUITS)
+    # return:
+    #     _suit_stat: {'S':<num>, 'C':<num>, ...}
+    #     _num_stat: {1:<num>, 2:<num>, ...}
+    def __cards_stat(self, card_list):
+        _suit_stat = {}
         for _suit in self.__SUITS:
-            self.__suit_stat[_isuit] = sum(1 for _card in card_list if _card.suit == _suit)
-        _number_stat = [0]*len(self.__MIN_NUMBER_CARDS,self.__NUM_CARDS)
-        
+            _suit_stat[_suit] = sum(1 for _card in card_list if _card.suit == _suit)
+        _num_stat = {}
+        for _num in range(1,self.__NUM_CARDS+1):
+            _num_stat[_num] = sum(1 for _card in card_list if _card.number == _num + 1)
+        return _suit_stat, _num_stat
+
+    # check card_list has flash or not
+    # flash:
+    #     return True and member of flash hand
+    # not flash:
+    #     return False and None
+    def __check_flash(self,suit_stat,card_list):
+        for _suit in self.__SUITS:
+            if suit_stat[_suit] >= self.__NUM_PORKER_HAND:
+                _flash_members = [_card in card_list if _card.suit == _suit]
+                return True, _flash_members
+        return False, None
+
+    def __check_straight(self,num_stat,card_list):
+
 
 
     def calc_hand_score(self, cards):  # カードリストクラスをもらう
+        _suit_stat, _num_stat = self.__cards_stat(cards)
         suit_list = [0, 0, 0, 0]  # number of suit
         rtCrads = []  # set of best hand
 
@@ -326,13 +348,14 @@ class Dealer(object):
         straight = 0
         straight_flash = 0
         # for flash: make flash_list
-        for SUIT in self.__SUITS:
-            if suit.count(SUIT) >= 5:  # flash
-                flash = 1
-                flash_list = []
-                for i in range(len(card_list)):  # flashの数字だけ取り出す
-                    if card_list[-1-i][0] == SUIT:
-                        flash_list.append(card_list[-1-i])
+        flash, flash_list = self.__check_flash(_suit_stat,card_list):
+#        for SUIT in self.__SUITS:
+#            if suit.count(SUIT) >= 5:  # flash
+#                flash = 1
+#                flash_list = []
+#                for i in range(len(card_list)):  # flashの数字だけ取り出す
+#                    if card_list[-1-i][0] == SUIT:
+#                        flash_list.append(card_list[-1-i])
         # (1,2,3,4,5) is missing # check #
         (straight, straight_list) = self.stlist(card_list)
         if straight == 1 and flash == 1:
