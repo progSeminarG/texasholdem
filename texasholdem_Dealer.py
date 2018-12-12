@@ -109,7 +109,7 @@ class Dealer(object):
         # FIXED PARAMETERS
         self.__MIN_NUMBER_CARDS = 1  # smallest number of playing cards
         self.__MAX_NUMBER_CARDS = 13  # largest number of playing cards
-        self.__NUM_CARDS = self.__MAX_NUMBER_CARDS - self.__MIN_NUMBER_CARDS +1
+        self.__NUM_CARDS = self.__MAX_NUMBER_CARDS - self.__MIN_NUMBER_CARDS +1  # = 13
         self.__SUITS = ['S', 'C', 'H', 'D']  # suit of playing cards
         self.__NUM_HAND = 2  # number of hands
         self.__NUM_PORKER_HAND = 5  # comparing hands
@@ -307,6 +307,7 @@ class Dealer(object):
         _num_stat = {}
         for _num in range(1,self.__NUM_CARDS+1):
             _num_stat[_num] = sum(1 for _card in card_list if _card.number == _num + 1)
+        _num_stat[self.__MAX_NUMBER_CARDS+1] = _num_stat[1]
         return _suit_stat, _num_stat
 
     # check card_list has flash or not
@@ -317,12 +318,22 @@ class Dealer(object):
     def __check_flash(self,suit_stat,card_list):
         for _suit in self.__SUITS:
             if suit_stat[_suit] >= self.__NUM_PORKER_HAND:
-                _flash_members = [_card in card_list if _card.suit == _suit]
+                _flash_members = [_card for _card in card_list if _card.suit == _suit]
                 return True, _flash_members
         return False, None
 
-    def __check_straight(self,num_stat,card_list):
+    def __check_straight(self,num_straight,num_stat,card_list):
+        for _i in range(self.__MAX_NUMBER_CARDS+1,num_straight-1,-1):
+            _prod = num_stat[_i] \
+                    * num_stat[_i-1] \
+                    * num_stat[_i-2] \
+                    * num_stat[_i-3] \
+                    * num_stat[_i-4]
+            if _prod > 0:
+                _straight_members = [
+                return True, 
 
+        sys.exit(1)
 
 
     def calc_hand_score(self, cards):  # カードリストクラスをもらう
@@ -348,7 +359,7 @@ class Dealer(object):
         straight = 0
         straight_flash = 0
         # for flash: make flash_list
-        flash, flash_list = self.__check_flash(_suit_stat,card_list):
+        flash, flash_list = self.__check_flash(_suit_stat,card_list)
 #        for SUIT in self.__SUITS:
 #            if suit.count(SUIT) >= 5:  # flash
 #                flash = 1
@@ -357,6 +368,7 @@ class Dealer(object):
 #                    if card_list[-1-i][0] == SUIT:
 #                        flash_list.append(card_list[-1-i])
         # (1,2,3,4,5) is missing # check #
+        self.__check_straight(5,_num_stat,card_list)
         (straight, straight_list) = self.stlist(card_list)
         if straight == 1 and flash == 1:
             (st, st_list) = self.stlist(flash_list)
