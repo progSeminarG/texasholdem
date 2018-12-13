@@ -161,7 +161,12 @@ class Dealer(object):
 
     # open one card to a table
     def put_field(self):
-        self.__field.append(self.__handling_cards.pop(0))
+        #self.__field.append(self.__handling_cards.pop(0))
+        if len(self.__field) == 0:
+            self.__field.append(Card('S',1))
+            return
+        _max = max([i.number for i in self.__field])
+        self.__field.append(Card('S',_max+1))
 
     # give player index 'ith' as int,
     # return next player's index who is in the game
@@ -315,25 +320,54 @@ class Dealer(object):
     #     return True and member of flash hand
     # not flash:
     #     return False and None
-    def __check_flash(self,suit_stat,card_list):
+    def __check_flash(self,suit_stat,cards):
         for _suit in self.__SUITS:
             if suit_stat[_suit] >= self.__NUM_PORKER_HAND:
-                _flash_members = [_card for _card in card_list if _card.suit == _suit]
+                _flash_members = [_card for _card in cards if _card.suit == _suit]
                 return True, _flash_members
         return False, None
 
-    def __check_straight(self,num_straight,num_stat,card_list):
-        for _i in range(self.__MAX_NUMBER_CARDS+1,num_straight-1,-1):
+    # check card_list has straight or not
+    # straight:
+    #     return True and member of straight hand
+    # not straight:
+    #     return False and None
+    def __check_straight(self,num_straight,num_stat,cards):
+        for _i in range(self.__MAX_NUMBER_CARDS+1,num_straight-1,-1):  # 14, 13, ..., 5
             _prod = num_stat[_i] \
                     * num_stat[_i-1] \
                     * num_stat[_i-2] \
                     * num_stat[_i-3] \
                     * num_stat[_i-4]
             if _prod > 0:
-                _straight_members = [
-                return True, 
+                _straight_members = [_card for _card in cards if _card.number in range(_i-4,_i)]
+                return True, _straight_members
+        return False, None
 
-        sys.exit(1)
+    def __best_sets(self,num_stat,cards):
+        _sorted_num_stat = sorted(num_stat, key=lambda x: (-x[1],-x[0]))
+        _best_sets_members = []
+        for _num, _stat in _sorted_num_stat:
+            for _card in cards:
+                if _card.number == _num:
+                    _best_sets_members.append(_card)
+                    if len(_best_sets_members) == self.__NUM_PORKER_HAND:
+                        return _best_sets_members
+
+            
+
+
+
+
+
+    def calc_hand_score2(self, cards):
+        _num_four_card = 4
+        _suit_stat, _num_stat = self.__cards_stat(cards)
+
+        if _num_four_card in _suit_stat:
+
+
+
 
 
     def calc_hand_score(self, cards):  # カードリストクラスをもらう
@@ -359,7 +393,8 @@ class Dealer(object):
         straight = 0
         straight_flash = 0
         # for flash: make flash_list
-        flash, flash_list = self.__check_flash(_suit_stat,card_list)
+        _flash, _flash_list = self.__check_flash(_suit_stat,cards)
+        flash_list = _flash_list
 #        for SUIT in self.__SUITS:
 #            if suit.count(SUIT) >= 5:  # flash
 #                flash = 1
@@ -368,7 +403,7 @@ class Dealer(object):
 #                    if card_list[-1-i][0] == SUIT:
 #                        flash_list.append(card_list[-1-i])
         # (1,2,3,4,5) is missing # check #
-        self.__check_straight(5,_num_stat,card_list)
+        _straight, _straight_list = self.__check_straight(5,_num_stat,cards)
         (straight, straight_list) = self.stlist(card_list)
         if straight == 1 and flash == 1:
             (st, st_list) = self.stlist(flash_list)
