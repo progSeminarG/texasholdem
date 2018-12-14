@@ -362,9 +362,39 @@ class Dealer(object):
 
     def calc_hand_score2(self, cards):
         _num_four_card = 4
+        _num_three_card = 3
+        _num_two_card = 2
         _suit_stat, _num_stat = self.__cards_stat(cards)
 
-        if _num_four_card in _suit_stat:
+        _flash, _flash_hand = self.__check_flash(_suit_stat,cards)
+        if _flash:
+            _suit_stat_flash, _num_stat_flash = self.__cards_stat(cards)
+            _straight, _straight_hand = self.__check_straight(5,_num_stat_flash,_flash_hand)
+            if _straight:
+                return 8, _straight_hand
+            else:
+                return 5, _flash_hand
+
+
+        if _num_four_card in _num_stat.values():
+            return 7, self.__best_sets(_num_stat,cards)
+
+        if _num_three_card in _num_stat.values():
+            if _num_two_card in _num_stat.values():
+                return 6, self.__best_sets(_num_stat,cards)
+
+        _straight, _straight_hand = self.__check_straight(5,_num_stat,cards)
+        if _straight:
+            return 4, _straight_hand
+
+        if _num_three_card in _num_stat.values():
+            return 3, self.__best_sets(_num_stat,cards)
+
+        if _num_two_card in num_stat.values():
+            return 2, 
+
+
+
 
 
 
