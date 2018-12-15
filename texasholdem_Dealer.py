@@ -46,7 +46,7 @@ class Status(object):
         else:
             self.in_game = False
 
-    def add_cards(self, cards):
+    def set_cards(self, cards):
         self.__cards = cards
 
     # <money> is removed from __money and added to __bet_money
@@ -145,7 +145,7 @@ class Dealer(object):
         self.__handling_cards = random.sample(self.__all_cards,
                                               self.__num_handling_cards)
         for _status in self.__list_status:  # save cards in status
-            _status.add_cards(
+            _status.set_cards(
                     [self.__handling_cards.pop(i)
                         for i in range(self.__NUM_HAND)])
             self.__players[_status.index].get_hand(_status.cards)
@@ -308,6 +308,8 @@ class Dealer(object):
     def __cards_stat(self, card_list):
         _suit_stat = {}
         for _suit in self.__SUITS:
+            print("suit:",_suit)
+            print([_card.suit for _card in card_list])
             _suit_stat[_suit] = sum(1 for _card in card_list if _card.suit == _suit)
         _num_stat = {}
         for _num in range(1,self.__NUM_CARDS+1):
@@ -340,232 +342,85 @@ class Dealer(object):
                     * num_stat[_i-3] \
                     * num_stat[_i-4]
             if _prod > 0:
-                _straight_members = [_card for _card in cards if _card.number in range(_i-4,_i)]
+                _straight_members = []
+                for _k in range(_i,_i-5,-1):
+                    for _card in cards:
+                        if _card.number == _k:
+                            _straight_members.append(_card)
+                            break
                 return True, _straight_members
         return False, None
 
-    def __best_sets(self,num_stat,cards):
-        _sorted_num_stat = sorted(num_stat, key=lambda x: (-x[1],-x[0]))
-        _best_sets_members = []
+    # return best set of cards (max: 5)
+    # best: 4-cards, Full-House, 3-cards, 2-pairs, 1-pair, high-card
+    def __best_set(self,num_stat,cards):
+        print(num_stat)
+        print(type(num_stat))
+        print('cards:',[i.card for i in cards])
+        print([_i[1] for _i in num_stat.items()])
+        _sorted_num_stat = sorted(num_stat.items(), key=lambda x: (-x[1],-x[0]))
+        _best_set_members = []
+        _num_set = min(self.__NUM_PORKER_HAND,len(cards))
+        print("_num_set:",_num_set)
         for _num, _stat in _sorted_num_stat:
             for _card in cards:
                 if _card.number == _num:
-                    _best_sets_members.append(_card)
-                    if len(_best_sets_members) == self.__NUM_PORKER_HAND:
-                        return _best_sets_members
-
-            
+                    _best_set_members.append(_card)
+                    if len(_best_set_members) == _num_set:
+                        return _best_set_members
 
 
 
-
-
-    def calc_hand_score2(self, cards):
-        _num_four_card = 4
-        _num_three_card = 3
-        _num_two_card = 2
+    def calc_hand_score(self, cards):
+        if len(cards) == 0:
+            return 0, cards
         _suit_stat, _num_stat = self.__cards_stat(cards)
 
+        # flash and straight-flash
         _flash, _flash_hand = self.__check_flash(_suit_stat,cards)
         if _flash:
             _suit_stat_flash, _num_stat_flash = self.__cards_stat(cards)
             _straight, _straight_hand = self.__check_straight(5,_num_stat_flash,_flash_hand)
-            if _straight:
+            if _straight:  # straight-flash
                 return 8, _straight_hand
-            else:
+            else:  # flash
                 return 5, _flash_hand
 
+        # calculate best set which is also used later
+        print("cards:",cards)
+        _best_set = self.__best_set(_num_stat,cards)
+        print("###???###")
+        print(_best_set)
+        # statistics of best set
+        _suit_stat_best, _num_stat_best = self.__cards_stat(_best_set)
 
-        if _num_four_card in _num_stat.values():
-            return 7, self.__best_sets(_num_stat,cards)
+        # 4-cards
+        if 4 in _num_stat_best:
+            return 7, _best_set
 
-        if _num_three_card in _num_stat.values():
-            if _num_two_card in _num_stat.values():
-                return 6, self.__best_sets(_num_stat,cards)
+        # Full-House
+        if 3 in _num_stat_best and 2 in _num_stat_best:
+            return 6, _best_set
 
+        # straight
         _straight, _straight_hand = self.__check_straight(5,_num_stat,cards)
         if _straight:
             return 4, _straight_hand
 
-        if _num_three_card in _num_stat.values():
-            return 3, self.__best_sets(_num_stat,cards)
+        # 3-cards
+        if 3 in _num_stat_best:
+            return 3, _best_set
 
-        if _num_two_card in num_stat.values():
-            return 2, 
+        # 2-pairs
+        if 2 == _num_stat_best.values().count(2):
+            return 2, _best_set
 
+        # 1-pair
+        if 2 in _num_stat_best:
+            return 1, _best_set
 
+        return 0, _best_set
 
-
-
-
-
-
-    def calc_hand_score(self, cards):  # カードリストクラスをもらう
-        _suit_stat, _num_stat = self.__cards_stat(cards)
-        suit_list = [0, 0, 0, 0]  # number of suit
-        rtCrads = []  # set of best hand
-
-        # cards: list of cards
-        # num: list of numbers. ex) (1,7,5,...)
-        # suit: list of suit. ex) ('S','H','D',...)
-        # card_list: list of tuple. ex) (('S',1),('H',7,),('D',5),...)
-        (num, suit, card_list) = self.choice(cards)
-        # クラスからnum, suit, cardを抜き出す
-        # statistics of numbers
-        # [num of 4 cards, num of 3 cards, num of 2 cards, ...]
-        pp = self.checkpair(cards)  
-        num = self.rpc1(num)  # REPLACE 1-->14. num: list of numbers
-        num.sort()
-        card_list = self.rpcards1(card_list)  # REPLACE 1-->14. for tuple
-        card_list = sorted(card_list, key=lambda x: x[1])  # 2ndでsort
-
-        flash = 0
-        straight = 0
-        straight_flash = 0
-        # for flash: make flash_list
-        _flash, _flash_list = self.__check_flash(_suit_stat,cards)
-        flash_list = _flash_list
-#        for SUIT in self.__SUITS:
-#            if suit.count(SUIT) >= 5:  # flash
-#                flash = 1
-#                flash_list = []
-#                for i in range(len(card_list)):  # flashの数字だけ取り出す
-#                    if card_list[-1-i][0] == SUIT:
-#                        flash_list.append(card_list[-1-i])
-        # (1,2,3,4,5) is missing # check #
-        _straight, _straight_list = self.__check_straight(5,_num_stat,cards)
-        (straight, straight_list) = self.stlist(card_list)
-        if straight == 1 and flash == 1:
-            (st, st_list) = self.stlist(flash_list)
-            if st == 1:
-                straight_flash = 1
-
-        # == JUDGE BELOW ==
-        rtCards = []
-        # Straight-Flash
-        if straight_flash == 1:
-            score = 8
-            rtCards = st_list
-        # 4 cards
-        elif pp[0] >= 1:
-            score = 7
-            for i in range(self.__MAX_NUMBER_CARDS):
-                if num.count(14-i) == 4:  # 4cards
-                    for n in range(len(card_list)):
-                        if card_list[len(cards)-1-n][1] == 14-i:
-                            rtCards.append(card_list[len(cards)-1-n])
-                            card_list.remove(card_list[len(cards)-1-n])
-            if card_list != []:
-                rtCards.append(card_list[-1])
-            else:
-                pass
-        # Fullhouse (case 1)
-        elif pp[1] == 2:  # 3c *2
-            score = 6
-            c = 0
-            for i in range(self.__MAX_NUMBER_CARDS):
-                if num.count(14-i) == 3:
-                    num.remove(14-i)
-                    num.remove(14-i)
-                    num.remove(14-i)
-                    for n in range(len(card_list)):
-                        if card_list[len(cards)-1-n][1] == (14-i):
-                            rtCards.append(card_list[len(cards)-1-n])
-                            card_list.remove(card_list[len(cards)-1-n])
-                    break
-            for i in range(self.__MAX_NUMBER_CARDS):
-                if num.count(14-i) == 3:
-                    for n in range(len(card_list)):
-                        if card_list[n][1] == (14-i):
-                            rtCards.append(card_list[len(cards)-4-n])
-                            card_list.remove(card_list[len(cards)-4-n])
-                            c += 1
-                            if c == 2:  # 小さい方の3cは2個だけ取る
-                                break
-        # Fullhouse (case 2)
-        elif pp[1] == 1 and pp[2] >= 1:  # 3c+pair
-            score = 6
-            for i in range(self.__MAX_NUMBER_CARDS):
-                if num.count(14-i) == 3:  # 3cards
-                    num.remove(14-i)
-                    num.remove(14-i)
-                    num.remove(14-i)
-                    for n in range(len(card_list)):
-                        if card_list[len(cards)-1-n][1] == (14-i):
-                            rtCards.append(card_list[len(cards)-1-n])
-                            card_list.remove(card_list[len(cards)-1-n])
-                    break
-            for i in range(self.__MAX_NUMBER_CARDS):
-                if num.count(14-i) == 2:  # pair
-                    for n in range(len(card_list)):
-                        if card_list[len(cards)-4-n][1] == (14-i):
-                            rtCards.append(card_list[len(cards)-4-n])
-                            card_list.remove(card_list[len(cards)-4-n])
-                    break
-        # Flash
-        elif flash == 1:
-            score = 5
-            rtCards = flash_list[len(flash_list)-5:len(flash_list)]
-        # Straight
-        elif straight == 1:
-            score = 4
-            rtCards = straight_list
-        # 3cards
-        elif pp[1] == 1:
-            score = 3
-            for i in range(self.__MAX_NUMBER_CARDS):
-                if num.count(14-i) == 3:
-                    for n in range(len(card_list)):
-                        if card_list[len(cards)-1-n][1] == (14-i):
-                            rtCards.append(card_list[len(cards)-1-n])
-                            card_list.remove(card_list[len(cards)-1-n])
-                    break
-            for i in range(min(2, len(card_list))):
-                rtCards.append(card_list[-1])  # maxを2つ
-                card_list.remove(card_list[-1])
-        # 2pairs
-        elif pp[2] >= 2:
-            score = 2
-            c = 0
-            for i in range(self.__MAX_NUMBER_CARDS):
-                if num.count(14-i) == 2 and c < 2:
-                    c += 1
-                    num.remove(14-i)
-                    num.remove(14-i)
-                    for n in range(len(card_list)):
-                        if card_list[len(card_list)-1-n][1] == (14-i):
-                            rtCards.append(card_list[len(card_list)-1-n])
-                            rtCards.append(card_list[len(card_list)-2-n])
-                            card_list.remove(card_list[len(card_list)-1-n])
-                            card_list.remove(card_list[len(card_list)-1-n])
-                            break
-            if card_list != []:
-                rtCards.append(card_list[min(2, len(card_list)-1)])
-            else:
-                pass
-        # 1pair
-        elif pp[2] == 1:
-            score = 1
-            for i in range(self.__MAX_NUMBER_CARDS):
-                if num.count(14-i) == 2:
-                    for n in range(len(card_list)):
-                        if card_list[len(cards)-1-n][1] == 14-i:
-                            rtCards.append(card_list[len(cards)-1-n])
-                            card_list.remove(card_list[len(cards)-1-n])
-                    break
-            for i in range(min(3, len(card_list))):
-                rtCards.append(card_list[-1])  # maxを3つ
-                card_list.remove(card_list[-1])
-        # no pair
-        else:
-            score = 0
-            for i in range(min(5, len(card_list))):
-                rtCards.append(card_list[-1])
-                card_list.remove(card_list[-1])
-
-        # RETURN!!
-        rtCards = self.rpcards2(rtCards)  # 14 --> 1. rtCards: best tuple list
-        return (score, rtCards)
 
     # for: calc_hand_score
     def choice(self, card_list):  # suit, num, cardのみを取り出してリスト化
@@ -611,7 +466,7 @@ class Dealer(object):
             pair[any_cards[i].number-1] = \
                 pair[any_cards[i].number-1]+1
         pairs = [0, 0, 0]  # pairsは[4カード有無, 3カードの有無, ペアの数]のリスト
-        for i in range(0, self.__MAX_NUMBER_CARDS):  # pairの要素A~13すべて順に参照
+        for i in range(self.__MAX_NUMBER_CARDS):  # pairの要素A~13すべて順に参照
             if pair[i] == 4:  # lその要素が４枚あるときpairs[0]のカウントを増やす
                 pairs[0] = pairs[0]+1
             elif pair[i] == 3:  # 同様に3枚
