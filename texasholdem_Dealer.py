@@ -109,7 +109,8 @@ class Dealer(object):
         # FIXED PARAMETERS
         self.__MIN_NUMBER_CARDS = 1  # smallest number of playing cards
         self.__MAX_NUMBER_CARDS = 13  # largest number of playing cards
-        self.__NUM_CARDS = self.__MAX_NUMBER_CARDS - self.__MIN_NUMBER_CARDS + 1  # = 13
+        self.__NUM_CARDS = (
+                self.__MAX_NUMBER_CARDS - self.__MIN_NUMBER_CARDS + 1)  # = 13
         self.__SUITS = ['S', 'C', 'H', 'D']  # suit of playing cards
         self.__NUM_HAND = 2  # number of hands
         self.__NUM_PORKER_HAND = 5  # comparing hands
@@ -166,7 +167,7 @@ class Dealer(object):
     # give player index 'ith' as int,
     # return next player's index who is in the game
     def __next_alive_player(self, ith):
-        for _i in range(ith+1,self.__num_players):
+        for _i in range(ith+1, self.__num_players):
             if self.__list_status[_i].in_game:
                 return _i
         for _i in range(ith):
@@ -275,8 +276,10 @@ class Dealer(object):
     def __distribute_money(self):
         # re-order list of status with playing order: first to last player
         _ordered_status = self.__shift_list(self.__list_status, self.__SB)
-        for _ranking in range(1, self.__max_rank):  # distribute from top winner
-            for _ipot in range(len(self.__pot)):  # distribute from left pot
+        # distribute from top winner
+        for _ranking in range(1, self.__max_rank):
+            # distribute from left pot
+            for _ipot in range(len(self.__pot)):
                 _list = [
                         i for i in _ordered_status
                         if i.ranking == _ranking and i.pot_rank >= _ipot]
@@ -303,10 +306,12 @@ class Dealer(object):
     def __cards_stat(self, card_list):
         _suit_stat = {}
         for _suit in self.__SUITS:
-            _suit_stat[_suit] = sum(1 for _card in card_list if _card.suit == _suit)
+            _suit_stat[_suit] = sum(
+                    1 for _card in card_list if _card.suit == _suit)
         _num_stat = {}
-        for _num in range(1,self.__NUM_CARDS+1):
-            _num_stat[_num] = sum(1 for _card in card_list if _card.number == _num + 1)
+        for _num in range(1, self.__NUM_CARDS+1):
+            _num_stat[_num] = sum(
+                    1 for _card in card_list if _card.number == _num + 1)
         _num_stat[self.__MAX_NUMBER_CARDS+1] = _num_stat[1]
         return _suit_stat, _num_stat
 
@@ -315,10 +320,11 @@ class Dealer(object):
     #     return True and member of flash hand
     # not flash:
     #     return False and None
-    def __check_flash(self,suit_stat,cards):
+    def __check_flash(self, suit_stat, cards):
         for _suit in self.__SUITS:
             if suit_stat[_suit] >= self.__NUM_PORKER_HAND:
-                _flash_members = [_card for _card in cards if _card.suit == _suit]
+                _flash_members = [
+                        _card for _card in cards if _card.suit == _suit]
                 return True, _flash_members
         return False, None
 
@@ -327,8 +333,9 @@ class Dealer(object):
     #     return True and member of straight hand
     # not straight:
     #     return False and None
-    def __check_straight(self,num_straight,num_stat,cards):
-        for _i in range(self.__MAX_NUMBER_CARDS+1,num_straight-1,-1):  # 14, 13, ..., 5
+    def __check_straight(self, num_straight, num_stat, cards):
+        # loop for 14, 13, ..., 5
+        for _i in range(self.__MAX_NUMBER_CARDS+1, num_straight-1, -1):
             _prod = num_stat[_i] \
                     * num_stat[_i-1] \
                     * num_stat[_i-2] \
@@ -336,7 +343,7 @@ class Dealer(object):
                     * num_stat[_i-4]
             if _prod > 0:
                 _straight_members = []
-                for _k in range(_i,_i-5,-1):
+                for _k in range(_i, _i-5, -1):
                     for _card in cards:
                         if _card.number == _k:
                             _straight_members.append(_card)
@@ -346,10 +353,11 @@ class Dealer(object):
 
     # return best set of cards (max: 5)
     # best: 4-cards, Full-House, 3-cards, 2-pairs, 1-pair, high-card
-    def __best_set(self,num_stat,cards):
-        _sorted_num_stat = sorted(num_stat.items(), key=lambda x: (-x[1],-x[0]))
+    def __best_set(self, num_stat, cards):
+        _sorted_num_stat = sorted(
+                num_stat.items(), key=lambda x: (-x[1], -x[0]))
         _best_set_members = []
-        _num_set = min(self.__NUM_PORKER_HAND,len(cards))
+        _num_set = min(self.__NUM_PORKER_HAND, len(cards))
         for _num, _stat in _sorted_num_stat:
             for _card in cards:
                 if _card.number == _num:
@@ -367,17 +375,18 @@ class Dealer(object):
         _suit_stat, _num_stat = self.__cards_stat(cards)
 
         # flash and straight-flash
-        _flash, _flash_hand = self.__check_flash(_suit_stat,cards)
+        _flash, _flash_hand = self.__check_flash(_suit_stat, cards)
         if _flash:
             _suit_stat_flash, _num_stat_flash = self.__cards_stat(cards)
-            _straight, _straight_hand = self.__check_straight(5,_num_stat_flash,_flash_hand)
+            _straight, _straight_hand = self.__check_straight(
+                    5, _num_stat_flash, _flash_hand)
             if _straight:  # straight-flash
                 return 8, _straight_hand
             else:  # flash
                 return 5, _flash_hand
 
         # calculate best set which is also used later
-        _best_set = self.__best_set(_num_stat,cards)
+        _best_set = self.__best_set(_num_stat, cards)
 
         # statistics of best set
         _suit_stat_best, _num_stat_best = self.__cards_stat(_best_set)
@@ -391,7 +400,7 @@ class Dealer(object):
             return 6, _best_set
 
         # straight
-        _straight, _straight_hand = self.__check_straight(5,_num_stat,cards)
+        _straight, _straight_hand = self.__check_straight(5, _num_stat, cards)
         if _straight:
             return 4, _straight_hand
 
@@ -408,90 +417,6 @@ class Dealer(object):
             return 1, _best_set
 
         return 0, _best_set
-
-
-#    # for: calc_hand_score
-#    def choice(self, card_list):  # suit, num, cardのみを取り出してリスト化
-#        suit = [0]*len(card_list)
-#        num = [0]*len(card_list)
-#        card = [0]*len(card_list)
-#        for i in range(len(card_list)):
-#            num[i] = card_list[i].number
-#            suit[i] = card_list[i].suit
-#            card[i] = card_list[i].card
-#        return (num, suit, card)
-
-#    # for straight: make straight_list
-#    def stlist(self, card_list):
-#        card_list = sorted(card_list, key=lambda x: x[1])
-#        num = [0]*len(card_list)
-#        for i in range(len(card_list)):
-#            num[i] = card_list[i][1]
-#        straight_list = []
-#        straight = 0
-#        num_list = [0]*15
-#        for card in num:  # 数字の個数カウント
-#            num_list[card] += 1
-#        for i in range(10):
-#            prod = num_list[14-i]*num_list[13-i] *\
-#                num_list[12-i]*num_list[11-i]*num_list[10-i]
-#            if prod >= 1:
-#                straight = 1  # st 宣言
-#                straight_list = num_list[10-i:14-i]
-##                k = 0
-##                for t in range(len(card_list)):
-##                    if card_list[len(card_list)-1-t][1] == 14-i-k and k < 5:
-##                        straight_list.append(card_list[len(card_list)-1-t])
-##                        k += 1
-#                break
-#        return (straight, straight_list)
-
-#    # Kawadaさんのもの
-#    def checkpair(self, any_cards):  # ペアの評価方法
-#        pair = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  # A~Kまでの13個のリスト要素を用意
-#        for i in range(0, len(any_cards)):  # カードの枚数ぶんだけ試行
-#            # カードのnumber要素を参照し先ほどのリストpairの対応要素のカウントを1つ増やす
-#            pair[any_cards[i].number-1] = \
-#                pair[any_cards[i].number-1]+1
-#        pairs = [0, 0, 0]  # pairsは[4カード有無, 3カードの有無, ペアの数]のリスト
-#        for i in range(self.__MAX_NUMBER_CARDS):  # pairの要素A~13すべて順に参照
-#            if pair[i] == 4:  # lその要素が４枚あるときpairs[0]のカウントを増やす
-#                pairs[0] = pairs[0]+1
-#            elif pair[i] == 3:  # 同様に3枚
-#                pairs[1] = pairs[1]+1
-#            elif pair[i] == 2:  # 同様に2枚
-#                pairs[2] = pairs[2]+1
-#        return pairs  # pairsは[4カード有無, 3カードの有無, ペアの数]のリスト
-
-#    def rpc1(self, cards):  # 最初に1-->14にする方 引数はリスト
-#        rp = []
-#        for card in cards:
-#            card = (card+11) % 13 + 2
-#            rp.append(card)
-#        return rp
-
-#    def rpc2(self, cards):  # 最後に14-->1に戻す方 引数はリスト
-#        rp = []
-#        for card in cards:
-#            card = (card-1) % 13 + 1
-#            rp.append(card)
-#        return rp
-
-#    def rpcards1(self, cards):  # 最初に1-->14にする方 引数はカードタプルリスト
-#        nc = []
-#        for i in range(len(cards)):
-#            ss = cards[i][0]
-#            nn = (cards[i][1]+11) % 13 + 2
-#            nc.append((ss, nn))
-#        return nc
-
-#    def rpcards2(self, cards):  # 最後に14-->1に戻す方 引数はカードタプルリスト
-#        nc = []
-#        for i in range(len(cards)):
-#            ss = cards[i][0]
-#            nn = (cards[i][1]-1) % 13 + 1
-#            nc.append((ss, nn))
-#        return nc
 
     # == for: calc_hand_score
     def compare_flash(self, cl1, cl2):  # == FLASH判定 shirai
