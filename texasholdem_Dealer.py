@@ -109,7 +109,7 @@ class Dealer(object):
         # FIXED PARAMETERS
         self.__MIN_NUMBER_CARDS = 1  # smallest number of playing cards
         self.__MAX_NUMBER_CARDS = 13  # largest number of playing cards
-        self.__NUM_CARDS = self.__MAX_NUMBER_CARDS - self.__MIN_NUMBER_CARDS +1  # = 13
+        self.__NUM_CARDS = self.__MAX_NUMBER_CARDS - self.__MIN_NUMBER_CARDS + 1  # = 13
         self.__SUITS = ['S', 'C', 'H', 'D']  # suit of playing cards
         self.__NUM_HAND = 2  # number of hands
         self.__NUM_PORKER_HAND = 5  # comparing hands
@@ -161,12 +161,7 @@ class Dealer(object):
 
     # open one card to a table
     def put_field(self):
-        #self.__field.append(self.__handling_cards.pop(0))
-        if len(self.__field) == 0:
-            self.__field.append(Card('S',1))
-            return
-        _max = max([i.number for i in self.__field])
-        self.__field.append(Card('S',_max+1))
+        self.__field.append(self.__handling_cards.pop(0))
 
     # give player index 'ith' as int,
     # return next player's index who is in the game
@@ -426,77 +421,77 @@ class Dealer(object):
 #            card[i] = card_list[i].card
 #        return (num, suit, card)
 
-    # for straight: make straight_list
-    def stlist(self, card_list):
-        card_list = sorted(card_list, key=lambda x: x[1])
-        num = [0]*len(card_list)
-        for i in range(len(card_list)):
-            num[i] = card_list[i][1]
-        straight_list = []
-        straight = 0
-        num_list = [0]*15
-        for card in num:  # 数字の個数カウント
-            num_list[card] += 1
-        for i in range(10):
-            prod = num_list[14-i]*num_list[13-i] *\
-                num_list[12-i]*num_list[11-i]*num_list[10-i]
-            if prod >= 1:
-                straight = 1  # st 宣言
-                straight_list = num_list[10-i:14-i]
-#                k = 0
-#                for t in range(len(card_list)):
-#                    if card_list[len(card_list)-1-t][1] == 14-i-k and k < 5:
-#                        straight_list.append(card_list[len(card_list)-1-t])
-#                        k += 1
-                break
-        return (straight, straight_list)
+#    # for straight: make straight_list
+#    def stlist(self, card_list):
+#        card_list = sorted(card_list, key=lambda x: x[1])
+#        num = [0]*len(card_list)
+#        for i in range(len(card_list)):
+#            num[i] = card_list[i][1]
+#        straight_list = []
+#        straight = 0
+#        num_list = [0]*15
+#        for card in num:  # 数字の個数カウント
+#            num_list[card] += 1
+#        for i in range(10):
+#            prod = num_list[14-i]*num_list[13-i] *\
+#                num_list[12-i]*num_list[11-i]*num_list[10-i]
+#            if prod >= 1:
+#                straight = 1  # st 宣言
+#                straight_list = num_list[10-i:14-i]
+##                k = 0
+##                for t in range(len(card_list)):
+##                    if card_list[len(card_list)-1-t][1] == 14-i-k and k < 5:
+##                        straight_list.append(card_list[len(card_list)-1-t])
+##                        k += 1
+#                break
+#        return (straight, straight_list)
 
-    # Kawadaさんのもの
-    def checkpair(self, any_cards):  # ペアの評価方法
-        pair = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  # A~Kまでの13個のリスト要素を用意
-        for i in range(0, len(any_cards)):  # カードの枚数ぶんだけ試行
-            # カードのnumber要素を参照し先ほどのリストpairの対応要素のカウントを1つ増やす
-            pair[any_cards[i].number-1] = \
-                pair[any_cards[i].number-1]+1
-        pairs = [0, 0, 0]  # pairsは[4カード有無, 3カードの有無, ペアの数]のリスト
-        for i in range(self.__MAX_NUMBER_CARDS):  # pairの要素A~13すべて順に参照
-            if pair[i] == 4:  # lその要素が４枚あるときpairs[0]のカウントを増やす
-                pairs[0] = pairs[0]+1
-            elif pair[i] == 3:  # 同様に3枚
-                pairs[1] = pairs[1]+1
-            elif pair[i] == 2:  # 同様に2枚
-                pairs[2] = pairs[2]+1
-        return pairs  # pairsは[4カード有無, 3カードの有無, ペアの数]のリスト
+#    # Kawadaさんのもの
+#    def checkpair(self, any_cards):  # ペアの評価方法
+#        pair = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  # A~Kまでの13個のリスト要素を用意
+#        for i in range(0, len(any_cards)):  # カードの枚数ぶんだけ試行
+#            # カードのnumber要素を参照し先ほどのリストpairの対応要素のカウントを1つ増やす
+#            pair[any_cards[i].number-1] = \
+#                pair[any_cards[i].number-1]+1
+#        pairs = [0, 0, 0]  # pairsは[4カード有無, 3カードの有無, ペアの数]のリスト
+#        for i in range(self.__MAX_NUMBER_CARDS):  # pairの要素A~13すべて順に参照
+#            if pair[i] == 4:  # lその要素が４枚あるときpairs[0]のカウントを増やす
+#                pairs[0] = pairs[0]+1
+#            elif pair[i] == 3:  # 同様に3枚
+#                pairs[1] = pairs[1]+1
+#            elif pair[i] == 2:  # 同様に2枚
+#                pairs[2] = pairs[2]+1
+#        return pairs  # pairsは[4カード有無, 3カードの有無, ペアの数]のリスト
 
-    def rpc1(self, cards):  # 最初に1-->14にする方 引数はリスト
-        rp = []
-        for card in cards:
-            card = (card+11) % 13 + 2
-            rp.append(card)
-        return rp
+#    def rpc1(self, cards):  # 最初に1-->14にする方 引数はリスト
+#        rp = []
+#        for card in cards:
+#            card = (card+11) % 13 + 2
+#            rp.append(card)
+#        return rp
 
-    def rpc2(self, cards):  # 最後に14-->1に戻す方 引数はリスト
-        rp = []
-        for card in cards:
-            card = (card-1) % 13 + 1
-            rp.append(card)
-        return rp
+#    def rpc2(self, cards):  # 最後に14-->1に戻す方 引数はリスト
+#        rp = []
+#        for card in cards:
+#            card = (card-1) % 13 + 1
+#            rp.append(card)
+#        return rp
 
-    def rpcards1(self, cards):  # 最初に1-->14にする方 引数はカードタプルリスト
-        nc = []
-        for i in range(len(cards)):
-            ss = cards[i][0]
-            nn = (cards[i][1]+11) % 13 + 2
-            nc.append((ss, nn))
-        return nc
+#    def rpcards1(self, cards):  # 最初に1-->14にする方 引数はカードタプルリスト
+#        nc = []
+#        for i in range(len(cards)):
+#            ss = cards[i][0]
+#            nn = (cards[i][1]+11) % 13 + 2
+#            nc.append((ss, nn))
+#        return nc
 
-    def rpcards2(self, cards):  # 最後に14-->1に戻す方 引数はカードタプルリスト
-        nc = []
-        for i in range(len(cards)):
-            ss = cards[i][0]
-            nn = (cards[i][1]-1) % 13 + 1
-            nc.append((ss, nn))
-        return nc
+#    def rpcards2(self, cards):  # 最後に14-->1に戻す方 引数はカードタプルリスト
+#        nc = []
+#        for i in range(len(cards)):
+#            ss = cards[i][0]
+#            nn = (cards[i][1]-1) % 13 + 1
+#            nc.append((ss, nn))
+#        return nc
 
     # == for: calc_hand_score
     def compare_flash(self, cl1, cl2):  # == FLASH判定 shirai
