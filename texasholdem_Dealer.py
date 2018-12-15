@@ -308,8 +308,6 @@ class Dealer(object):
     def __cards_stat(self, card_list):
         _suit_stat = {}
         for _suit in self.__SUITS:
-            print("suit:",_suit)
-            print([_card.suit for _card in card_list])
             _suit_stat[_suit] = sum(1 for _card in card_list if _card.suit == _suit)
         _num_stat = {}
         for _num in range(1,self.__NUM_CARDS+1):
@@ -354,14 +352,9 @@ class Dealer(object):
     # return best set of cards (max: 5)
     # best: 4-cards, Full-House, 3-cards, 2-pairs, 1-pair, high-card
     def __best_set(self,num_stat,cards):
-        print(num_stat)
-        print(type(num_stat))
-        print('cards:',[i.card for i in cards])
-        print([_i[1] for _i in num_stat.items()])
         _sorted_num_stat = sorted(num_stat.items(), key=lambda x: (-x[1],-x[0]))
         _best_set_members = []
         _num_set = min(self.__NUM_PORKER_HAND,len(cards))
-        print("_num_set:",_num_set)
         for _num, _stat in _sorted_num_stat:
             for _card in cards:
                 if _card.number == _num:
@@ -369,8 +362,10 @@ class Dealer(object):
                     if len(_best_set_members) == _num_set:
                         return _best_set_members
 
-
-
+    # put list of cards
+    # return score of cards and its hand:
+    #   8: Straight-Flash, 7: 4-Cards, 6: Full-House, 5: Flash
+    #   4: Straight, 3: 3-Cards, 2: 2-Pairs, 1: 1-Pair, 0: High-Card
     def calc_hand_score(self, cards):
         if len(cards) == 0:
             return 0, cards
@@ -387,10 +382,8 @@ class Dealer(object):
                 return 5, _flash_hand
 
         # calculate best set which is also used later
-        print("cards:",cards)
         _best_set = self.__best_set(_num_stat,cards)
-        print("###???###")
-        print(_best_set)
+
         # statistics of best set
         _suit_stat_best, _num_stat_best = self.__cards_stat(_best_set)
 
@@ -422,16 +415,16 @@ class Dealer(object):
         return 0, _best_set
 
 
-    # for: calc_hand_score
-    def choice(self, card_list):  # suit, num, cardのみを取り出してリスト化
-        suit = [0]*len(card_list)
-        num = [0]*len(card_list)
-        card = [0]*len(card_list)
-        for i in range(len(card_list)):
-            num[i] = card_list[i].number
-            suit[i] = card_list[i].suit
-            card[i] = card_list[i].card
-        return (num, suit, card)
+#    # for: calc_hand_score
+#    def choice(self, card_list):  # suit, num, cardのみを取り出してリスト化
+#        suit = [0]*len(card_list)
+#        num = [0]*len(card_list)
+#        card = [0]*len(card_list)
+#        for i in range(len(card_list)):
+#            num[i] = card_list[i].number
+#            suit[i] = card_list[i].suit
+#            card[i] = card_list[i].card
+#        return (num, suit, card)
 
     # for straight: make straight_list
     def stlist(self, card_list):
