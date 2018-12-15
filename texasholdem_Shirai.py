@@ -140,8 +140,10 @@ class ShiraiAI(Player):
         (fsc, fbc)=self.dealer.calc_hand_score(self.dealer.field) #arg2
         (msc, mbc)=self.dealer.calc_hand_score(cards) #arg3
         
-        fmax=max([fbc[i][1] for i in range(len(fbc))]+[0]) #arg4
-        mmax=max([mbc[i][1] for i in range(len(mbc))]+[0]) #arg5
+#        fmax=max([fbc[i][1] for i in range(len(fbc))]+[0]) #arg4
+#        mmax=max([mbc[i][1] for i in range(len(mbc))]+[0]) #arg5
+        fmax=max([_card.number for _card in fbc]+[0]) #arg4
+        mmax=max([_card.number for _card in mbc]+[0]) #arg5
         if fmax==1:
             fmax=14
         if mmax==1:
