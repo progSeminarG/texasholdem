@@ -1,4 +1,4 @@
-# ! /usr/bin/env python3
+#! /usr/bin/env python3
 
 import random
 import sys
@@ -154,11 +154,15 @@ class Dealer(object):
     # create list of [S1, S2, ..., D13]: whole deck
     def __create_all_cards_stack(self):
         _cards = []
-        for inumber in range(self.__MIN_NUMBER_CARDS,
+        for _num in range(self.__MIN_NUMBER_CARDS,
                              self.__MAX_NUMBER_CARDS+1):
-            for suit in self.__SUITS:
-                _cards.append(Card(suit, inumber))
+            for _suit in self.__SUITS:
+                _cards.append(Card(_suit, _num))
         return _cards
+
+    @property
+    def create_all_cards_stack(self):
+        return self.__create_all_cards_stack()
 
     # open one card to a table
     def put_field(self):
@@ -230,15 +234,15 @@ class Dealer(object):
             return True
 
     # DISTRIBUTE MONEY to WINNERS
-    # create pot
-    # calculate each hands
-    # check winner and put ranking in each status
-    # distribute money to winners
-    def calc(self):
+    #   create pot
+    #   calculate each hands' scores
+    #   check winner and put ranking in each status
+    #   distribute money to winners
+    def final_accounting(self):
         # usually pots are created during the game, but here create at the last
         self.__create_pot()
         self.__calc_scores()
-        self.__max_rank = self.calc_ranking()
+        self.__max_rank = self.__calc_ranking()
         self.__distribute_money()
 
     # create list of pot
@@ -268,7 +272,7 @@ class Dealer(object):
     # set ranking in each status
     # return max value of ranking
     #   eg) [1,2,3,2,3] -> 3
-    def calc_ranking(self):
+    def __calc_ranking(self):
         # ranking of each player based on calculated hands
         _ranking = rankdata(
                 [-_status.score for _status in self.__list_status],
@@ -313,7 +317,7 @@ class Dealer(object):
         _num_stat = {}
         for _num in range(1, self.__NUM_CARDS+1):
             _num_stat[_num] = sum(
-                    1 for _card in card_list if _card.number == _num + 1)
+                    1 for _card in card_list if _card.number == _num)
         _num_stat[self.__MAX_NUMBER_CARDS+1] = _num_stat[1]
         return _suit_stat, _num_stat
 
@@ -398,21 +402,20 @@ class Dealer(object):
                 _mini_score = self.__card_score(_straight_hand[0]) / 14.0
                 return 8.0 + _mini_score, _straight_hand
 
-        # calculate best set which is also used later
+        # calculate best set and its statistics
         _best_set = self.__best_set(_num_stat, cards)
-
-        # statistics of best set
         _suit_stat_best, _num_stat_best = self.__cards_stat(_best_set)
+        del _num_stat_best[14]  # delete {14:x} from dictionary
 
         # 4-cards
-        if 4 in _num_stat_best:
+        if 4 in _num_stat_best.values():
             _mini_score = 4.0*self.__card_score(_best_set[0])
             _mini_score += self.__card_score(_best_set[-1])/14.0
             _mini_score /= 57.0
             return 7.0 + _mini_score, _best_set
 
         # Full-House
-        if 3 in _num_stat_best and 2 in _num_stat_best:
+        if 3 in _num_stat_best.values() and 2 in _num_stat_best.values():
             _mini_score = 3.0*self.__card_score(_best_set[0])
             _mini_score += 2.0*self.__card_score(_best_set[-1])/28.0
             _mini_score /= 43.0
@@ -425,128 +428,46 @@ class Dealer(object):
             _mini_score /= 60.0
             return 5.0 + _min_score, _flash_hand
 
-        # straight
+        # Straight
         _straight, _straight_hand = self.__check_straight(5, _num_stat, cards)
         if _straight:
             _mini_score = self.__card_score(_straight_hand[0]) / 14.0
             return 4.0 + _mini_score, _straight_hand
 
-        # 3-cards
-        if 3 in _num_stat_best:
+        # 3-Cards
+        if 3 in _num_stat_best.values():
             _mini_score = 3.0*self.__card_score(_best_set[0])
             _mini_score += self.__card_score(_best_set[3])/14.0
             _mini_score += self.__card_score(_best_set[4])/28.0
             _mini_score /= 44.0
             return 3.0 + _mini_score, _best_set
 
-        # 2-pairs
-        if 2 == _num_stat_best.values().count(2):
+        # 2-Pairs
+        print("list(_num_stat_best.values()):",list(_num_stat_best.values()))
+        if 2 <= list(_num_stat_best.values()).count(2):
             _mini_score = 2.0*self.__card_score(_best_set[0])
             _mini_score += 2.0*self.__card_score(_best_set[2])/28.0
             _mini_score += self.__card_score(_best_set[-1])/28.0
             _mini_score /= 66.0
+            print("_mini_score:",_mini_score)
             return 2.0 + _mini_score, _best_set
 
-        # 1-pair
-        if 2 in _num_stat_best:
+        # 1-Pair
+        if 2 in _num_stat_best.values():
             _mini_score = 2.0*self.__card_score(_best_set[0])
             _mini_score += self.__card_score(_best_set[2])/14.0
             _mini_score += self.__card_score(_best_set[3])/28.0
             _mini_score += self.__card_score(_best_set[4])/32.0
             _mini_score /= 30.0
+            print("_mini_score:",_mini_score)
             return 1.0 + _mini_score, _best_set
 
+        # High-Card
         _mini_score = 0.0
         for _i in range(_num_set):
             _mini_score += self.__card_score(_best_set[_i])/((_i+1)*14)
         _mini_score /= 3.0
         return 0.0 + _mini_score, _best_set
-
-    # == for: calc_hand_score
-    def compare_flash(self, cl1, cl2):  # == FLASH判定 shirai
-        num1 = []
-        num2 = []
-        for k in range(5):
-            num1.append(cl1[k][1])
-            num2.append(cl2[k][1])
-        self.rpc1(num1)
-        self.rpc1(num2)
-        for i in range(5):
-            if max(num1) > max(num2):
-                sc = 0
-                break
-            elif max(num1) < max(num2):
-                sc = 1
-                break
-            elif max(num1) == max(num2):
-                sc = 2
-                num1.remove(max(num1))
-                num2.remove(max(num2))
-        return sc
-
-    def compare_straight(self, cl1, cl2):  # == STRAIGHT判定 shirai
-        num1 = []
-        num2 = []
-        for i in range(5):
-            num1.append(cl1[i][1])
-            num2.append(cl2[i][1])
-        num1 = self.rpc1(num1)
-        num2 = self.rpc1(num2)
-        if max(num1) > max(num2):
-            sc = 0
-        elif max(num1) < max(num2):
-            sc = 1
-        elif max(num1) == max(num2):
-            sc = 2
-        return sc
-
-    # //////////////////////////////////////////////////
-    # ここから2人を比較するメソッド（同役）
-    # //////////////////////////////////////////////////
-    def compair_high_cards(self, cardslist1, cardslist2):  # cardslist(5cards)
-        number_list1 = self.convert_cardslist_to_numberlist(cardslist1)
-        number_list2 = self.convert_cardslist_to_numberlist(cardslist2)
-        array = [number_list1, number_list2]
-        collect = [[], []]
-        value = [[], []]
-        counts = [[], []]
-        for i in range(2):
-            array[i].sort()
-            array[i].reverse()
-            collect[i] = collections.Counter(array[i])
-            value[i], counts[i] = zip(*collect[i].most_common())
-        decide_winner = False
-        for i in range(len(value[0])):
-            if value[0][i] > value[1][i]:
-                return 0
-            elif value[0][i] < value[1][i]:
-                return 1
-        if decide_winner is False:
-            return 2
-    '''
-    5枚のカードリストを２つ受け取り、数字のリストへと変換
-    枚数が多い数字順に数字を並べ替え、左からカードの強弱を比較
-    先に前者のリストが強い判定が出れば ０
-    後者のリストが強い判定が出れば １
-    最後まで強弱の関係が無ければ ２
-
-    ＜現状の問題点＞
-    １が弱く扱われている → 途中で１を１４に変換する？
-    '''
-
-    def convert_cardslist_to_numberlist(self, cards_list):
-        number_list = []
-        for i in lenge(len(cards_list)):
-            number_list.append(cards_list[i].number)
-        '''
-        for i in range(len(cardslist)):
-            if number_list[i] == 1:
-                number_list[i] =14
-        '''
-        return number_list
-    # //////////////////////////////////////////////////
-    # ここまで2人を比較するメソッド
-    # //////////////////////////////////////////////////
 
     @property
     def field(self):
@@ -608,12 +529,3 @@ class Dealer(object):
             else:
                 _response_list.append(_status.in_game)
         return _response_list
-
-    # --- obsolete ---
-    @property
-    def resplist(self):
-        return self.response_list
-
-    @property
-    def bettingrate(self):
-        return self.response_list
