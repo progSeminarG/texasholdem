@@ -61,7 +61,7 @@ class Game(object):
         print("field:", [card.card for card in self.__dealer.field])
         self.__dealer.get_responses()
         print("open cards && calculate score")
-        self.__dealer.calc()
+        self.__dealer.final_accounting()
         self.__accounts = self.__dealer.list_of_money
         self.__DB = self.__dealer.DB_update()
         print(self.__accounts)

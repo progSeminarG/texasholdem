@@ -104,6 +104,217 @@ class Status(object):
         self.__pot_rank = pot_rank
 
 
+class Porker_Hand(object):
+    def __init__(self,_cards_list):
+        self.__NUM_PORKER_HAND = 5
+        self.__SUITS = ['S', 'C', 'H', 'D']
+        self.__MIN_NUMBER_CARDS = 1  # smallest number of playing cards
+        self.__MAX_NUMBER_CARDS = 13  # largest number of playing cards
+        self.__NUM_CARDS = (
+                self.__MAX_NUMBER_CARDS - self.__MIN_NUMBER_CARDS + 1)  # = 13
+        self.__score, self.__hand = self.__calc_hand_score(_cards_list)
+
+    @property
+    def score(self):
+        return self.__score
+
+    @property
+    def best_hand(self):
+        return self.__hand
+
+    # calculate statistics
+    # return:
+    #     _suit_stat: {'S':<num>, 'C':<num>, ...}
+    #     _num_stat: {1:<num>, 2:<num>, ...}
+    def __cards_stat(self, card_list):
+        _suit_stat = {'S': 0, 'C': 0, 'H': 0, 'D': 0}
+        for _suit in self.__SUITS:
+            _suit_stat[_suit] = sum(
+                    1 for _card in card_list if _card.suit == _suit)
+        _num_stat = {}
+        for _num in range(1, self.__NUM_CARDS+1):
+            _num_stat[_num] = sum(
+                    1 for _card in card_list if _card.number == _num)
+        _num_stat[self.__MAX_NUMBER_CARDS+1] = _num_stat[1]
+        return _suit_stat, _num_stat
+
+    # check card_list has Flash or not
+    # Flash:
+    #     return True and member of Flash hand (5 best cards)
+    # not Flash:
+    #     return False and None
+    def __check_flash(self, suit_stat, cards):
+        for _suit in self.__SUITS:
+            if suit_stat[_suit] >= self.__NUM_PORKER_HAND:
+                _flash_members = [
+                        _card for _card in cards if _card.suit == _suit]
+                _suit_stat, _num_stat = self.__cards_stat(_flash_members)
+                return True, self.__best_set(5,_num_stat, _flash_members)
+        return False, None
+
+    # check if card_list is Straight
+    # Straight:
+    #     return True and member of Straight hand (5 best cards)
+    # not Straight:
+    #     return False and None
+    def __check_straight(self, num_stat, cards):
+        if len(cards) < 5:
+            return False, None
+        # loop for 14, 13, ..., 5
+        for _i in range(self.__MAX_NUMBER_CARDS+1, 4, -1):
+            _prod = num_stat[_i] \
+                    * num_stat[_i-1] \
+                    * num_stat[_i-2] \
+                    * num_stat[_i-3] \
+                    * num_stat[_i-4]
+            if _prod > 0:
+                _straight_members = []
+                for _k in range(_i, _i-5, -1):
+                    if _k == 14:
+                        _kk = 1
+                    else:
+                        _kk = _k
+                    for _card in cards:
+                        if _card.number == _kk:
+                            _straight_members.append(_card)
+                            break
+                return True, _straight_members
+        return False, None
+
+    def __max_stat_num(self,_num_stat):
+        _sorted_num_stat = sorted(
+                _num_stat.items(), key=lambda x: (-x[1], -x[0]))
+        return _sorted_num_stat[0]
+
+    # return best hand from _cards_list
+    #   _num_cards: number of cards of hand
+    #   _num_stat: statistics of card numbers
+    #   _cards_ilst: set of cards for creating best hand
+    def __best_set(self, _num_cards, _num_stat, _cards_list):
+        # delete key 1:x (only 14:x is used for best hand)
+        if 1 in _num_stat:
+            del _num_stat[1]
+        # get max number of common numbers <_stat_num> and its number <_number>
+        _number, _stat_num = self.__max_stat_num(_num_stat)
+        # number of common numbers is smaller than number of cards of hand
+        if _num_cards >= _stat_num:
+            _best_set_members = []
+            for _card in _cards_list:
+                if self.__card_score(_card) == _number:
+                    _best_set_members.append(_card)
+            # update _num_cards, _num_stat
+            _num_cards -= _stat_num
+            del _num_stat[_number]
+            # if number of cards are collected it's done
+            if _num_cards == 0:
+                return _best_set_members
+            # recursively call __best_set for cards of smaller number
+            return _best_set_members + self.__best_set(
+                    _num_cards, _num_stat, _cards_list)
+        # case where more common numbers appear but does not fit in best_hand
+        else:
+            _best_set_members = []
+            _number = max([_key for _key, _val in _num_stat.items() if _val >= 1])
+            for _card in _cards_list:
+                if self.__card_score(_card) == _number:
+                    _best_set_members.append(_card)
+                    if len(_best_set_members) == _num_cards:
+                        return _best_set_members
+
+    # return given card score
+    # NOTE: give Card class
+    def __card_score(self, card):
+        if card.number == 1:
+            return 14
+        else:
+            return card.number
+
+    # put list of cards
+    # return score of cards and its best hand:
+    #   8: Straight-Flash, 7: 4-Cards, 6: Full-House, 5: Flash
+    #   4: Straight, 3: 3-Cards, 2: 2-Pairs, 1: 1-Pair, 0: High-Card
+    def __calc_hand_score(self, cards):
+        _num_set = min(self.__NUM_PORKER_HAND, len(cards))
+        if len(cards) == 0:
+            return 0, cards
+        _suit_stat, _num_stat = self.__cards_stat(cards)
+
+        # Straight-Flash
+        _flash, _flash_hand = self.__check_flash(_suit_stat, cards)
+        if _flash:
+            _suit_stat_flash, _num_stat_flash = self.__cards_stat(cards)
+            _straight, _straight_hand = self.__check_straight(
+                    _num_stat_flash, _flash_hand)
+            if _straight:  # straight-flash
+                _mini_score = self.__card_score(_straight_hand[0]) / 14.0
+                return 8.0 + _mini_score, _straight_hand
+
+        # calculate best set and its statistics
+        _best_set = self.__best_set(_num_set, deepcopy(_num_stat), cards)
+        _suit_stat_best, _num_stat_best = self.__cards_stat(_best_set)
+        del _num_stat_best[14]  # delete {14:x} from dictionary
+
+        # 4-cards
+        if 4 in _num_stat_best.values():
+            _mini_score = 4.0*self.__card_score(_best_set[0])
+            if _num_set == 5:
+                _mini_score += self.__card_score(_best_set[4])/14.0
+            _mini_score /= 57.0
+            return 7.0 + _mini_score, _best_set
+
+        # Full-House
+        if 3 in _num_stat_best.values() and 2 in _num_stat_best.values():
+            _mini_score = 3.0*self.__card_score(_best_set[0])
+            _mini_score += 2.0*self.__card_score(_best_set[-1])/28.0
+            _mini_score /= 43.0
+            return 6.0 + _mini_score, _best_set
+
+        # Flash
+        if _flash:
+            for _i in range(_num_set):
+                _mini_score += se.f__card_score(_best_set[_i]) / ((_i+1)*14.0)
+            _mini_score /= 60.0
+            return 5.0 + _min_score, _flash_hand
+
+        # Straight
+        _straight, _straight_hand = self.__check_straight(_num_stat, cards)
+        if _straight:
+            _mini_score = self.__card_score(_straight_hand[0]) / 14.0
+            return 4.0 + _mini_score, _straight_hand
+
+        # 3-Cards
+        if 3 in _num_stat_best.values():
+            _mini_score = 3.0*self.__card_score(_best_set[0])
+            for _i in range(_num_set - 3):
+                _mini_score += self.__card_score(_best_set[_i+3])/((_i+1)*14.0)
+            _mini_score /= 44.0
+            return 3.0 + _mini_score, _best_set
+
+        # 2-Pairs
+        if 2 <= list(_num_stat_best.values()).count(2):
+            _mini_score = 2.0*self.__card_score(_best_set[0])
+            _mini_score += 2.0*self.__card_score(_best_set[2])/28.0
+            if _num_set == 5:
+                _mini_score += self.__card_score(_best_set[4])/28.0
+            _mini_score /= 66.0
+            return 2.0 + _mini_score, _best_set
+
+        # 1-Pair
+        if 2 in _num_stat_best.values():
+            _mini_score = 2.0*self.__card_score(_best_set[0])
+            for _i in range(_num_set - 2):
+                _mini_score += self.__card_score(_best_set[2])/((_i+1)*14.0)
+            _mini_score /= 30.0
+            return 1.0 + _mini_score, _best_set
+
+        # High-Card
+        _mini_score = 0.0
+        for _i in range(_num_set):
+            _mini_score += self.__card_score(_best_set[_i])/((_i+1)*14)
+        _mini_score /= 3.0
+        return 0.0 + _mini_score, _best_set
+
+
 class Dealer(object):
     def __init__(self, game_inst, players_input):
         # FIXED PARAMETERS
@@ -264,8 +475,11 @@ class Dealer(object):
         for _status in self.__list_status:
             if _status.in_game:
                 _seven_cards = _status.cards + self.field
-                _status.score, _status.hand = (
-                        self.calc_hand_score(_seven_cards))
+                _hand_inst = Porker_Hand(_seven_cards)
+                _status.score = _hand_inst.score
+                _status.hand = _hand_inst.best_hand
+#                _status.score, _status.hand = (
+#                        self.calc_hand_score(_seven_cards))
             else:  # scores for fold players are set to -1
                 _status.score = -1
 
@@ -304,170 +518,6 @@ class Dealer(object):
                         self.__pot[_ipot] -= _payout
             if sum(self.__pot) == 0:
                 break  # whole loop finished
-
-    # calculate statistics
-    # return:
-    #     _suit_stat: {'S':<num>, 'C':<num>, ...}
-    #     _num_stat: {1:<num>, 2:<num>, ...}
-    def __cards_stat(self, card_list):
-        _suit_stat = {'S': 0, 'C': 0, 'H': 0, 'D': 0}
-        for _suit in self.__SUITS:
-            _suit_stat[_suit] = sum(
-                    1 for _card in card_list if _card.suit == _suit)
-        _num_stat = {}
-        for _num in range(1, self.__NUM_CARDS+1):
-            _num_stat[_num] = sum(
-                    1 for _card in card_list if _card.number == _num)
-        _num_stat[self.__MAX_NUMBER_CARDS+1] = _num_stat[1]
-        return _suit_stat, _num_stat
-
-    # check card_list has Flash or not
-    # Flash:
-    #     return True and member of Flash hand (5 best cards)
-    # not Flash:
-    #     return False and None
-    def __check_flash(self, suit_stat, cards):
-        for _suit in self.__SUITS:
-            if suit_stat[_suit] >= self.__NUM_PORKER_HAND:
-                _flash_members = [
-                        _card for _card in cards if _card.suit == _suit]
-                _suit_stat, _num_stat = self.__cards_stat(_flash_members)
-                return True, self.__best_set(_num_stat, _flash_members)
-        return False, None
-
-    # check if card_list is Straight
-    # Straight:
-    #     return True and member of Straight hand (5 best cards)
-    # not Straight:
-    #     return False and None
-    def __check_straight(self, num_straight, num_stat, cards):
-        # loop for 14, 13, ..., 5
-        for _i in range(self.__MAX_NUMBER_CARDS+1, num_straight-1, -1):
-            _prod = num_stat[_i] \
-                    * num_stat[_i-1] \
-                    * num_stat[_i-2] \
-                    * num_stat[_i-3] \
-                    * num_stat[_i-4]
-            if _prod > 0:
-                _straight_members = []
-                for _k in range(_i, _i-5, -1):
-                    if _k == 14:
-                        _kk = 1
-                    else:
-                        _kk = _k
-                    for _card in cards:
-                        if _card.number == _kk:
-                            _straight_members.append(_card)
-                            break
-                return True, _straight_members
-        return False, None
-
-    # return best set of cards (max: 5)
-    # best: 4-Cards, Full-House, 3-Cards, 2-Pairs, 1-Pair, High-Card
-    def __best_set(self, num_stat, cards):
-        _sorted_num_stat = sorted(
-                num_stat.items(), key=lambda x: (-x[1], -x[0]))
-        _best_set_members = []
-        _num_set = min(self.__NUM_PORKER_HAND, len(cards))
-        for _num, _stat in _sorted_num_stat:
-            for _card in cards:
-                if self.__card_score(_card) == _num:
-                    _best_set_members.append(_card)
-                    if len(_best_set_members) == _num_set:
-                        return _best_set_members
-
-    def __card_score(self, card):
-        if card.number == 1:
-            return 14
-        else:
-            return card.number
-
-    # put list of cards
-    # return score of cards and its best hand:
-    #   8: Straight-Flash, 7: 4-Cards, 6: Full-House, 5: Flash
-    #   4: Straight, 3: 3-Cards, 2: 2-Pairs, 1: 1-Pair, 0: High-Card
-    def calc_hand_score(self, cards):
-        _num_set = min(self.__NUM_PORKER_HAND, len(cards))
-        if len(cards) == 0:
-            return 0, cards
-        _suit_stat, _num_stat = self.__cards_stat(cards)
-
-        # Straight-Flash
-        _flash, _flash_hand = self.__check_flash(_suit_stat, cards)
-        if _flash:
-            _suit_stat_flash, _num_stat_flash = self.__cards_stat(cards)
-            _straight, _straight_hand = self.__check_straight(
-                    5, _num_stat_flash, _flash_hand)
-            if _straight:  # straight-flash
-                _mini_score = self.__card_score(_straight_hand[0]) / 14.0
-                return 8.0 + _mini_score, _straight_hand
-
-        # calculate best set and its statistics
-        _best_set = self.__best_set(_num_stat, cards)
-        _suit_stat_best, _num_stat_best = self.__cards_stat(_best_set)
-        del _num_stat_best[14]  # delete {14:x} from dictionary
-
-        # 4-cards
-        if 4 in _num_stat_best.values():
-            _mini_score = 4.0*self.__card_score(_best_set[0])
-            _mini_score += self.__card_score(_best_set[-1])/14.0
-            _mini_score /= 57.0
-            return 7.0 + _mini_score, _best_set
-
-        # Full-House
-        if 3 in _num_stat_best.values() and 2 in _num_stat_best.values():
-            _mini_score = 3.0*self.__card_score(_best_set[0])
-            _mini_score += 2.0*self.__card_score(_best_set[-1])/28.0
-            _mini_score /= 43.0
-            return 6.0 + _mini_score, _best_set
-
-        # Flash
-        if _flash:
-            for _i in range(_num_set):
-                _mini_score += se.f__card_score(_best_set[_i]) / ((_i+1)*14)
-            _mini_score /= 60.0
-            return 5.0 + _min_score, _flash_hand
-
-        # Straight
-        _straight, _straight_hand = self.__check_straight(5, _num_stat, cards)
-        if _straight:
-            _mini_score = self.__card_score(_straight_hand[0]) / 14.0
-            return 4.0 + _mini_score, _straight_hand
-
-        # 3-Cards
-        if 3 in _num_stat_best.values():
-            _mini_score = 3.0*self.__card_score(_best_set[0])
-            _mini_score += self.__card_score(_best_set[3])/14.0
-            _mini_score += self.__card_score(_best_set[4])/28.0
-            _mini_score /= 44.0
-            return 3.0 + _mini_score, _best_set
-
-        # 2-Pairs
-        print("list(_num_stat_best.values()):",list(_num_stat_best.values()))
-        if 2 <= list(_num_stat_best.values()).count(2):
-            _mini_score = 2.0*self.__card_score(_best_set[0])
-            _mini_score += 2.0*self.__card_score(_best_set[2])/28.0
-            _mini_score += self.__card_score(_best_set[-1])/28.0
-            _mini_score /= 66.0
-            print("_mini_score:",_mini_score)
-            return 2.0 + _mini_score, _best_set
-
-        # 1-Pair
-        if 2 in _num_stat_best.values():
-            _mini_score = 2.0*self.__card_score(_best_set[0])
-            _mini_score += self.__card_score(_best_set[2])/14.0
-            _mini_score += self.__card_score(_best_set[3])/28.0
-            _mini_score += self.__card_score(_best_set[4])/32.0
-            _mini_score /= 30.0
-            print("_mini_score:",_mini_score)
-            return 1.0 + _mini_score, _best_set
-
-        # High-Card
-        _mini_score = 0.0
-        for _i in range(_num_set):
-            _mini_score += self.__card_score(_best_set[_i])/((_i+1)*14)
-        _mini_score /= 3.0
-        return 0.0 + _mini_score, _best_set
 
     @property
     def field(self):
