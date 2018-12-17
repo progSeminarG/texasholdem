@@ -105,7 +105,7 @@ class Status(object):
 
 
 class Porker_Hand(object):
-    def __init__(self,_cards_list):
+    def __init__(self, _cards_list):
         self.__NUM_PORKER_HAND = 5
         self.__SUITS = ['S', 'C', 'H', 'D']
         self.__MIN_NUMBER_CARDS = 1  # smallest number of playing cards
@@ -149,7 +149,7 @@ class Porker_Hand(object):
                 _flash_members = [
                         _card for _card in cards if _card.suit == _suit]
                 _suit_stat, _num_stat = self.__cards_stat(_flash_members)
-                return True, self.__best_set(5,_num_stat, _flash_members)
+                return True, self.__best_set(5, _num_stat, _flash_members)
         return False, None
 
     # check if card_list is Straight
@@ -181,7 +181,7 @@ class Porker_Hand(object):
                 return True, _straight_members
         return False, None
 
-    def __max_stat_num(self,_num_stat):
+    def __max_stat_num(self, _num_stat):
         _sorted_num_stat = sorted(
                 _num_stat.items(), key=lambda x: (-x[1], -x[0]))
         return _sorted_num_stat[0]
@@ -214,7 +214,8 @@ class Porker_Hand(object):
         # case where more common numbers appear but does not fit in best_hand
         else:
             _best_set_members = []
-            _number = max([_key for _key, _val in _num_stat.items() if _val >= 1])
+            _number = max(
+                    [_key for _key, _val in _num_stat.items() if _val >= 1])
             for _card in _cards_list:
                 if self.__card_score(_card) == _number:
                     _best_set_members.append(_card)
@@ -366,8 +367,8 @@ class Dealer(object):
     # create list of [S1, S2, ..., D13]: whole deck
     def __create_all_cards_stack(self):
         _cards = []
-        for _num in range(self.__MIN_NUMBER_CARDS,
-                             self.__MAX_NUMBER_CARDS+1):
+        for _num in range(
+                self.__MIN_NUMBER_CARDS, self.__MAX_NUMBER_CARDS+1):
             for _suit in self.__SUITS:
                 _cards.append(Card(_suit, _num))
         return _cards
