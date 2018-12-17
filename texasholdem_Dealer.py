@@ -271,10 +271,11 @@ class Porker_Hand(object):
 
         # Flash
         if _flash:
+            _mini_score = 0.0
             for _i in range(_num_set):
-                _mini_score += se.f__card_score(_best_set[_i]) / ((_i+1)*14.0)
+                _mini_score += self.__card_score(_best_set[_i]) / ((_i+1)*14.0)
             _mini_score /= 60.0
-            return 5.0 + _min_score, _flash_hand
+            return 5.0 + _mini_score, _flash_hand
 
         # Straight
         _straight, _straight_hand = self.__check_straight(_num_stat, cards)
