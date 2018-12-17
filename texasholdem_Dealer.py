@@ -3,9 +3,7 @@
 import random
 import sys
 from copy import deepcopy
-import collections
 from itertools import cycle
-from collections import Counter
 from scipy.stats import rankdata
 from math import ceil
 
@@ -104,15 +102,18 @@ class Status(object):
         self.__pot_rank = pot_rank
 
 
+# class which automatically calculate score and best hands
+# in given set of cards <_cards>
 class Porker_Hand(object):
-    def __init__(self, _cards_list):
+    def __init__(self, _cards):
         self.__NUM_PORKER_HAND = 5
         self.__SUITS = ['S', 'C', 'H', 'D']
         self.__MIN_NUMBER_CARDS = 1  # smallest number of playing cards
         self.__MAX_NUMBER_CARDS = 13  # largest number of playing cards
         self.__NUM_CARDS = (
                 self.__MAX_NUMBER_CARDS - self.__MIN_NUMBER_CARDS + 1)  # = 13
-        self.__score, self.__hand = self.__calc_hand_score(_cards_list)
+        # calculate score and best hand when instance is created
+        self.__score, self.__hand = self.__calc_hand_score(_cards)
 
     @property
     def score(self):
@@ -135,10 +136,55 @@ class Porker_Hand(object):
         for _num in range(1, self.__NUM_CARDS+1):
             _num_stat[_num] = sum(
                     1 for _card in card_list if _card.number == _num)
+        # _num_stat[14] = _num_stat[1]
         _num_stat[self.__MAX_NUMBER_CARDS+1] = _num_stat[1]
         return _suit_stat, _num_stat
 
-    # check card_list has Flash or not
+    # return max number of common numbers and its number
+    # as (<number>, <number of statistics>)
+    def __max_stat_num(self, _num_stat):
+        _sorted_num_stat = sorted(
+                _num_stat.items(), key=lambda x: (-x[1], -x[0]))
+        return _sorted_num_stat[0]
+
+    # return best hand from _cards
+    #   _num_cards:  number of cards selecting
+    #   _num_stat:   statistics of card numbers
+    #   _cards_ilst: set of cards for creating best hand
+    def __best_set(self, _num_cards, _num_stat, _cards):
+        # delete key 1:x (only 14:x is used for best hand)
+        if 1 in _num_stat:
+            del _num_stat[1]
+        # get max number of common numbers <_stat_num> and its number <_number>
+        _number, _stat_num = self.__max_stat_num(_num_stat)
+        _best_set_members = []  # returning best hand
+        # number of common numbers is smaller than number of cards of hand
+        if _num_cards >= _stat_num:
+            for _card in _cards:
+                if self.__card_score(_card) == _number:
+                    _best_set_members.append(_card)
+            # update _num_cards, _num_stat
+            _num_cards -= _stat_num
+            del _num_stat[_number]
+
+            # if enough number of cards are collected it's done
+            if _num_cards == 0:
+                return _best_set_members
+            # recursively call __best_set for cards of smaller number
+            return _best_set_members + self.__best_set(
+                    _num_cards, _num_stat, _cards)
+        # case where more common numbers appear but does not fit in best_hand
+        else:
+            # max number in remaining set of cards
+            _number = max(
+                    [_key for _key, _val in _num_stat.items() if _val >= 1])
+            for _card in _cards:
+                if self.__card_score(_card) == _number:
+                    _best_set_members.append(_card)
+                    if len(_best_set_members) == _num_cards:
+                        return _best_set_members
+
+    # check cards has Flash or not
     # Flash:
     #     return True and member of Flash hand (5 best cards)
     # not Flash:
@@ -149,10 +195,11 @@ class Porker_Hand(object):
                 _flash_members = [
                         _card for _card in cards if _card.suit == _suit]
                 _suit_stat, _num_stat = self.__cards_stat(_flash_members)
-                return True, self.__best_set(5, _num_stat, _flash_members)
+                return True, self.__best_set(
+                        self.__NUM_PORKER_HAND, _num_stat, _flash_members)
         return False, None
 
-    # check if card_list is Straight
+    # check cards has Straight or not
     # Straight:
     #     return True and member of Straight hand (5 best cards)
     # not Straight:
@@ -180,47 +227,6 @@ class Porker_Hand(object):
                             break
                 return True, _straight_members
         return False, None
-
-    def __max_stat_num(self, _num_stat):
-        _sorted_num_stat = sorted(
-                _num_stat.items(), key=lambda x: (-x[1], -x[0]))
-        return _sorted_num_stat[0]
-
-    # return best hand from _cards_list
-    #   _num_cards: number of cards of hand
-    #   _num_stat: statistics of card numbers
-    #   _cards_ilst: set of cards for creating best hand
-    def __best_set(self, _num_cards, _num_stat, _cards_list):
-        # delete key 1:x (only 14:x is used for best hand)
-        if 1 in _num_stat:
-            del _num_stat[1]
-        # get max number of common numbers <_stat_num> and its number <_number>
-        _number, _stat_num = self.__max_stat_num(_num_stat)
-        # number of common numbers is smaller than number of cards of hand
-        if _num_cards >= _stat_num:
-            _best_set_members = []
-            for _card in _cards_list:
-                if self.__card_score(_card) == _number:
-                    _best_set_members.append(_card)
-            # update _num_cards, _num_stat
-            _num_cards -= _stat_num
-            del _num_stat[_number]
-            # if number of cards are collected it's done
-            if _num_cards == 0:
-                return _best_set_members
-            # recursively call __best_set for cards of smaller number
-            return _best_set_members + self.__best_set(
-                    _num_cards, _num_stat, _cards_list)
-        # case where more common numbers appear but does not fit in best_hand
-        else:
-            _best_set_members = []
-            _number = max(
-                    [_key for _key, _val in _num_stat.items() if _val >= 1])
-            for _card in _cards_list:
-                if self.__card_score(_card) == _number:
-                    _best_set_members.append(_card)
-                    if len(_best_set_members) == _num_cards:
-                        return _best_set_members
 
     # return given card score
     # NOTE: give Card class
