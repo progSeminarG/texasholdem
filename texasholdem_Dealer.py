@@ -33,6 +33,7 @@ class Card(object):
         return self.__number
 
 
+# define players status
 class Status(object):
     def __init__(self, index, money):
         self.__index = index
@@ -236,7 +237,6 @@ class Porker_Hand(object):
         else:
             return card.number
 
-    # put list of cards
     # return score of cards and its best hand:
     #   8: Straight-Flash, 7: 4-Cards, 6: Full-House, 5: Flash
     #   4: Straight, 3: 3-Cards, 2: 2-Pairs, 1: 1-Pair, 0: High-Card
@@ -379,10 +379,6 @@ class Dealer(object):
                 _cards.append(Card(_suit, _num))
         return _cards
 
-    @property
-    def create_all_cards_stack(self):
-        return self.__create_all_cards_stack()
-
     # open one card to a table
     def put_field(self):
         self.__field.append(self.__handling_cards.pop(0))
@@ -437,7 +433,7 @@ class Dealer(object):
         else:
             raise ValueError("respond 'call', 'fold', or raise money <int>")
 
-    # bet minimum cost (self.__minimum_bet)
+    # update _status with betting __minimum_bet
     def __bet_minimum(self, _status):
         _diff = self.__minimum_bet - _status.bet_money
         return _status.bet(_diff)  # bet method in status class
@@ -486,8 +482,6 @@ class Dealer(object):
                 _hand_inst = Porker_Hand(_seven_cards)
                 _status.score = _hand_inst.score
                 _status.hand = _hand_inst.best_hand
-#                _status.score, _status.hand = (
-#                        self.calc_hand_score(_seven_cards))
             else:  # scores for fold players are set to -1
                 _status.score = -1
 
