@@ -127,7 +127,7 @@ class KawadaAI(Player):  # プレイ可能カードのリスト
             self.shirai_vs_kawada(my_number)
             if self.ret != False:
                 return self.ret
-        if self.dealer.minimum_bet == self.dealer.bettingrate[my_number]:
+        if self.dealer.minimum_bet == self.dealer.response_list[my_number]:
             return "call"  # 掛け金増やさないで参加できるなら参加する(絶対)
         elif self.dealer.minimum_bet == 2:
             return "call"
