@@ -67,11 +67,14 @@ class Status(object):
         if money < self.__bet_money:
             self.__bet_money -= money
             return False, money
-        # case can NOT put enough money
+        # case can put equal or can NOT put enough money
         else:
             _pot = self.__bet_money
             self.__bet_money = 0
             return True, _pot
+
+    def return_money(self):
+        self.__money += self.__bet_money
 
     # increase __money:
     # called when money is distributed at last
@@ -358,6 +361,19 @@ class Dealer(object):
         self.__unit_bet = game_inst.minimum_bet  # initial niminum_bet (FIX)
         self.__minimum_bet = self.__unit_bet  # current betting cost
         self.__minimum_raise = self.__unit_bet  # current raising cost
+        # initial necessary bet
+        self.__list_status[self.__SB].bet(int(self.__unit_bet/2))
+        self.__list_status[self.__BB].bet(self.__unit_bet)
+
+
+    # create list of [S1, S2, ..., D13]: whole deck
+    def __create_all_cards_stack(self):
+        _cards = []
+        for _num in range(
+                self.__MIN_NUMBER_CARDS, self.__MAX_NUMBER_CARDS+1):
+            for _suit in self.__SUITS:
+                _cards.append(Card(_suit, _num))
+        return _cards
 
     # handout cards to each player
     def handout_cards(self):
@@ -369,15 +385,6 @@ class Dealer(object):
                     [self.__handling_cards.pop(i)
                         for i in range(self.__NUM_HAND)])
             self.__players[_status.index].get_hand(_status.cards)
-
-    # create list of [S1, S2, ..., D13]: whole deck
-    def __create_all_cards_stack(self):
-        _cards = []
-        for _num in range(
-                self.__MIN_NUMBER_CARDS, self.__MAX_NUMBER_CARDS+1):
-            for _suit in self.__SUITS:
-                _cards.append(Card(_suit, _num))
-        return _cards
 
     # open one card to a table
     def put_field(self):
@@ -394,6 +401,10 @@ class Dealer(object):
                 return _i
         return ith
 
+    # shift order of list: start: _ishift
+    def __shift_list(self, _list, _ishift):
+        return _list[_ishift:] + _list[:_ishift]
+
     # MAIN PLAYING METHOD
     # get responses from all players from starter
     # when all players answered after any raise, this method finishs
@@ -402,14 +413,15 @@ class Dealer(object):
         _cycle_status = self.__shift_list(self.__list_status, self.__starter)
         # loop for getting responses until everybody set
         for _status in cycle(_cycle_status):  # infinite loop of status
+            if self.active_players_list.count(True) == 1:
+                break
+            # if the player is in game
             if _status.in_game:
                 _response = self.__players[_status.index].respond()
                 self.__handle_response(_status, _response)
+            # if the last player
             if (_status.index + 1) % self.__num_players == self.__starter:
                 break
-
-    def __shift_list(self, _list, _ishift):
-        return _list[_ishift:] + _list[:_ishift]
 
     # handle response depending on each player's status
     def __handle_response(self, _status, _response):
@@ -455,23 +467,24 @@ class Dealer(object):
     #   distribute money to winners
     def final_accounting(self):
         # usually pots are created during the game, but here create at the last
-        self.__create_pot()
-        self.__calc_scores()
+        self.__pot = self.__create_pot()
+        self.__calc_scores()  # store hand's scores in each status
         self.__max_rank = self.__calc_ranking()
         self.__distribute_money()
 
     # create list of pot
     def __create_pot(self):
         _list_bet_money = sorted(
-                set([i.bet_money for i in self.__list_status if i.in_game]))
-        self.__pot = [0] * len(_list_bet_money)
+                set([_statu.bet_money for _statu in self.__list_status if _statu.in_game]))
+        _pot = [0] * len(_list_bet_money)
         for _status in self.__list_status:  # loop for status
             for _i, _limit in enumerate(_list_bet_money):
                 _all_moved, _money = _status.move_to_pot(_limit)
-                self.__pot[_i] += _money
+                _pot[_i] += _money
                 if _all_moved:  # if bet_money is 0 (empty)
                     _status.pot_rank = _i
                     break
+        return _pot
 
     # calcurate scores of each players' hands
     def __calc_scores(self):
@@ -501,7 +514,7 @@ class Dealer(object):
     def __distribute_money(self):
         # re-order list of status with playing order: first to last player
         _ordered_status = self.__shift_list(self.__list_status, self.__SB)
-        # distribute from top winner
+        # distribute money from top winner
         for _ranking in range(1, self.__max_rank):
             # distribute from left pot
             for _ipot in range(len(self.__pot)):
@@ -520,6 +533,8 @@ class Dealer(object):
                         self.__pot[_ipot] -= _payout
             if sum(self.__pot) == 0:
                 break  # whole loop finished
+        for _status in self.__list_status:
+            _status.return_money()
 
     @property
     def field(self):
