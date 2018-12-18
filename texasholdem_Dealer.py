@@ -365,7 +365,6 @@ class Dealer(object):
         self.__list_status[self.__SB].bet(int(self.__unit_bet/2))
         self.__list_status[self.__BB].bet(self.__unit_bet)
 
-
     # create list of [S1, S2, ..., D13]: whole deck
     def __create_all_cards_stack(self):
         _cards = []
@@ -475,7 +474,8 @@ class Dealer(object):
     # create list of pot
     def __create_pot(self):
         _list_bet_money = sorted(
-                set([_statu.bet_money for _statu in self.__list_status if _statu.in_game]))
+                set([_statu.bet_money for _statu in self.__list_status
+                    if _statu.in_game]))
         _pot = [0] * len(_list_bet_money)
         for _status in self.__list_status:  # loop for status
             for _i, _limit in enumerate(_list_bet_money):
