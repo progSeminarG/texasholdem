@@ -159,34 +159,28 @@ class Porker_Hand(object):
         # delete key 1:x (only 14:x is used for best hand)
         if 1 in _num_stat:
             del _num_stat[1]
-        # get max number of common numbers <_stat_num> and its number <_number>
-        _number, _stat_num = self.__max_stat_num(_num_stat)
-        _best_set_members = []  # returning best hand
-        # number of common numbers is smaller than number of cards of hand
-        if _num_cards >= _stat_num:
-            for _card in _cards:
-                if self.__card_score(_card) == _number:
-                    _best_set_members.append(_card)
-            # update _num_cards, _num_stat
-            _num_cards -= _stat_num
-            del _num_stat[_number]
-
-            # if enough number of cards are collected it's done
-            if _num_cards == 0:
-                return _best_set_members
-            # recursively call __best_set for cards of smaller number
-            return _best_set_members + self.__best_set(
-                    _num_cards, _num_stat, _cards)
-        # case where more common numbers appear but does not fit in best_hand
-        else:
-            # max number in remaining set of cards
-            _number = max(
-                    [_key for _key, _val in _num_stat.items() if _val >= 1])
+        # select common numbers that number exceed _num_cards
+        _exceed_commons = {
+                _num: _stat for _num, _stat in _num_stat.items()
+                if _stat >= _num_cards}
+        _best_set_members = []
+        # case exceed common numbers exist
+        if len(_exceed_commons) > 0:
+            _number = max(_exceed_commons.keys())
             for _card in _cards:
                 if self.__card_score(_card) == _number:
                     _best_set_members.append(_card)
                     if len(_best_set_members) == _num_cards:
                         return _best_set_members
+        else:
+            _number, _stat_num = self.__max_stat_num(_num_stat)
+            for _card in _cards:
+                if self.__card_score(_card) == _number:
+                    _best_set_members.append(_card)
+            _num_cards -= _stat_num
+            del _num_stat[_number]
+            return _best_set_members + self.__best_set(
+                    _num_cards, _num_stat, _cards)
 
     # check cards has Flash or not
     # Flash:
