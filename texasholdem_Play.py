@@ -182,36 +182,34 @@ if __name__ == '__main__':
 
     # statistic mode: play many tournaments #
     if args.stat:
-        _output = args.out[0]  # get log file
-        with open(_output, "w") as f:
-            _i = 0
-            win_list = [0]*len(game.accounts)
-            while _i <= args.statnum[0]:
-                logger.info("===== tournament " + str(_i) + " =====")
-                game = Game(players_list)
-                while (game.accounts.count(0)
-                        != game.num_players - args.numtournament[0]):
-                    game.play()
-                    logger.info(game.accounts)
-                for i in range(len(game.accounts)):
-                    if game.accounts[i] != 0:
-                        win_list[i] += 1
-                _i += 1
-            # print data #
-            print("----------------------------------------")
-            print("{:15}{:>15} {:>6}".format('players', 'wins', '(%)'))
-            print("----------------------------------------")
-            for i in range(len(win_list)):
-                print("{:15}{:15} ({:>.2f})".format(
-                    game.names_of_players[i],
-                    win_list[i],
-                    win_list[i]/args.statnum[0]))
-            print("----------------------------------------")
-            # plot
-            if args.plot:
-                plt.axis('equal')
-                plt.pie(win_list, labels=game.names_of_players, startangle=90)
-                plt.show()
+        _i = 0
+        win_list = [0]*len(game.accounts)
+        while _i <= args.statnum[0]:
+            logger.info("===== tournament " + str(_i) + " =====")
+            game = Game(players_list)
+            while (game.accounts.count(0)
+                    != game.num_players - args.numtournament[0]):
+                game.play()
+                logger.info(game.accounts)
+            for i in range(len(game.accounts)):
+                if game.accounts[i] != 0:
+                    win_list[i] += 1
+            _i += 1
+        # print data #
+        print("----------------------------------------")
+        print("{:15}{:>15} {:>6}".format('players', 'WINs', '(%)'))
+        print("----------------------------------------")
+        for i in range(len(win_list)):
+            print("{:15}{:15} ({:>.2f})".format(
+                game.names_of_players[i],
+                win_list[i],
+                win_list[i]/args.statnum[0]))
+        print("----------------------------------------")
+        # plot
+        if args.plot:
+            plt.axis('equal')
+            plt.pie(win_list, labels=game.names_of_players, startangle=90)
+            plt.show()
 
     # normal play mode #
     else:
