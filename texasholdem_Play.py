@@ -4,8 +4,6 @@ import argparse
 import random
 from copy import deepcopy
 import sys
-import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 
 from texasholdem_Plot import ReadPlot
@@ -52,15 +50,15 @@ class Game(object):
         self.__dealer.get_responses()
         for i in range(3):
             self.__dealer.put_field()
-        print("field:", [card.card for card in self.__dealer.field])
+#        print("field:", [card.card for card in self.__dealer.field])
         self.__dealer.get_responses()
         self.__dealer.put_field()
-        print("field:", [card.card for card in self.__dealer.field])
+#        print("field:", [card.card for card in self.__dealer.field])
         self.__dealer.get_responses()
         self.__dealer.put_field()
-        print("field:", [card.card for card in self.__dealer.field])
+#        print("field:", [card.card for card in self.__dealer.field])
         self.__dealer.get_responses()
-        print("open cards && calculate score")
+#        print("open cards && calculate score")
         self.__dealer.final_accounting()
         self.__accounts = self.__dealer.list_of_money
         self.__DB = self.__dealer.DB_update()
@@ -68,7 +66,7 @@ class Game(object):
 
     def out_index(self, _file):
         _list = self.names_of_players
-        print(_list)
+#        print(_list)
         _line = 'num,' + ','.join(_list) + "\n"
         _file.write(_line)
 
@@ -151,7 +149,8 @@ if __name__ == '__main__':
         elif player == 'Player':
             players_list.append(Player())
         else:
-            raise ValueError("ERROR! No such an AI!")
+            _error_message = "ERROR! No such an AI! " + player
+            raise ValueError(_error_message)
 
     # shuffle players #
     if args.shuffle:
