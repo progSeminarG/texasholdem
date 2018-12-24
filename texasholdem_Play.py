@@ -5,6 +5,7 @@ import random
 from copy import deepcopy
 import sys
 import matplotlib.pyplot as plt
+from logging import getLogger, StreamHandler, DEBUG, INFO, WARNING
 
 from texasholdem_Plot import ReadPlot
 
@@ -50,15 +51,15 @@ class Game(object):
         self.__dealer.get_responses()
         for i in range(3):
             self.__dealer.put_field()
-#        print("field:", [card.card for card in self.__dealer.field])
+        logger.info("field:"+str([card.card for card in self.__dealer.field]))
         self.__dealer.get_responses()
         self.__dealer.put_field()
-#        print("field:", [card.card for card in self.__dealer.field])
+        logger.info("field:"+str([card.card for card in self.__dealer.field]))
         self.__dealer.get_responses()
         self.__dealer.put_field()
-#        print("field:", [card.card for card in self.__dealer.field])
+        logger.info("field:"+str([card.card for card in self.__dealer.field]))
         self.__dealer.get_responses()
-#        print("open cards && calculate score")
+        logger.info("open cards && calculate score")
         self.__dealer.final_accounting()
         self.__accounts = self.__dealer.list_of_money
         self.__DB = self.__dealer.DB_update()
@@ -100,6 +101,14 @@ class Game(object):
 
 
 if __name__ == '__main__':
+
+    logger = getLogger(__name__)
+    handler = StreamHandler()
+    handler.setLevel(WARNING)
+    logger.setLevel(WARNING)
+    logger.addHandler(handler)
+    logger.propagate = False
+
     class CustomFormatter(argparse.ArgumentDefaultsHelpFormatter,
                           argparse.MetavarTypeHelpFormatter):
         pass
@@ -130,8 +139,21 @@ if __name__ == '__main__':
                         help='static mode: play many tournaments')
     parser.add_argument('--statnum', type=int, nargs=1, default=[100],
                         help='number of tournament in statistic mode')
+    parser.add_argument('-v', '--verbose', action='count',
+                        help='increase output verbosity')
 
     args = parser.parse_args()
+
+    # output handling #
+    if args.verbose:
+        if args.verbose > 1:
+            error_stage = DEBUG
+        elif args.verbose == 1:
+            error_stage = INFO
+        handler.setLevel(error_stage)
+        logger.setLevel(error_stage)
+        logger.addHandler(handler)
+        logger.propagate = False
 
     # create list of players #
     players_list = []
