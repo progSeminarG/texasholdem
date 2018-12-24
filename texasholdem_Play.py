@@ -197,11 +197,13 @@ if __name__ == '__main__':
                 _i += 1
             # print data #
             print("----------------------------------------")
-            print("{:15}{:>15} {:<8}".format('players', 'wins', '(%)'))
+            print("{:15}{:>15} {:>6}".format('players', 'wins', '(%)'))
             print("----------------------------------------")
             for i in range(len(win_list)):
-                print("{:15}{:15} ({:>})".format(
-                    game.names_of_players[i], win_list[i], win_list[i]/args.statnum[0]))
+                print("{:15}{:15} ({:>.2f})".format(
+                    game.names_of_players[i],
+                    win_list[i],
+                    win_list[i]/args.statnum[0]))
             print("----------------------------------------")
             # plot
             if args.plot:
