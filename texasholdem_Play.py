@@ -197,7 +197,7 @@ if __name__ == '__main__':
             _i += 1
         # print data #
         print("----------------------------------------")
-        print("{:15}{:>23}".format('players', 'WINs (%)'))
+        print("{:15}{:>23}".format('players', 'WINs    (%)'))
         print("----------------------------------------")
         for i in range(len(win_list)):
             print("{:15}{:15} ({:>4.1f}%)".format(
