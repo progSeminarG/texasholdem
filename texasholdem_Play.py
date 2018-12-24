@@ -51,23 +51,20 @@ class Game(object):
         self.__dealer.get_responses()
         for i in range(3):
             self.__dealer.put_field()
-        logger.info("field:"+str([card.card for card in self.__dealer.field]))
+        logger.debug("field:"+str([card.card for card in self.__dealer.field]))
         self.__dealer.get_responses()
         self.__dealer.put_field()
-        logger.info("field:"+str([card.card for card in self.__dealer.field]))
+        logger.debug("field:"+str([card.card for card in self.__dealer.field]))
         self.__dealer.get_responses()
         self.__dealer.put_field()
-        logger.info("field:"+str([card.card for card in self.__dealer.field]))
+        logger.debug("field:"+str([card.card for card in self.__dealer.field]))
         self.__dealer.get_responses()
-        logger.info("open cards && calculate score")
         self.__dealer.final_accounting()
         self.__accounts = self.__dealer.list_of_money
         self.__DB = self.__dealer.DB_update()
-        print(self.__accounts)
 
     def out_index(self, _file):
         _list = self.names_of_players
-#        print(_list)
         _line = 'num,' + ','.join(_list) + "\n"
         _file.write(_line)
 
@@ -101,13 +98,6 @@ class Game(object):
 
 
 if __name__ == '__main__':
-
-    logger = getLogger(__name__)
-    handler = StreamHandler()
-    handler.setLevel(WARNING)
-    logger.setLevel(WARNING)
-    logger.addHandler(handler)
-    logger.propagate = False
 
     class CustomFormatter(argparse.ArgumentDefaultsHelpFormatter,
                           argparse.MetavarTypeHelpFormatter):
@@ -145,6 +135,12 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # output handling #
+    logger = getLogger(__name__)
+    handler = StreamHandler()
+    handler.setLevel(WARNING)
+    logger.setLevel(WARNING)
+    logger.addHandler(handler)
+    logger.propagate = False
     if args.verbose:
         if args.verbose > 1:
             error_stage = DEBUG
@@ -184,28 +180,29 @@ if __name__ == '__main__':
 
     # statistic mode #
     if args.stat:
-        _output = args.out[0]  # log file
+        _output = args.out[0]  # get log file
         with open(_output, "w") as f:
             _i = 0
             win_list = [0]*len(game.accounts)
             while _i <= args.statnum[0]:
-                print("===== tournament", _i, "=====")
+                logger.info("===== tournament " + str(_i) + " =====")
                 game = Game(players_list)
                 while (game.accounts.count(0)
                         != game.num_players - args.numtournament[0]):
                     game.play()
+                    logger.info(game.accounts)
                 for i in range(len(game.accounts)):
                     if game.accounts[i] != 0:
                         win_list[i] += 1
                 _i += 1
             # print data #
-            print("--------------------------------------------------")
-            print("{:15}{:15}".format('players', 'winning percentage'))
-            print("--------------------------------------------------")
+            print("----------------------------------------")
+            print("{:15}{:>15} {:<8}".format('players', 'wins', '(%)'))
+            print("----------------------------------------")
             for i in range(len(win_list)):
-                print("{:15}{:15}" .format(
-                    game.names_of_players[i], win_list[i]))
-            print("--------------------------------------------------")
+                print("{:15}{:15} ({:>})".format(
+                    game.names_of_players[i], win_list[i], win_list[i]/args.statnum[0]))
+            print("----------------------------------------")
             # plot
             if args.plot:
                 plt.pie(win_list, labels=game.names_of_players, startangle=90)
@@ -220,19 +217,19 @@ if __name__ == '__main__':
             if args.tournament:
                 _i = 0
                 _minimum_bet = 2
-                while (game.accounts.count(0)
-                        != game.num_players-args.numtournament[0]):
-                    print("===== game", _i, "=====")
+                _num_player_thresh = game.num_players - args.numtournament[0]
+                while (game.accounts.count(0) < _num_player_thresh):
                     _i += 1
-                    print("#######", _i, _minimum_bet)
+                    logger.debug("minimum_bet:"+str(_minimum_bet))
                     game.play()
+                    print("game " + str(_i) + ": " + str(game.accounts))
                     game.out_data(_file, _i)
                     if _i % args.raiserate[0] == 0:
                         _minimum_bet += args.raiserate[1]
             else:
                 for _i in range(args.numgames[0]):
-                    print("===== game", _i, "=====")
                     game.play()
+                    print("game " + str(_i) + ": " + str(game.accounts))
                     game.out_data(_file, _i+1)
 
         # plot
