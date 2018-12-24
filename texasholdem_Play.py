@@ -207,6 +207,7 @@ if __name__ == '__main__':
             print("----------------------------------------")
             # plot
             if args.plot:
+                plt.axis('equal')
                 plt.pie(win_list, labels=game.names_of_players, startangle=90)
                 plt.show()
 
