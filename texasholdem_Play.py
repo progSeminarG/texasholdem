@@ -7,8 +7,10 @@ import sys
 import matplotlib.pyplot as plt
 from logging import getLogger, StreamHandler, DEBUG, INFO, WARNING
 
+# plotting class import
 from texasholdem_Plot import ReadPlot
 
+# import players
 from texasholdem_Dealer import Card, Dealer
 from texasholdem_Player import Player
 from texasholdem_Kawada import KawadaAI
@@ -178,7 +180,7 @@ if __name__ == '__main__':
     game = Game(players_list)
     print("players:", game.names_of_players)
 
-    # statistic mode #
+    # statistic mode: play many tournaments #
     if args.stat:
         _output = args.out[0]  # get log file
         with open(_output, "w") as f:
@@ -217,6 +219,7 @@ if __name__ == '__main__':
         with open(_output, "w") as _file:
             game.out_index(_file)
             game.out_data(_file, 0)
+            # single tournament
             if args.tournament:
                 _i = 0
                 _minimum_bet = 2
@@ -229,6 +232,7 @@ if __name__ == '__main__':
                     game.out_data(_file, _i)
                     if _i % args.raiserate[0] == 0:
                         _minimum_bet += args.raiserate[1]
+            # single plays
             else:
                 for _i in range(args.numgames[0]):
                     game.play()
