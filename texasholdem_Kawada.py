@@ -20,16 +20,22 @@ class KawadaAI(Player):  # プレイ可能カードのリスト
     def __init__(self):
         self.shirai_data = [[]]
         self.takahashi_data = [[]]
-        self.money_check = 500
+        self.money_check = 100
+        self.check_turn_number = 0
+        self.my_number = 0
 
     def get_hand(self, dealer_input):
         self.my_cards = dealer_input
 #        # print([card.card for card in self.my_cards])
-#        # print()
+        if self.dealer.list_of_money[self.my_number] == 100:
+            self.money_check = self.dealer.list_of_money[self.my_number]
+            self.check_turn_number = 0
+        self.check_turn_number = self.check_turn_number + 1
 
-    def search_money_class(self, my_number):
+
+    def search_money_class(self):
         full = sorted(self.dealer.list_of_money)
-        j = self.dealer.list_of_money[my_number]
+        j = self.dealer.list_of_money[self.my_number]
         for i in range(len(self.dealer.__players)):
             if full[i] == j:
                 money_class = i
@@ -95,26 +101,29 @@ class KawadaAI(Player):  # プレイ可能カードのリスト
                     straightlevel = i
         return straight
 
-    def shirai_vs_kawada(self, my_number):
+    def shirai_vs_kawada(self):
         self.ret = False
-        if self.money_check != self.dealer.list_of_money[my_number]:
+        '''
+        if self.money_check != self.dealer.list_of_money[self.my_number]:
             self.shirai_data.append([])
-            self.money_check = self.dealer.list_of_money[my_number]
-        self.shirai_data[-1].append(self.dealer.minimum_bet)
-        if self.dealer.list_of_money[my_number] >= 400:
-            self.ret = len(self.dealer.list_of_players)*100-self.dealer.list_of_money[my_number]
+            self.money_check = self.dealer.list_of_money[self.my_number]
+        self.shirai_data[-1].append(self.dealer.minimum_bet)'''
+        if self.dealer.list_of_money[self.my_number] >= 500:
+            self.ret = len(self.dealer.list_of_players)*100-self.dealer.list_of_money[self.my_number]
 
         # print()
         # print("shirai_date ", self.shirai_data)
         # print()
 
-    def get_players_number(self):  # my_numberを得る
-        #return len(self.dealer.resplist)
+    def get_players_number(self):  # self.my_numberを得る
         return self.dealer.your_index(self)
 
     def respond(self):
-        # print(self.dealer.response_list)
-        my_number = self.get_players_number()
+
+        # print(self.check_turn_number)
+        # プレイヤーのインスタンスの呼び出しが1回ということは確認できた
+        self.my_number = self.get_players_number()
+
         flash = self.flashchecker()
         pairrate = []
         for i in range(0, 3):
@@ -124,10 +133,10 @@ class KawadaAI(Player):  # プレイ可能カードのリスト
         straight = self.straightchecker()
         # print(self.dealer.active_players_list.count(True))
         if self.dealer.active_players_list.count(True) == 2:
-            self.shirai_vs_kawada(my_number)
+            self.shirai_vs_kawada()
             if self.ret != False:
                 return self.ret
-        if self.dealer.minimum_bet == self.dealer.response_list[my_number]:
+        if self.dealer.minimum_bet == self.dealer.response_list[self.my_number]:
             return "call"  # 掛け金増やさないで参加できるなら参加する(絶対)
         elif self.dealer.minimum_bet == 2:
             return "call"
@@ -138,8 +147,12 @@ class KawadaAI(Player):  # プレイ可能カードのリスト
             if self.dealer.minimum_bet >= random.randint(8, 12) and random.randint(0, 5) != 1:
                 return "fold"
             return "call"
+
+        elif self.check_turn_number <= 10 and len(self.dealer.field) == 0:
+            return "fold"
+
         elif len(self.dealer.field) == 0:
-            return "call"  # 初ターン役ありならcall
+            return 1  # 初ターン役ありならcall
 
 
 
@@ -147,13 +160,13 @@ class KawadaAI(Player):  # プレイ可能カードのリスト
         elif pairrate == [0, 0, 0] and straight == [0, 0] and flash == 0:
             return "fold"  # 役がないなら降りる
         elif pairrate == [1, 0, 0] or pairrate == [0, 1, 1]:
-            money_potit = self.search_money_class(my_number)
+            money_potit = self.search_money_class()
             if money_potit[1] != 0:
                 return self.money_potit[0][self.money_potit[1]-1]
-            return self.dealer.list_of_money[my_number]
+            return self.dealer.list_of_money[self.my_number]
         elif self.dealer.active_players_list.count(True) == 2:
-            if self.dealer.list_of_money[my_number] >= 400:
-                return len(self.dealer.list_of_players)*100-self.dealer.list_of_money[my_number]
+            if self.dealer.list_of_money[self.my_number] >= 400:
+                return len(self.dealer.list_of_players)*100-self.dealer.list_of_money[self.my_number]
 
             return 'call'
         elif (self.dealer.minimum_bet /
@@ -166,16 +179,14 @@ class KawadaAI(Player):  # プレイ可能カードのリスト
               [len(self.dealer.list_of_players)-2]-self.dealer.minimum_bet):
             return "call"
         elif pairrate == [1, 0, 0] or pairrate == [0, 1, 1]:
-            money_potit = self.search_money_class(my_number)
+            money_potit = self.search_money_class()
             if money_potit[1] != 0:
                 return self.money_potit[0][self.money_potit[1]-1]
-            return self.dealer.list_of_money[my_number]
+            return self.dealer.list_of_money[self.my_number]
         elif pairrate == [0, 0, 2] or flash == 1:
             return self.dealer.minimum_bet*3
         return "call"  # とりあえず合う条件が無ければcall
         # ////////////未実装事項////////////
         # ポーカーフェイスではったりをかますplayerを洗い出したい
-        # 今は白井君対策しかしてないがほかに強いplayerが出てきたときにどうするか検討
         # 最適化または単純化
-        # 学習妨害案の検討　現在は最後の二人になったら手持ちの強さではなくお金の賭け方で勝とうとしてみる
-        # →勝率が5割いけばいいかなと
+        # 学習妨害案の検討
