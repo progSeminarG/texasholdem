@@ -107,7 +107,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description="play Texas Hold'em.",
                                      formatter_class=CustomFormatter)
-    parser.add_argument('--noshuffle', action='store_false', dest='shuffle',
+    parser.add_argument('--noshuffle', action='store_true', dest='noshuffle',
                         help='do not shuffle players')
     parser.add_argument('--numgames', type=int, default=[5], nargs=1,
                         help='set number of games')
@@ -173,7 +173,7 @@ if __name__ == '__main__':
             raise ValueError(_error_message)
 
     # shuffle players #
-    if args.shuffle:
+    if not args.noshuffle:
         random.shuffle(players_list)
 
     # create game #
