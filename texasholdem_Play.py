@@ -184,7 +184,7 @@ if __name__ == '__main__':
 
     print("players:", [i.__class__.__name__ for i in players_list])
 
-    # statistic mode: play many tournaments #
+    # statistic mode: play many tournaments (--stat)#
     if args.stat:
         _i = 0
         win_list = [0]*len(players_list)
@@ -222,24 +222,22 @@ if __name__ == '__main__':
         with open(_output, "w") as _file:
             game.out_index(_file)
             game.out_data(_file, 0)
-            # single tournament
+            # single tournament (--tournmant)
             if args.tournament:
                 _minimum_bet = 2
                 _num_player_thresh = game.num_players - args.numtournament[0]
                 while (game.accounts.count(0) < _num_player_thresh):
                     logger.debug("minimum_bet:"+str(_minimum_bet))
                     game.play()
-                    print("game", str(game.num_games) + ":",
-                            str(game.accounts))
+                    print("game {}: {}".format(game.num_games, game.accounts))
                     game.out_data(_file, game.num_games)
                     if game.num_games % args.raiserate[0] == 0:
                         _minimum_bet += args.raiserate[1]
-            # single plays
+            # single plays (no option)
             else:
                 while game.num_games < args.numgames[0]:
                     game.play()
-                    print("game", str(game.num_games) + ":",
-                            str(game.accounts))
+                    print("game {}: {}".format(game.num_games, game.accounts))
                     game.out_data(_file, game.num_games)
 
         # plot
