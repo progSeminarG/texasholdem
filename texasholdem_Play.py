@@ -181,7 +181,6 @@ if __name__ == '__main__':
     # shuffle players #
     if not args.noshuffle:
         random.shuffle(players_list)
-
     print("players:", [i.__class__.__name__ for i in players_list])
 
     # statistic mode: play many tournaments (--stat)#
