@@ -333,6 +333,7 @@ class Dealer(object):
         self.__NUM_MAX_FIELD = 5  # maximum number of field
         # import instances and other parameters
         self.__game_inst = game_inst
+        self.__num_games = self.__game.inst.num_games  # number of games
         self.__players = players_input  # instance of players
         self.__num_players = len(self.__players)  # number of players
         self.__num_handling_cards \
@@ -580,6 +581,10 @@ class Dealer(object):
 
     def DB_update(self):
         return self.__next_alive_player(self.__DB)
+
+    @property
+    def num_games(self):  # current game number (how many game.play executed)
+        return self.__num_games
 
     @property
     def response_list(self):
