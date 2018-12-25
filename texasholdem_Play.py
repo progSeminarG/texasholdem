@@ -229,7 +229,8 @@ if __name__ == '__main__':
                 while (game.accounts.count(0) < _num_player_thresh):
                     logger.debug("minimum_bet:"+str(_minimum_bet))
                     game.play()
-                    print("game " + str(game.num_games) + ": " + str(game.accounts))
+                    print("game", str(game.num_games) + ":",
+                            str(game.accounts))
                     game.out_data(_file, game.num_games)
                     if game.num_games % args.raiserate[0] == 0:
                         _minimum_bet += args.raiserate[1]
@@ -237,7 +238,8 @@ if __name__ == '__main__':
             else:
                 while game.num_games < args.numgames[0]:
                     game.play()
-                    print("game " + str(game.num_games) + ": " + str(game.accounts))
+                    print("game", str(game.num_games) + ":",
+                            str(game.accounts))
                     game.out_data(_file, game.num_games)
 
         # plot

@@ -333,7 +333,7 @@ class Dealer(object):
         self.__NUM_MAX_FIELD = 5  # maximum number of field
         # import instances and other parameters
         self.__game_inst = game_inst
-        self.__num_games = self.__game.inst.num_games  # number of games
+        self.__num_games = self.__game_inst.num_games  # number of games
         self.__players = players_input  # instance of players
         self.__num_players = len(self.__players)  # number of players
         self.__num_handling_cards \
