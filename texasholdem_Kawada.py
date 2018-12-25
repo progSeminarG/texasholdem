@@ -22,15 +22,34 @@ class KawadaAI(Player):  # プレイ可能カードのリスト
         self.takahashi_data = [[]]
         self.money_check = 100
         self.check_turn_number = 0
+        # 精度は低いがトーナメントが始まってから何ゲーム目なのかを示す
         self.my_number = 0
+        self.histry = [0,[0]]
 
     def get_hand(self, dealer_input):
-        self.my_cards = dealer_input
-#        # print([card.card for card in self.my_cards])
         if self.dealer.list_of_money[self.my_number] == 100:
             self.money_check = self.dealer.list_of_money[self.my_number]
             self.check_turn_number = 0
+        else:
+            self.histry.append([self.dealer.list_of_money[self.my_number]-self.money_check,
+                                self.first_my_cards_pattern()])
+
+
+            self.money_check = self.dealer.list_of_money[self.my_number]
+        self.my_cards = dealer_input
         self.check_turn_number = self.check_turn_number + 1
+        # print(self.histry[-1])
+
+    def first_my_cards_pattern(self):
+        type = 1000
+        num_compare = self.my_cards[0].number - self.my_cards[1].number
+        if num_compare >= 0:
+            type = type + num_compare
+        else:
+            type = type + num_compare
+        if self.my_cards[0].suit != self.my_cards[1].suit:
+            type = type + 100
+        return type
 
 
     def search_money_class(self):
@@ -119,6 +138,7 @@ class KawadaAI(Player):  # プレイ可能カードのリスト
         return self.dealer.your_index(self)
 
     def respond(self):
+        return "call"
 
         # print(self.check_turn_number)
         # プレイヤーのインスタンスの呼び出しが1回ということは確認できた
