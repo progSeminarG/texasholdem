@@ -45,6 +45,7 @@ class Game(object):
         # player's money at first
         self.__accounts = [self.__INITIAL_MONEY]*self.__num_players
         self.__DB = 0  # position of Dealer Button
+        self.__num_done_games = 0  # number of games already done
 
     def play(self, minimum_bet=2):
         self.__minimum_bet = minimum_bet
@@ -64,6 +65,7 @@ class Game(object):
         self.__dealer.final_accounting()
         self.__accounts = self.__dealer.list_of_money
         self.__DB = self.__dealer.DB_update()
+        self.__num_done_games += 1
 
     def out_index(self, _file):
         _list = self.names_of_players
@@ -83,7 +85,7 @@ class Game(object):
         return self.__total_money
 
     @property
-    def DB(self):  # position of Dealer BuTtoN
+    def DB(self):  # position of Dealer Button
         return self.__DB
 
     @property
@@ -97,6 +99,10 @@ class Game(object):
     @property
     def minimum_bet(self):
         return self.__minimum_bet
+
+    @property
+    def num_games(self):  # number of games already done
+        return self.__num_done_games
 
 
 if __name__ == '__main__':
@@ -137,9 +143,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # output handling #
-    logger = getLogger(__name__)
     handler = StreamHandler()
     handler.setLevel(WARNING)
+    logger = getLogger(__name__)
     logger.setLevel(WARNING)
     logger.addHandler(handler)
     logger.propagate = False
@@ -176,17 +182,15 @@ if __name__ == '__main__':
     if not args.noshuffle:
         random.shuffle(players_list)
 
-    # create game #
-    game = Game(players_list)
-    print("players:", game.names_of_players)
+    print("players:", [i.__class__.__name__ for i in players_list])
 
     # statistic mode: play many tournaments #
     if args.stat:
         _i = 0
-        win_list = [0]*len(game.accounts)
+        win_list = [0]*len(players_list)
         while _i <= args.statnum[0]:
             logger.info("===== tournament " + str(_i) + " =====")
-            game = Game(players_list)
+            game = Game(players_list)  # create game
             while (game.accounts.count(0)
                     != game.num_players - args.numtournament[0]):
                 game.play()
@@ -213,29 +217,28 @@ if __name__ == '__main__':
 
     # normal play mode #
     else:
+        game = Game(players_list)
         _output = args.out[0]  # log file
         with open(_output, "w") as _file:
             game.out_index(_file)
             game.out_data(_file, 0)
             # single tournament
             if args.tournament:
-                _i = 0
                 _minimum_bet = 2
                 _num_player_thresh = game.num_players - args.numtournament[0]
                 while (game.accounts.count(0) < _num_player_thresh):
-                    _i += 1
                     logger.debug("minimum_bet:"+str(_minimum_bet))
                     game.play()
-                    print("game " + str(_i) + ": " + str(game.accounts))
-                    game.out_data(_file, _i)
-                    if _i % args.raiserate[0] == 0:
+                    print("game " + str(game.num_games) + ": " + str(game.accounts))
+                    game.out_data(_file, game.num_games)
+                    if game.num_games % args.raiserate[0] == 0:
                         _minimum_bet += args.raiserate[1]
             # single plays
             else:
-                for _i in range(args.numgames[0]):
+                while game.num_games < args.numgames[0]:
                     game.play()
-                    print("game " + str(_i) + ": " + str(game.accounts))
-                    game.out_data(_file, _i+1)
+                    print("game " + str(game.num_games) + ": " + str(game.accounts))
+                    game.out_data(_file, game.num_games)
 
         # plot
         if args.plot:
