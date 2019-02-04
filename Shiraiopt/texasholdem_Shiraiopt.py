@@ -4,6 +4,7 @@ import random
 import numpy as np
 import os
 import pandas as pd
+from texasholdem_Dealer import Porker_Hand
 
 class Player(object):
     def get_know_dealer(self,dealer_input):
@@ -18,9 +19,9 @@ class Player(object):
 class ShiraioptAI(Player):
     def __init__(self):
         self.ct=0
-
         self.rtmat=np.zeros((3,1))
         self.score=0
+        
 
     def respond(self):
         if self.ct==0:
@@ -33,11 +34,15 @@ class ShiraioptAI(Player):
                 #arg1
         
         cards=self.dealer.field+self.cards
-        (fsc, fbc)=self.dealer.calc_hand_score(self.dealer.field) #arg2
-        (msc, mbc)=self.dealer.calc_hand_score(cards) #arg3
+        _arg2_inst = Porker_Hand(self.dealer.field)
+        fsc = _arg2_inst.score
+        fbc = _arg2_inst.best_hand
+        _arg3_inst = Porker_Hand(cards)
+        msc = _arg3_inst.score
+        mbc = _arg3_inst.best_hand
         
-        fmax=max([fbc[i][1] for i in range(len(fbc))]+[0]) #arg4
-        mmax=max([mbc[i][1] for i in range(len(mbc))]+[0]) #arg5
+        fmax=max([_card.number for _card in fbc]+[0]) #arg4
+        mmax=max([_card.number for _card in mbc]+[0]) #arg5
         if fmax==1:
             fmax=14
         if mmax==1:
