@@ -30,9 +30,9 @@ Player4 = ShiraiAI()
 
 def map_rand():
     x=random.random()
-    if x < 0.2:
+    if x < 0.1:
         p=0.1
-    elif x < 0.4:
+    elif x < 0.2:
         p=-0.1
     else:
         p=0
@@ -52,7 +52,7 @@ def make_plus():
     np.save('plusmat.npy',plusmat)
     
 
-players_list = [Player0, Player1, Player2]#, Player3, Player4]
+players_list = [Player0, Player1, Player2, Player3, Player4]
 color=["yellow","darkgreen","blue","black","red","orange"]
 
 game = Game(players_list)
@@ -74,7 +74,7 @@ dif = int(MAX/n)
 
 ###MAX回トーナメント###
 f=open(output, "w")
-f.write("num, win_perc")
+f.write("num, win_perc\n")
 f.close()
 
 _i = 0
@@ -83,16 +83,16 @@ make_plus()
 mat=np.load('mat.npy')# 0
 plusmat=np.load('plusmat.npy')# 0
 prewin=0
+maxwin=0
 
 for i in range(len(mat)):
     mat[i] += plusmat[i]
 np.save('mat.npy',mat)
-print(np.load('mat.npy'))
 while _i < MAX: 
-    f=open(output,'a')
     label = [i.__class__.__name__ for i in players_list]
     win=[0]*n # for winning percentage
     c=0
+    mat=np.load('mat.npy')
     while c < n:
         game = Game(players_list)
         while game.accounts.count(0) < len(players_list)-1: #残り人数の設定
@@ -102,21 +102,23 @@ while _i < MAX:
             print(win,c)
         c+=1
     win_perc = win.count(1)/len(win)
-    
-    mat=np.load('mat.npy')
-    print("now,pre--",win_perc,prewin)
-    input()
+    if win_perc > maxwin:
+        maxwin=win_perc
+        np.save('maxmat.npy',mat)
     if win_perc < prewin and _i!=0:
+        plusmat=np.load('plusmat.npy')
         for i in range(len(mat)):
             mat[i] -= plusmat[i]
-        make_plus()# remake
-        for i in range(len(mat)):
-            mat[i] += plusmat[i]
+    make_plus()# remake
+    plusmat=np.load('plusmat.npy')
+    for i in range(len(mat)):
+        mat[i] += plusmat[i]
     np.save('mat.npy',mat)    
     ff=open("tour.txt","a")#回数記録ファイル
     ff.write(str(_i)+"\n")
     ff.close()
-    f.write(str(win_perc)+"\n")
+    f=open(output,'a')#勝率ログ
+    f.write(str(_i)+", "+str(win_perc)+"\n")
     f.close()
     prewin=win_perc
     _i += 1
