@@ -48,6 +48,7 @@ class Game(object):
         self.__num_done_games = 0  # number of games already done
 
     def play(self, minimum_bet=2):
+        logger = getLogger(__name__)
         self.__minimum_bet = minimum_bet
         self.__dealer = Dealer(self, self.__players)
         self.__dealer.handout_cards()
@@ -177,12 +178,12 @@ if __name__ == '__main__':
         else:
             _error_message = "ERROR! No such an AI! " + player
             raise ValueError(_error_message)
-
+    
     # shuffle players #
     if not args.noshuffle:
         random.shuffle(players_list)
     print("players:", [i.__class__.__name__ for i in players_list])
-
+    
     # statistic mode: play many tournaments (--stat)#
     if args.stat:
         _i = 0
