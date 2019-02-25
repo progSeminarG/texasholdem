@@ -25,32 +25,32 @@ Player0 = Player()
 Player1 = ShiraioptAI()
 Player2 = TakahashiAI()
 Player3 = KawadaAI()
-Player4 = ShiraiAI()
+Player4 = Player()
 ###########################
 
-def map_rand():
+def map_rand(n):
     x=random.random()
-    if x < 0.1:
+    if x < n:
         p=0.1
-    elif x < 0.2:
+    elif x < n*2:
         p=-0.1
     else:
         p=0
     return p
 
-def make_plus():
+def make_plus(n):
     plusmat=np.load('plusmat.npy')
     for i in range(10): # plusmat
         for j in range(10):
-            plusmat[1][i][j]=map_rand()
-            plusmat[2][i][j]=map_rand()
-            plusmat[3][i][j]=map_rand()
+            plusmat[1][i][j]=map_rand(n)
+            plusmat[2][i][j]=map_rand(n)
+            plusmat[3][i][j]=map_rand(n)
             if i < 9:
-                plusmat[0][i][j]=map_rand()
+                plusmat[0][i][j]=map_rand(n)
             if j < 3:
-                plusmat[4][i][j]=map_rand()
+                plusmat[4][i][j]=map_rand(n)
     np.save('plusmat.npy',plusmat)
-    
+
 
 players_list = [Player0, Player1, Player2, Player3, Player4]
 color=["yellow","darkgreen","blue","black","red","orange"]
@@ -66,7 +66,7 @@ f.close
 q=open(output,"w")
 q.close
 
-MAX=100
+MAX=1000
 n=20 # the num of stat
 
 dif = int(MAX/n)
@@ -79,28 +79,29 @@ f.close()
 
 _i = 0
 
-make_plus()
+make_plus(0.05)
 mat=np.load('mat.npy')# 0
 plusmat=np.load('plusmat.npy')# 0
-prewin=0
-maxwin=0
+prewin,maxwin=0
 
 for i in range(len(mat)):
     mat[i] += plusmat[i]
 np.save('mat.npy',mat)
-while _i < MAX: 
+while _i < MAX:
+    inimon=100 #constant
     label = [i.__class__.__name__ for i in players_list]
     win=[0]*n # for winning percentage
     c=0
     mat=np.load('mat.npy')
     while c < n:
         game = Game(players_list)
-        while game.accounts.count(0) < len(players_list)-1: #残り人数の設定
-            game.play()
-        if game.accounts.index(max(game.accounts)) == label.index('ShiraioptAI'):
+        game.play()
+        my_money=\
+            self.dealer.list_of_money[
+            self.dealer.list_of_players.index('ShiraioptAI')]
+        if my_money > inimon:
             win[c]=1
             print(win,c)
-        c+=1
     win_perc = win.count(1)/len(win)
     if win_perc > maxwin:
         maxwin=win_perc
@@ -109,7 +110,7 @@ while _i < MAX:
         plusmat=np.load('plusmat.npy')
         for i in range(len(mat)):
             mat[i] -= plusmat[i]
-    make_plus()# remake
+    make_plus(0.05)# remake
     plusmat=np.load('plusmat.npy')
     for i in range(len(mat)):
         mat[i] += plusmat[i]
@@ -129,7 +130,7 @@ while _i < MAX:
 df = pd.read_csv(output, header=0, encoding='utf-8')
 x=list(range(MAX))
 y=df.iloc[0:MAX,1].values.tolist()
-plt.scatter(x, y, s=10, c='red', alpha=0.2)
+plt.scatter(x, y, s=10, c='red')
 plt.show()
 '''
 while num < _i:
