@@ -28,6 +28,45 @@ Player3 = KawadaAI()
 Player4 = Player()
 ###########################
 
+name=[0]*5
+pname=[0]*5
+mat=[0]*5
+plusmat=[0]*5
+
+for i in range(5):
+    name[i]="mat"+str(i)+".npy"
+    pname[i]="plusmat"+str(i)+".npy"
+    mat[i] = np.load(name[i])
+    plusmat[i] = np.load(pname[i])
+
+def msave():
+    for i in range(5):
+        np.save(name[i],mat[i])
+
+def pmsave():
+    for i in range(5):
+        np.save(pname[i],plusmat[i])
+
+def mload():
+    for i in range(5):
+        mat[i] = np.load(name[i])
+
+def pmload():
+    for i in range(5):
+        plusmat[i] = np.load(pname[i])
+
+def maxsave():
+    for i in range(5):
+        np.save("maxmat"+str(i)+".npy",mat[i])
+
+def plus():
+    for i in range(5):
+        mat[i]+=plusmat[i]
+
+def minus():
+    for i in range(5):
+        mat[i]-=plusmat[i]
+
 def map_rand(n):
     x=random.random()
     if x < n:
@@ -39,17 +78,16 @@ def map_rand(n):
     return p
 
 def make_plus(n):
-    plusmat=np.load('plusmat.npy')
+    pmload()
     for i in range(10): # plusmat
         for j in range(10):
+            plusmat[0][i][j]=map_rand(n)
             plusmat[1][i][j]=map_rand(n)
             plusmat[2][i][j]=map_rand(n)
             plusmat[3][i][j]=map_rand(n)
-            if i < 9:
-                plusmat[0][i][j]=map_rand(n)
             if j < 3:
                 plusmat[4][i][j]=map_rand(n)
-    np.save('plusmat.npy',plusmat)
+    pmsave()
 
 
 players_list = [Player0, Player1, Player2, Player3, Player4]
@@ -67,54 +105,54 @@ q=open(output,"w")
 q.close
 
 MAX=1000
-n=20 # the num of stat
-
-dif = int(MAX/n)
-
+n=50 # the num of stat
 
 ###MAX回トーナメント###
 f=open(output, "w")
 f.write("num, win_perc\n")
 f.close()
 
-_i = 0
-
 make_plus(0.05)
-mat=np.load('mat.npy')# 0
-plusmat=np.load('plusmat.npy')# 0
-prewin,maxwin=0
 
-for i in range(len(mat)):
-    mat[i] += plusmat[i]
-np.save('mat.npy',mat)
+mload()
+pmload()
+plus() # m+p
+msave()
+
+_i = 0
+prewin=0
+maxwin=0
+
+game = Game(players_list)
 while _i < MAX:
     inimon=100 #constant
     label = [i.__class__.__name__ for i in players_list]
     win=[0]*n # for winning percentage
     c=0
-    mat=np.load('mat.npy')
+    mload()
+    premon=inimon
     while c < n:
-        game = Game(players_list)
+        if game.accounts.count(0) == len(players_list)-1:
+            game = Game(players_list)
+        premon=np.load('presc.npy')
         game.play()
-        my_money=\
-            self.dealer.list_of_money[
-            self.dealer.list_of_players.index('ShiraioptAI')]
-        if my_money > inimon:
+        newmon=np.load('presc.npy')
+        #print(premon,newmon)
+        if newmon > premon:
             win[c]=1
-            print(win,c)
+            #print(win,c)
+        c+=1
     win_perc = win.count(1)/len(win)
     if win_perc > maxwin:
         maxwin=win_perc
-        np.save('maxmat.npy',mat)
+        maxsave()
     if win_perc < prewin and _i!=0:
-        plusmat=np.load('plusmat.npy')
-        for i in range(len(mat)):
-            mat[i] -= plusmat[i]
+        pmload()
+        minus()
     make_plus(0.05)# remake
-    plusmat=np.load('plusmat.npy')
-    for i in range(len(mat)):
-        mat[i] += plusmat[i]
-    np.save('mat.npy',mat)    
+    pmload()
+    plus()
+    msave()
     ff=open("tour.txt","a")#回数記録ファイル
     ff.write(str(_i)+"\n")
     ff.close()

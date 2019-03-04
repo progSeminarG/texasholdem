@@ -20,6 +20,7 @@ class ShiraioptAI(Player):
     def __init__(self):
         self.ct=0
         self.score=0
+        self.mat=[0]*5
         
 
     def respond(self):
@@ -31,6 +32,7 @@ class ShiraioptAI(Player):
             self.dealer.list_of_money[
             self.dealer.list_of_players.index('ShiraioptAI')]
             #arg1
+        np.save('presc.npy',self.my_money)
         
         cards=self.dealer.field+self.cards
         _arg2_inst = Porker_Hand(self.dealer.field)
@@ -48,24 +50,18 @@ class ShiraioptAI(Player):
             mmax=14
         mbet=self.dealer.minimum_bet #arg6
         maxmon=max(self.dealer.list_of_money) #arg7
-        rest=sum(self.active_players_list) #arg8
+        rest=sum(self.dealer.active_players_list)
         args=np.array([self.inimon, self.my_money, 100*fsc, 100*msc, 10*fmax, 10*mmax, mbet, maxmon, 10*len(cards),rest]) #initial vector
         
         print("args--",args)
         print("money--",self.dealer.list_of_money)
-        '''
-        # mutation
-        x=random.random()
-        if x < 0.00-1:
-            self.make_plus(0.2)
-            mat=np.load('mat.npy')
-            plusmat=np.load('plusmat.npy')
-            for i in range(len(mat)):
-                mat[i] += plusmat[i]
-            np.save('mat.npy',mat)
-        '''
+        
         # caluculation!
-        self.mat=np.load('mat.npy')
+        name=[0]*5
+        for i in range(5):
+            name[i]="mat"+str(i)+".npy"
+            self.mat[i]=np.load(name[i])
+        
         a1=np.dot(args,self.mat[0])
         #a1=self.relu(a1)
         a2=np.dot(a1,self.mat[1])
