@@ -419,10 +419,10 @@ class Dealer(object):
 
     # handle response depending on each player's status
     def __handle_response(self, _status, _response):
-        if _response is 'call':
+        if _response == 'call':
             # bet minimum money otherwise put all (all-in)
             self.__bet_minimum(_status)
-        elif _response is 'fold':
+        elif _response == 'fold':
             _status.in_game = False
         elif _response >= 0:
             _raise = _response
