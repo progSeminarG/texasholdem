@@ -256,7 +256,8 @@ class Porker_Hand(object):
                     _num_stat_flash, _flash_hand)
             if _straight:  # straight-flash
                 _base_score = 8.0
-                _mini_score = self.__card_score(_straight_hand[0]) / (self.__MAX_SS)
+                _mini_score = self.__card_score(_straight_hand[0]) / \
+                    (self.__MAX_SS)
                 return _base_score + _mini_score, _straight_hand
 
         # calculate best set and its statistics
@@ -265,11 +266,13 @@ class Porker_Hand(object):
         del _num_stat_best[14]  # delete {14:x} from dictionary
 
         # 4-cards (7.158 < score < 8.067)
-        if 4 in _num_stat_best.values():  
+        if 4 in _num_stat_best.values():
             _base_score = 7.0
-            _mini_score = self.__card_score(_best_set[0]) / self.__MAX_SS
+            _mini_score = self.__card_score(_best_set[0]) / \
+                self.__MAX_SS
             if _num_set == 5:
-                _mini_score += self.__card_score(_best_set[-1]) / self.__MAX_SS2
+                _mini_score += self.__card_score(_best_set[-1]) \
+                            / self.__MAX_SS2
             return _base_score + _mini_score, _best_set
 
         # Full-House (6.158 < score < 7.067)
@@ -284,7 +287,8 @@ class Porker_Hand(object):
             _base_score = 5.0
             _mini_score = 0.0
             for _i in range(_num_set):
-                _mini_score += self.__card_score(_best_set[_i]) / (self.__MAX_SS**(_i+1))
+                _mini_score += self.__card_score(_best_set[_i]) / \
+                    (self.__MAX_SS**(_i+1))
             return _base_score + _mini_score, _flash_hand
 
         # Straight (4.357 < score < 5.0)
@@ -298,9 +302,9 @@ class Porker_Hand(object):
         if 3 in _num_stat_best.values():
             _base_score = 3.0
             _mini_score = self.__card_score(_best_set[0]) / self.__MAX_SS
-            for _i in range(3,_num_set):
-                print("_i",_i)
-                _mini_score += self.__card_score(_best_set[_i])/(self.__MAX_SS**(_i-1))
+            for _i in range(3, _num_set):
+                _mini_score += self.__card_score(_best_set[_i]) / \
+                    (self.__MAX_SS**(_i-1))
             return _base_score + _mini_score, _best_set
 
         # 2-Pairs (2.225 < score < 3.071)
@@ -316,15 +320,17 @@ class Porker_Hand(object):
         if 2 in _num_stat_best.values():
             _base_score = 1.0
             _mini_score = self.__card_score(_best_set[0]) / self.__MAX_SS
-            for _i in range(2,_num_set):
-                _mini_score += self.__card_score(_best_set[_i])/(self.__MAX_SS**(_i))
+            for _i in range(2, _num_set):
+                _mini_score += self.__card_score(_best_set[_i]) / \
+                    (self.__MAX_SS**(_i))
             return _base_score + _mini_score, _best_set
 
         # High-Card (0.527 < score < 1.072)
         _base_score = 0.0
         _mini_score = 0.0
         for _i in range(_num_set):
-            _mini_score += self.__card_score(_best_set[_i])/(self.__MAX_SS**(_i+1))
+            _mini_score += self.__card_score(_best_set[_i]) / \
+                (self.__MAX_SS**(_i+1))
         return _base_score + _mini_score, _best_set
 
 
