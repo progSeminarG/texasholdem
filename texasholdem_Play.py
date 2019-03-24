@@ -63,6 +63,7 @@ class Game(object):
         self.__dealer.put_field()
         logger.debug("field:"+str([card.card for card in self.__dealer.field]))
         self.__dealer.get_responses()
+        self.__dealer.showup()
         self.__dealer.final_accounting()
         self.__accounts = self.__dealer.list_of_money
         self.__DB = self.__dealer.DB_update()

@@ -609,3 +609,31 @@ class Dealer(object):
             else:
                 _response_list.append(_status.in_game)
         return _response_list
+
+    def __create_list_showup(self):
+        _list_showup = []
+        for _status in self.__list_status:
+            if _status.in_game:
+                _list_showup.append(_status.cards)
+            else:
+                _list_showup.append(None)
+        return _list_showup
+
+
+
+    @property
+    def showup(self):
+        _list_alive = [_status.index for _status in self.__list_status if _status.in_game]
+        _list_all_in = [_status.index for _status in self.__list_status if _status.money == _status.bet_money]
+        if len(_list_alive) == 1 and len(_list_all_in) == 0:
+            _list_showup = None
+        else:
+            _list_showup = self.__create_list_showup
+        for _player in self.__list_players:
+            try:
+                _player.get_result(_list_showup)
+            except:
+                pass
+
+
+
