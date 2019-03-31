@@ -188,7 +188,7 @@ if __name__ == '__main__':
     if args.stat:
         _i = 0
         win_list = [0]*len(players_list)
-        while _i <= args.statnum[0]:
+        while _i < args.statnum[0]:
             logger.info("===== tournament " + str(_i) + " =====")
             game = Game(players_list)  # create game
             while (game.accounts.count(0)
