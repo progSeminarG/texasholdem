@@ -398,12 +398,12 @@ class Dealer(object):
             self.__players[_status.index].get_hand(_status.cards)
 
     # open one card to a table
-    def put_field(self,call_from):
+    def put_field(self, call_from):
         if call_from is not self.__game_inst:
             logger.info("Not permitted")
             return None
         self.__field.append(self.__handling_cards.pop(0))
-            
+
     # give player index 'ith' as int,
     # return next player's index who is in the game
     def __next_alive_player(self, ith):
@@ -422,7 +422,7 @@ class Dealer(object):
     # MAIN PLAYING METHOD
     # get responses from all players from starter
     # when all players answered after any raise, this method finishs
-    def get_responses(self,call_from):
+    def get_responses(self, call_from):
         if call_from is not self.__game_inst:
             logger.info("Not permitted")
             return None
@@ -482,7 +482,7 @@ class Dealer(object):
     #   calculate each hands' scores
     #   check winner and put ranking in each status
     #   distribute money to winners
-    def final_accounting(self,call_from):
+    def final_accounting(self, call_from):
         if call_from is not self.__game_inst:
             logger.infor("Not permitted")
             return None
@@ -630,8 +630,12 @@ class Dealer(object):
         if call_from is not self.__game_inst:
             logger.info("Not permitted")
             return None
-        _list_alive = [_status.index for _status in self.__list_status if _status.in_game]
-        _list_all_in = [_status.index for _status in self.__list_status if _status.money == _status.bet_money]
+        _list_alive = [
+                _status.index for _status in self.__list_status
+                if _status.in_game]
+        _list_all_in = [
+                _status.index for _status in self.__list_status
+                if _status.money == _status.bet_money]
         if len(_list_alive) == 1 and len(_list_all_in) == 0:
             _list_showup = None
         else:
@@ -639,8 +643,5 @@ class Dealer(object):
         for _player in self.__players:
             try:
                 _player.get_result(_list_showup)
-            except:
+            except AttributeError:
                 pass
-
-
-
