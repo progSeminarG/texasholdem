@@ -1,32 +1,30 @@
 
 import random
 from texasholdem_Dealer import Card
+import csv
 
-
-class Player(object):  # とりあえず仮のベースのメゾットこれを継承する
-    def get_know_dealer(self, dealer_input):
-        self.dealer = dealer_input
-
-    def get_hand(self, list_of_cards):
-        self.my_cards = list_of_cards
-
-    def respond(self):
-        resp = ["call", "レイズ金額", "fold"]
-        return resp[random.randint(0, 2)]
-
-
-class KawadaAI(Player):  # プレイ可能カードのリスト
+class KawadaAI(object):
 
     def __init__(self):
-        self.shirai_data = [[]]
-        self.takahashi_data = [[]]
+        self.datalist = [['phase', 'gap', 'symbol','money']]
         self.money_check = 100
         self.check_turn_number = 0
         # 精度は低いがトーナメントが始まってから何ゲーム目なのかを示す
         self.my_number = 0
         self.histry = [0,[0]]
+        self.liar_status = 0
+        self.two_turn_no_money = False
+        self.cards = []
+        # 所持金が無くてもカードが配布されているので
+        # 2ターン連続で所持金0なのかを確認する目安
+
+
+
+    def get_know_dealer(self, dealer_input):
+        self.dealer = dealer_input
 
     def get_hand(self, dealer_input):
+        self.my_cards = dealer_input
         if self.dealer.list_of_money[self.my_number] == 100:
             self.money_check = self.dealer.list_of_money[self.my_number]
             self.check_turn_number = 0
@@ -36,9 +34,32 @@ class KawadaAI(Player):  # プレイ可能カードのリスト
 
 
             self.money_check = self.dealer.list_of_money[self.my_number]
-        self.my_cards = dealer_input
         self.check_turn_number = self.check_turn_number + 1
         # print(self.histry[-1])
+        # print(len(self.get_playable_cards()))
+        gap = self.my_cards[0].number-self.my_cards[1].number
+        if gap <= 0:
+            gap = -gap
+        if self.my_cards[0].suit == self.my_cards[1].suit:
+            suit = 1
+        else:
+            suit = 0
+        if self.two_turn_no_money == False and self.dealer.list_of_money[self.my_number] == 0:
+            self.datalist.append([2 , gap, suit, self.dealer.list_of_money[self.my_number]])
+            self.two_turn_no_money = True
+        else:
+            pass
+
+    def judge_case_check_data(self):
+        self.two_turn_no_money == False
+        if self.my_cards != self.cards:
+            self.cards = self.my_cards
+            self.playable_cards_count = 2
+        elif self.playable_cards_count != len(self.get_playable_cards()):
+            self.playable_cards_count = len(self.get_playable_cards())
+        else:
+            return 'not_record'
+        return 'record'
 
     def first_my_cards_pattern(self):
         type = 1000
@@ -120,30 +141,32 @@ class KawadaAI(Player):  # プレイ可能カードのリスト
                     straightlevel = i
         return straight
 
-    def shirai_vs_kawada(self):
-        self.ret = False
-        '''
-        if self.money_check != self.dealer.list_of_money[self.my_number]:
-            self.shirai_data.append([])
-            self.money_check = self.dealer.list_of_money[self.my_number]
-        self.shirai_data[-1].append(self.dealer.minimum_bet)'''
-        if self.dealer.list_of_money[self.my_number] >= 500:
-            self.ret = len(self.dealer.list_of_players)*100-self.dealer.list_of_money[self.my_number]
-
-        # print()
-        # print("shirai_date ", self.shirai_data)
-        # print()
-
     def get_players_number(self):  # self.my_numberを得る
         return self.dealer.your_index(self)
 
+    def recording(self):
+        phase = self.playable_cards_count
+        gap = self.my_cards[0].number-self.my_cards[1].number
+        if gap <= 0:
+            gap = -gap
+        if self.my_cards[0].suit == self.my_cards[1].suit:
+            suit = 1
+        else:
+            suit = 0
+        self.datalist.append([phase, gap, suit, self.dealer.list_of_money[self.my_number]])
+        if self.check_turn_number == 1:
+            with open("1st.csv", "w", newline = "") as f:    # ファイル名をms.csvとする
+                farstout = csv.writer(f)    # ファイルを書き込むためのオブジェクトにする
+                farstout.writerows(self.datalist)
+
     def respond(self):
-        return "call"
+        if self.judge_case_check_data() == 'record':
+            # self.recording()
+            pass # 消す
+        return 'call'
 
-        # print(self.check_turn_number)
-        # プレイヤーのインスタンスの呼び出しが1回ということは確認できた
+        '''
         self.my_number = self.get_players_number()
-
         flash = self.flashchecker()
         pairrate = []
         for i in range(0, 3):
@@ -152,10 +175,6 @@ class KawadaAI(Player):  # プレイ可能カードのリスト
             pairrate = [0, 0, 2]
         straight = self.straightchecker()
         # print(self.dealer.active_players_list.count(True))
-        if self.dealer.active_players_list.count(True) == 2:
-            self.shirai_vs_kawada()
-            if self.ret != False:
-                return self.ret
         if self.dealer.minimum_bet == self.dealer.response_list[self.my_number]:
             return "call"  # 掛け金増やさないで参加できるなら参加する(絶対)
         elif self.dealer.minimum_bet == 2:
@@ -187,7 +206,6 @@ class KawadaAI(Player):  # プレイ可能カードのリスト
         elif self.dealer.active_players_list.count(True) == 2:
             if self.dealer.list_of_money[self.my_number] >= 400:
                 return len(self.dealer.list_of_players)*100-self.dealer.list_of_money[self.my_number]
-
             return 'call'
         elif (self.dealer.minimum_bet /
               (self.dealer.minimum_bet-self.dealer.unit_bet) >= 10) and random.randint(0,3) != 0:
@@ -205,8 +223,4 @@ class KawadaAI(Player):  # プレイ可能カードのリスト
             return self.dealer.list_of_money[self.my_number]
         elif pairrate == [0, 0, 2] or flash == 1:
             return self.dealer.minimum_bet*3
-        return "call"  # とりあえず合う条件が無ければcall
-        # ////////////未実装事項////////////
-        # ポーカーフェイスではったりをかますplayerを洗い出したい
-        # 最適化または単純化
-        # 学習妨害案の検討
+        return "fold"'''
