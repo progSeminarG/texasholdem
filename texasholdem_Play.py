@@ -51,20 +51,20 @@ class Game(object):
         logger = getLogger(__name__)
         self.__minimum_bet = minimum_bet
         self.__dealer = Dealer(self, self.__players)
-        self.__dealer.handout_cards()
-        self.__dealer.get_responses()
+        self.__dealer.handout_cards(self)
+        self.__dealer.get_responses(self)
         for i in range(3):
-            self.__dealer.put_field()
+            self.__dealer.put_field(self)
         logger.debug("field:"+str([card.card for card in self.__dealer.field]))
-        self.__dealer.get_responses()
-        self.__dealer.put_field()
+        self.__dealer.get_responses(self)
+        self.__dealer.put_field(self)
         logger.debug("field:"+str([card.card for card in self.__dealer.field]))
-        self.__dealer.get_responses()
-        self.__dealer.put_field()
+        self.__dealer.get_responses(self)
+        self.__dealer.put_field(self)
         logger.debug("field:"+str([card.card for card in self.__dealer.field]))
-        self.__dealer.get_responses()
-        self.__dealer.showup()
-        self.__dealer.final_accounting()
+        self.__dealer.get_responses(self)
+        self.__dealer.showup(self)
+        self.__dealer.final_accounting(self)
         self.__accounts = self.__dealer.list_of_money
         self.__DB = self.__dealer.DB_update()
         self.__num_done_games += 1
@@ -189,7 +189,7 @@ if __name__ == '__main__':
     if args.stat:
         _i = 0
         win_list = [0]*len(players_list)
-        while _i <= args.statnum[0]:
+        while _i < args.statnum[0]:
             logger.info("===== tournament " + str(_i) + " =====")
             game = Game(players_list)  # create game
             while (game.accounts.count(0)

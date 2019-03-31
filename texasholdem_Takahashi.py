@@ -32,6 +32,8 @@ class TakahashiAI(object):
             else:
                 _list_bool_all_in.append(False)
         return _list_bool_all_in
+    def get_result(self, _result):
+        pass
 
     def respond(self):
         self.__field = self.__dealer.field
