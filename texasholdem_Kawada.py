@@ -10,15 +10,12 @@ class KawadaAI(object):
         self.money_check = 100
         self.check_turn_number = 0
         # 精度は低いがトーナメントが始まってから何ゲーム目なのかを示す
-        self.my_number = 0
-        self.liar_status = 0
         self.two_turn_no_money = False
         self.cards = []
-        # 所持金が無くてもカードが配布されているので
-        # 2ターン連続で所持金0なのかを確認する目安
 
     def get_know_dealer(self, dealer_input):
         self.dealer = dealer_input  # need
+        self.my_number = self.dealer.get_position(self)
 
     def get_hand(self, dealer_input):
         self.my_cards = dealer_input
@@ -44,20 +41,9 @@ class KawadaAI(object):
             return 'not_record'
         return 'record'
 
-    def search_money_class(self):
-        full = sorted(self.dealer.list_of_money)
-        j = self.dealer.list_of_money[self.my_number]
-        for i in range(len(self.dealer.__players)):
-            if full[i] == j:
-                money_class = i
-        return [full, money_class]
-
     def get_playable_cards(self):
         playable_cards = self.dealer.field+self.my_cards
         return playable_cards
-
-    def get_players_number(self):  # self.my_numberを得る
-        return self.dealer.get_position(self)
 
     def recording(self):
         phase = self.playable_cards_count
@@ -77,5 +63,12 @@ class KawadaAI(object):
     def respond(self):
         if self.judge_case_check_data() == 'record':
             # self.recording()
-            pass # 消す
+            pass
         return 'call'
+
+    def scoreing_cards(self):
+        '''
+        2枚の手札だけの時、5枚だけの時、7枚の時
+        それぞれの時の評価を独自のパラメタでしたい
+        '''
+        pass
