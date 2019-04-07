@@ -384,7 +384,10 @@ class Dealer(object):
         return _cards
 
     # handout cards to each player
-    def handout_cards(self):
+    def handout_cards(self, call_from):
+        if call_from is not self.__game_inst:
+            logger.info("Not permitted")
+            return None
         self.__all_cards = self.__create_all_cards_stack()
         self.__handling_cards = random.sample(self.__all_cards,
                                               self.__num_handling_cards)
@@ -395,7 +398,10 @@ class Dealer(object):
             self.__players[_status.index].get_hand(_status.cards)
 
     # open one card to a table
-    def put_field(self):
+    def put_field(self, call_from):
+        if call_from is not self.__game_inst:
+            logger.info("Not permitted")
+            return None
         self.__field.append(self.__handling_cards.pop(0))
 
     # give player index 'ith' as int,
@@ -416,7 +422,10 @@ class Dealer(object):
     # MAIN PLAYING METHOD
     # get responses from all players from starter
     # when all players answered after any raise, this method finishs
-    def get_responses(self):
+    def get_responses(self, call_from):
+        if call_from is not self.__game_inst:
+            logger.info("Not permitted")
+            return None
         # create list of status with sequence order
         _cycle_status = self.__shift_list(self.__list_status, self.__starter)
         # loop for getting responses until everybody set
@@ -473,7 +482,10 @@ class Dealer(object):
     #   calculate each hands' scores
     #   check winner and put ranking in each status
     #   distribute money to winners
-    def final_accounting(self):
+    def final_accounting(self, call_from):
+        if call_from is not self.__game_inst:
+            logger.infor("Not permitted")
+            return None
         # usually pots are created during the game, but here create at the last
         self.__pot = self.__create_pot()
         self.__calc_scores()  # store hand's scores in each status
@@ -553,11 +565,6 @@ class Dealer(object):
     def list_of_players(self):
         return [i.__class__.__name__ for i in self.__players]
 
-    def your_index(self, instance):
-        for _i, _player in enumerate(self.__players):
-            if _player == instance:
-                return _i
-
     @property
     def active_players_list(self):
         return [i.in_game for i in self.__list_status]
@@ -566,7 +573,7 @@ class Dealer(object):
     def list_of_money(self):
         return [i.money for i in self.__list_status]
 
-    def get_position(self, _your_inst):
+    def get_position(self, _your_inst):  # return index of _your_inst
         return self.__players.index(_your_inst)
 
     @property
@@ -609,3 +616,32 @@ class Dealer(object):
             else:
                 _response_list.append(_status.in_game)
         return _response_list
+
+    def __create_list_showup(self):
+        _list_showup = []
+        for _status in self.__list_status:
+            if _status.in_game:
+                _list_showup.append([_card.card for _card in _status.cards])
+            else:
+                _list_showup.append(None)
+        return _list_showup
+
+    def showup(self, call_from):
+        if call_from is not self.__game_inst:
+            logger.info("Not permitted")
+            return None
+        _list_alive = [
+                _status.index for _status in self.__list_status
+                if _status.in_game]
+        _list_all_in = [
+                _status.index for _status in self.__list_status
+                if _status.money == _status.bet_money]
+        if len(_list_alive) == 1 and len(_list_all_in) == 0:
+            _list_showup = None
+        else:
+            _list_showup = self.__create_list_showup()
+        for _player in self.__players:
+            try:
+                _player.get_result(_list_showup)
+            except AttributeError:
+                pass

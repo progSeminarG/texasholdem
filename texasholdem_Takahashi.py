@@ -32,6 +32,8 @@ class TakahashiAI(object):
             else:
                 _list_bool_all_in.append(False)
         return _list_bool_all_in
+    def get_result(self, _result):
+        pass
 
     def respond(self):
         self.__field = self.__dealer.field
@@ -58,16 +60,17 @@ class TakahashiAI(object):
                 return 'fold'
             if len(self.__field) > 0:
                 if _score > 3.0:
-                    return self.__bet(self.__my_money)
-                if _score > 2.0 + 2*9.0/30.0:
-                    return 'call'
-                if self.__bet_money > self.__my_money * 0.1:
-                    return 'call'
-                if self.__same_suit(_my_hand):
-                    return 'call'
-                if _score > 1.0:
-                    if self.__minimum_bet <= self.__my_money * 0.05:
-                        return 'call'
+                    return self.__my_money
+#                    return self.__bet(self.__my_money)
+#                if _score > 2.0 + 2*9.0/30.0:
+#                    return 'call'
+#                if self.__bet_money > self.__my_money * 0.1:
+#                    return 'call'
+#                if self.__same_suit(_my_hand):
+#                    return 'call'
+#                if _score > 1.0:
+#                    if self.__minimum_bet <= self.__my_money * 0.05:
+#                        return 'call'
                 return 'fold'
         if self.__all_in_exist <= 3:
             if len(self.__field) <= 2:
